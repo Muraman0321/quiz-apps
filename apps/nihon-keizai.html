@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>日本経済論 試験対策アプリ</title>
+<style>
+:root{
+  --bg:#f4f5f7;
+  --bg-card:#ffffff;
+  --fg:#1c1e21;
+  --fg-muted:#6b7280;
+  --accent:#4f46e5;
+  --accent-fg:#ffffff;
+  --border:#e5e7eb;
+  --correct:#16a34a;
+  --incorrect:#dc2626;
+  --correct-bg:rgba(22,163,74,.12);
+  --incorrect-bg:rgba(220,38,38,.10);
+  --accent-bg:rgba(79,70,229,.10);
+  --radius:16px;
+  --shadow:0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.04);
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#111318;
+    --bg-card:#1c1f26;
+    --fg:#f2f3f5;
+    --fg-muted:#9aa1ac;
+    --accent:#818cf8;
+    --accent-fg:#111318;
+    --border:#2c303a;
+    --correct:#4ade80;
+    --incorrect:#f87171;
+    --correct-bg:rgba(74,222,128,.14);
+    --incorrect-bg:rgba(248,113,113,.14);
+    --accent-bg:rgba(129,140,248,.16);
+    --shadow:0 1px 3px rgba(0,0,0,.4),0 1px 2px rgba(0,0,0,.3);
+  }
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{margin:0;padding:0;}
+body{
+  background:var(--bg);
+  color:var(--fg);
+  font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic UI","Segoe UI",Roboto,sans-serif;
+  line-height:1.65;
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+  overflow-x:hidden;
+}
+.topbar{
+  position:sticky;top:0;z-index:10;
+  background:var(--bg-card);
+  border-bottom:1px solid var(--border);
+  padding:14px 20px;
+}
+.topbar h1{
+  margin:0;font-size:17px;font-weight:700;text-align:center;
+}
+#app{
+  flex:1;
+  width:100%;
+  max-width:600px;
+  margin:0 auto;
+  padding:20px 16px 40px;
+}
+.screen.hidden{display:none;}
+.lead{
+  color:var(--fg-muted);
+  font-size:14px;
+  margin:0 0 18px;
+}
+.panel{
+  background:var(--bg-card);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:16px;
+  margin-bottom:14px;
+  box-shadow:var(--shadow);
+}
+.panel h2{
+  margin:0 0 10px;
+  font-size:14px;
+  font-weight:700;
+  color:var(--fg-muted);
+}
+.panel-head{
+  display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;
+}
+.panel-head h2{margin:0;}
+.panel-actions{display:flex;gap:10px;}
+.link-btn{
+  background:none;border:none;color:var(--accent);font-size:13px;font-weight:600;
+  padding:4px 2px;cursor:pointer;
+}
+.section-list{display:flex;flex-direction:column;gap:2px;}
+.section-item{
+  display:flex;align-items:center;gap:10px;
+  padding:11px 4px;
+  border-bottom:1px solid var(--border);
+  cursor:pointer;
+}
+.section-item:last-child{border-bottom:none;}
+.section-item input{accent-color:var(--accent);width:18px;height:18px;flex:none;}
+.section-body{flex:1;}
+.section-title{font-size:14.5px;font-weight:600;}
+.section-sub{font-size:11.5px;color:var(--fg-muted);margin-top:1px;}
+.section-count{font-size:11px;color:var(--fg-muted);white-space:nowrap;}
+.switch-row{
+  display:flex;align-items:center;justify-content:space-between;
+  font-size:14px;cursor:pointer;
+}
+.switch-row input{accent-color:var(--accent);width:38px;height:22px;}
+.error{
+  background:var(--incorrect-bg);
+  color:var(--incorrect);
+  border-radius:10px;
+  padding:10px 14px;
+  font-size:13px;
+  margin-bottom:14px;
+}
+.error.hidden{display:none;}
+.primary-btn{
+  display:block;width:100%;
+  background:var(--accent);
+  color:var(--accent-fg);
+  border:none;border-radius:12px;
+  padding:15px;
+  font-size:16px;font-weight:700;
+  cursor:pointer;
+  margin-bottom:10px;
+}
+.primary-btn:active{opacity:.85;}
+.primary-btn.hidden{display:none;}
+.primary-btn:disabled{opacity:.45;cursor:default;}
+.secondary-btn{
+  display:block;width:100%;
+  background:var(--bg-card);
+  color:var(--fg);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:14px;
+  font-size:15px;font-weight:600;
+  cursor:pointer;
+  margin-bottom:10px;
+}
+.secondary-btn.hidden{display:none;}
+.quit-btn{
+  display:block;width:100%;text-align:center;margin-top:18px;color:var(--fg-muted);
+}
+
+/* quiz screen */
+.progress-wrap{margin-bottom:16px;}
+.progress-bar{
+  height:8px;border-radius:999px;background:var(--border);overflow:hidden;
+}
+.progress-fill{
+  height:100%;background:var(--accent);width:0%;
+  transition:width .25s ease;
+}
+.progress-label{
+  display:flex;justify-content:space-between;
+  font-size:12px;color:var(--fg-muted);margin-top:6px;gap:10px;
+}
+.progress-label .chap{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.card{
+  background:var(--bg-card);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:20px;
+  box-shadow:var(--shadow);
+}
+.q-badges{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;}
+.q-badge{
+  display:inline-block;
+  font-size:11px;font-weight:700;
+  padding:3px 10px;border-radius:999px;
+  background:var(--accent-bg);
+  color:var(--accent);
+}
+.q-badge.multi{
+  background:var(--incorrect-bg);
+  color:var(--incorrect);
+}
+.q-text{font-size:17px;font-weight:600;margin-bottom:16px;word-break:break-word;white-space:pre-wrap;overflow-x:auto;-webkit-overflow-scrolling:touch;}
+.q-text b{font-weight:800;}
+.q-text .tbl{
+  font-size:13.5px;font-weight:500;
+  border-collapse:collapse;margin:8px 0;
+  white-space:normal;
+}
+.q-text .tbl td,.q-text .tbl th{
+  border:1px solid var(--border);padding:4px 9px;text-align:center;
+}
+.choices{display:flex;flex-direction:column;gap:9px;margin-bottom:16px;}
+.choice{
+  display:flex;align-items:flex-start;gap:11px;
+  width:100%;text-align:left;
+  background:var(--bg);
+  border:1.5px solid var(--border);
+  border-radius:12px;
+  padding:12px 13px;
+  font-size:15px;
+  font-family:inherit;
+  color:var(--fg);
+  cursor:pointer;
+  line-height:1.5;
+}
+.choice:active{opacity:.9;}
+.choice-letter{
+  flex:none;
+  width:26px;height:26px;
+  border-radius:50%;
+  border:1.5px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;font-weight:700;
+  color:var(--fg-muted);
+  background:var(--bg-card);
+}
+.choice-text{flex:1;padding-top:1px;word-break:break-word;}
+.choice.selected{
+  border-color:var(--accent);
+  background:var(--accent-bg);
+}
+.choice.selected .choice-letter{
+  border-color:var(--accent);
+  background:var(--accent);
+  color:var(--accent-fg);
+}
+.choice.correct{
+  border-color:var(--correct);
+  background:var(--correct-bg);
+}
+.choice.correct .choice-letter{
+  border-color:var(--correct);
+  background:var(--correct);
+  color:#fff;
+}
+.choice.wrong{
+  border-color:var(--incorrect);
+  background:var(--incorrect-bg);
+}
+.choice.wrong .choice-letter{
+  border-color:var(--incorrect);
+  background:var(--incorrect);
+  color:#fff;
+}
+.choice.locked{cursor:default;}
+.choice-mark{margin-left:auto;font-weight:800;font-size:15px;align-self:center;padding-left:6px;}
+.choice.correct .choice-mark{color:var(--correct);}
+.choice.wrong .choice-mark{color:var(--incorrect);}
+
+.answer-box{
+  margin-top:4px;
+}
+.answer-box.hidden{display:none;}
+.verdict{
+  font-size:16px;font-weight:800;margin-bottom:10px;
+  display:flex;align-items:center;gap:8px;
+}
+.verdict.ok{color:var(--correct);}
+.verdict.ng{color:var(--incorrect);}
+.answer-key{
+  font-size:14px;font-weight:700;margin-bottom:6px;
+}
+.answer-label{
+  font-size:11px;font-weight:700;color:var(--fg-muted);margin-bottom:4px;letter-spacing:.04em;
+}
+.a-text{font-size:14.5px;margin-bottom:16px;word-break:break-word;color:var(--fg);}
+.a-text .note{color:var(--incorrect);font-weight:600;}
+
+/* result screen */
+.ring-wrap{
+  position:relative;
+  width:180px;height:180px;
+  margin:10px auto 22px;
+}
+.ring{width:100%;height:100%;transform:rotate(-90deg);}
+.ring-bg{fill:none;stroke:var(--border);stroke-width:10;}
+.ring-fg{
+  fill:none;stroke:var(--accent);stroke-width:10;stroke-linecap:round;
+  transition:stroke-dashoffset .6s ease, stroke .3s ease;
+}
+.ring-center{
+  position:absolute;inset:0;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+}
+.ring-pct{font-size:32px;font-weight:800;}
+.ring-sub{font-size:13px;color:var(--fg-muted);margin-top:2px;}
+.result-actions{margin-bottom:18px;}
+.wrong-list h3{font-size:14px;color:var(--fg-muted);margin:18px 0 10px;}
+.all-correct{
+  text-align:center;color:var(--correct);font-weight:700;padding:20px 0;
+}
+.wrong-item{
+  background:var(--bg-card);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:12px 14px;
+  margin-bottom:8px;
+}
+.wrong-item summary{
+  font-size:14px;font-weight:600;cursor:pointer;
+}
+.wrong-item summary::-webkit-details-marker{display:none;}
+.wrong-answer{
+  margin-top:10px;padding-top:10px;
+  border-top:1px dashed var(--border);
+  font-size:14px;color:var(--fg-muted);
+}
+.wrong-answer .key{color:var(--fg);font-weight:700;}
+.footer{
+  text-align:center;
+  font-size:11px;
+  color:var(--fg-muted);
+  padding:16px;
+}
+</style>
+</head>
+<body>
+<header class="topbar"><h1>日本経済論 試験対策</h1></header>
+<main id="app">
+
+  <section id="screen-setup" class="screen">
+    <p class="lead">上田晃三先生「日本経済論」を選択式・自動採点で演習。第1〜9講の章別ドリル、オリジナル総合模試、2024・2025年度の期末試験を収録（全204問）。学びたい範囲だけを選んで始められます。</p>
+
+    <div class="panel">
+      <div class="panel-head">
+        <h2>出題範囲</h2>
+        <div class="panel-actions">
+          <button type="button" id="selectAllBtn" class="link-btn">全選択</button>
+          <button type="button" id="selectNoneBtn" class="link-btn">全解除</button>
+        </div>
+      </div>
+      <div class="section-list" id="sectionList"></div>
+    </div>
+
+    <div class="panel">
+      <label class="switch-row">
+        <span>ランダム出題（順番をシャッフル）</span>
+        <input type="checkbox" id="randomToggle" checked>
+      </label>
+    </div>
+
+    <div id="setupError" class="error hidden"></div>
+    <button type="button" id="startBtn" class="primary-btn">演習を始める</button>
+    <button type="button" id="reviewWrongBtn" class="secondary-btn hidden">間違えた問題だけ復習する（前回 <span id="wrongCount">0</span>問）</button>
+  </section>
+
+  <section id="screen-quiz" class="screen hidden">
+    <div class="progress-wrap">
+      <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+      <div class="progress-label"><span id="progressCount">1/1</span><span class="chap" id="progressChapter"></span></div>
+    </div>
+    <div class="card" id="qCard">
+      <div class="q-badges" id="qBadges"></div>
+      <div class="q-text" id="qText"></div>
+      <div class="choices" id="choices"></div>
+      <div id="pickError" class="error hidden">選択肢を選んでください。</div>
+      <button type="button" id="checkBtn" class="primary-btn">答え合わせ</button>
+      <div class="answer-box hidden" id="answerBox">
+        <div class="verdict" id="verdict"></div>
+        <div class="answer-key" id="answerKey"></div>
+        <div class="answer-label">解説</div>
+        <div class="a-text" id="aText"></div>
+        <button type="button" id="nextBtn" class="primary-btn">次の問題へ</button>
+      </div>
+    </div>
+    <button type="button" id="quitBtn" class="link-btn quit-btn">中断してトップへ戻る</button>
+  </section>
+
+  <section id="screen-result" class="screen hidden">
+    <div class="ring-wrap">
+      <svg viewBox="0 0 120 120" class="ring">
+        <circle class="ring-bg" cx="60" cy="60" r="52"></circle>
+        <circle class="ring-fg" id="ringFg" cx="60" cy="60" r="52"></circle>
+      </svg>
+      <div class="ring-center">
+        <div class="ring-pct" id="ringPct">0%</div>
+        <div class="ring-sub" id="ringSub">0/0問正解</div>
+      </div>
+    </div>
+    <div class="result-actions">
+      <button type="button" id="reviewWrongBtn2" class="primary-btn hidden">間違えた問題だけ復習する</button>
+      <button type="button" id="retryAllBtn" class="secondary-btn">同じ条件でもう一度</button>
+      <button type="button" id="backToSetupBtn" class="secondary-btn">最初から選び直す</button>
+    </div>
+    <div class="wrong-list" id="wrongList"></div>
+  </section>
+
+</main>
+<footer class="footer">過去の期末試験問題を教材化した学習用アプリ。正答・解説は講義資料に基づく編集で、大学の公式解答ではありません。図表依存の設問は手元のPDFで要確認。</footer>
+<script>
+const DATA=[{"title": "第1講　概観（国民経済計算とGDP）", "sub": "一問一答ベースの選択式ドリル", "questions": [{"q": "日本のGDP（国民経済計算）を作成している政府機関はどれか。", "choices": ["財務省", "日本銀行", "内閣府", "総務省統計局", "経済産業省"], "answer": [2], "multi": false, "a": "<b>内閣府（経済社会総合研究所）</b>が国連の国際基準(SNA)に準拠して作成する基幹統計。"}, {"q": "GDPデフレータを求める式はどれか。", "choices": ["実質GDP ÷ 名目GDP", "名目GDP ÷ 実質GDP", "名目GDP × 実質GDP", "名目GDP − 実質GDP"], "answer": [1], "multi": false, "a": "<b>デフレータ ＝ 名目GDP ÷ 実質GDP</b>。"}, {"q": "日本の実質GDPの近年の規模として最も近いものはどれか。", "choices": ["約6兆円", "約60兆円", "約600兆円", "約6000兆円"], "answer": [2], "multi": false, "a": "<b>約600兆円</b>（米ドル換算で約5兆ドル）。"}, {"q": "GDPの三面等価とは、生産面・支出面と何が等しいことを指すか。", "choices": ["分配面（所得面）", "貯蓄面", "金融面", "消費面"], "answer": [0], "multi": false, "a": "生産＝支出＝<b>分配（所得）</b>の三面が一致する。"}, {"q": "GDPの支出面の基本式として正しいものはどれか。", "choices": ["Y = C + I + G + NX", "Y = C + S + T", "Y = rK + wL のみ", "Y = M × V"], "answer": [0], "multi": false, "a": "支出面GDP <b>Y = C + I + G + NX</b>（NX = EX − IM）。"}, {"q": "2018年度の実質GDPに占める消費（C）のシェアとして最も近いものはどれか。", "choices": ["約25%", "約40%", "約54.5%", "約70%"], "answer": [2], "multi": false, "a": "<b>約54.5%</b>。実質GDPの半分強を占める最大の構成項目。"}, {"q": "家計の貯蓄はGDPに直接計上されるか。", "choices": ["計上される", "計上されない"], "answer": [1], "multi": false, "a": "<b>計上されない</b>。貯蓄は所得から消費を差し引いた残りで、支出そのものではないため。"}, {"q": "労働分配率は国民所得のおよそどの程度で推移しているか。", "choices": ["約3分の1", "約2分の1", "約3分の2", "ほぼ全額"], "answer": [2], "multi": false, "a": "およそ<b>3分の2</b>程度。"}, {"q": "生産面のGDPは、産出額から何を差し引いて求めるか。", "choices": ["固定資本減耗", "中間投入（中間財）", "純輸出", "雇用者報酬"], "answer": [1], "multi": false, "a": "<b>中間投入（中間財）</b>を差し引く。二重計上を避けるため。"}, {"q": "GNI（国民総所得）はGDPに何を加えたものか。", "choices": ["海外からの所得の純受取", "固定資本減耗", "純間接税", "在庫変動"], "answer": [0], "multi": false, "a": "GNI＝GDP＋<b>海外からの所得の純受取</b>（雇用者報酬・投資収益などの純受取）。"}, {"q": "ISバランスの式で、家計・企業・政府の貯蓄（純貸出）の合計は何に等しくなるか。", "choices": ["財政収支", "経常収支（NX）", "マネーストック", "GDPギャップ"], "answer": [1], "multi": false, "a": "家計＋企業＋政府の貯蓄＝<b>経常収支（NX）</b>。"}, {"q": "購買力平価（PPP）は主に何を調整するための考え方か。", "choices": ["各国間の物価水準の違い", "各国間の金利差", "各国間の人口規模の違い", "各国間の税率の違い"], "answer": [0], "multi": false, "a": "<b>各国間の物価水準の違い</b>を調整する。単純な為替換算では購買力の実態を比較できないため。"}, {"q": "2021〜22年度にGDPデフレータの伸びがCPIほど大きくなかった主因はどれか。", "choices": ["株価の上昇", "輸入物価上昇が名目GDPのマイナス項として働いたため", "消費税率の引き上げ", "家賃の下落"], "answer": [1], "multi": false, "a": "<b>輸入物価の上昇</b>が名目GDP計算上マイナス項として働きデフレータを機械的に押し下げる「1次効果」が先に出たため。CPIは輸入分を控除しない。"}, {"q": "円安が生じたとき、輸入価格(Pim)と輸出価格(Pex)ではどちらが早く反応するか。", "choices": ["輸入価格", "輸出価格", "同時に反応する", "どちらも反応しない"], "answer": [0], "multi": false, "a": "<b>輸入価格</b>が早い。輸入は主にドル建てで円安が即反映されるが、輸出は円建て契約が多く反映が遅れる。"}]}, {"title": "第2講　経済成長", "sub": "成長会計・高度成長の要因", "questions": [{"q": "日本の実質GDP成長率の平均について、1955〜73年度の値として最も近いものはどれか。", "choices": ["約0.8%", "約4.2%", "約9.1%", "約15%"], "answer": [2], "multi": false, "a": "1955〜73年度<b>9.11%</b>、1974〜90年度4.22%、1991〜2024年度0.82%。"}, {"q": "成長会計式でGDP成長率を分解した3要素の組み合わせとして正しいものはどれか。", "choices": ["消費・投資・輸出の寄与", "資本・技術(TFP)・労働の寄与", "財政・金融・為替の寄与", "農業・工業・サービスの寄与"], "answer": [1], "multi": false, "a": "dY/Y = α(dK/K) + (1−α)(dA/A) + (1−α)(dL/L)。<b>資本・技術(TFP)・労働</b>の寄与に分解。"}, {"q": "TFP（全要素生産性）は直接観測できるか。", "choices": ["統計から直接観測できる", "観測できず、残差（ソロー残差）として求める"], "answer": [1], "multi": false, "a": "<b>直接観測できない</b>。Y・K・Lの観測値から逆算する残差（ソロー残差）。"}, {"q": "戦後の高度成長を支えたGHQによる3大改革をすべて選べ。", "choices": ["財閥解体", "農地改革", "労働改革（労働三権）", "消費税導入", "金融ビッグバン"], "answer": [0, 1, 2], "multi": true, "a": "<b>財閥解体・農地改革・労働改革（労働三権の確立）</b>のGHQ3大改革。"}, {"q": "高度成長終焉の直接の「引き金」とされる出来事をすべて選べ。", "choices": ["2度のオイルショック", "ブレトンウッズ体制崩壊に伴う円高", "プラザ合意", "リーマンショック"], "answer": [0, 1], "multi": true, "a": "<b>2度のオイルショック(1973・1979)</b>と<b>ブレトンウッズ体制崩壊に伴う円高</b>。"}, {"q": "RIETI JIPデータベースによれば、1990年代のTFP寄与はどうだったか。", "choices": ["大幅なプラス", "ほぼゼロのプラス", "マイナス", "計測不能"], "answer": [2], "multi": false, "a": "<b>マイナス（約−0.06%）</b>。労働投入の寄与もほぼゼロだった。"}, {"q": "成長会計上、不況で工場が稼働を止めた場合、生産の減少は主にどの要素の低下として計上されるか。", "choices": ["資本(K)", "労働(L)", "TFP(A)"], "answer": [2], "multi": false, "a": "KやLは物理的に変わらないため、減少は残差＝<b>TFP(A)</b>の低下として計上される。TFPが真の技術進歩とは限らない論点。"}, {"q": "明治期の高成長を支えた「江戸時代からの正の遺産」に当てはまるものをすべて選べ。", "choices": ["高い教育水準（寺子屋）", "インフラ整備（五街道等）", "高い農業技術", "財閥による寡占"], "answer": [0, 1, 2], "multi": true, "a": "<b>高い教育水準・インフラ整備・高い農業技術</b>など。財閥寡占は該当しない。"}, {"q": "1985〜2010年の国際比較で、日本に特徴的だった労働投入の寄与はどうだったか。", "choices": ["他国より大きなプラス", "他国と同程度のプラス", "マイナス（多くの国はプラス）"], "answer": [2], "multi": false, "a": "日本は<b>マイナス</b>（他の多くの国はプラス）。少子高齢化による労働力減少を反映。"}, {"q": "高度成長期の耐久消費財ブームを象徴する「三種の神器」に当たるものをすべて選べ。", "choices": ["白黒テレビ", "洗濯機", "冷蔵庫", "自動車", "クーラー"], "answer": [0, 1, 2], "multi": true, "a": "<b>白黒テレビ・洗濯機・冷蔵庫</b>。自動車・クーラー・カラーテレビは後の「3C」。"}, {"q": "Ito(1992)の日米比較で、日本の高度成長期の成長のうちTFPが説明する割合として最も近いものはどれか。", "choices": ["約15%", "約35%", "約55%", "約85%"], "answer": [2], "multi": false, "a": "<b>約55.2%</b>。"}]}, {"title": "第3講　景気循環・景気判断", "sub": "景気動向指数・統計の読み方", "questions": [{"q": "現代のマクロ経済学で景気循環の長さはおよそ何四半期とされるか（Baxter and King, 1999）。", "choices": ["1〜4四半期", "6〜32四半期", "40〜80四半期", "100四半期以上"], "answer": [1], "multi": false, "a": "<b>6〜32四半期（1年半〜8年）</b>。"}, {"q": "景気動向指数を構成する3系列として正しいものはどれか。", "choices": ["名目・実質・潜在", "先行・一致・遅行", "短期・中期・長期", "国内・海外・総合"], "answer": [1], "multi": false, "a": "<b>先行指数・一致指数・遅行指数</b>。"}, {"q": "大口電力使用量が一致指数から除外されたのはいつか。", "choices": ["2008年", "2011年", "2015年", "2020年"], "answer": [2], "multi": false, "a": "<b>2015年7月</b>。節電の効率化と電力小売自由化によるカバレッジ低下のため。"}, {"q": "株価や商品指数が景気に先行する理由を説明する理論はどれか。", "choices": ["効率市場仮説", "購買力平価説", "比較優位説", "フィッシャー方程式"], "answer": [0], "multi": false, "a": "<b>効率市場仮説</b>（今ある情報はすべて価格に織り込まれている）。"}, {"q": "法人税収入が景気に遅行する主な理由はどれか。", "choices": ["税率が頻繁に変わるため", "売上・利益が確定してから納税するタイムラグがあるため", "国際的な租税回避のため", "税収が景気と無関係だから"], "answer": [1], "multi": false, "a": "<b>利益確定後に納税</b>というタイムラグがあるため遅行する。"}, {"q": "完全失業率や賃金が景気に遅行する主な理由はどれか。", "choices": ["統計の公表が遅いだけ", "雇用・賃金の調整コストが大きく、企業が景気転換を確信してから動くため", "労働組合が強いため", "最低賃金があるため"], "answer": [1], "multi": false, "a": "<b>調整コストが大きく</b>、企業は景気転換を確信してから雇用・賃金を動かすため遅行する。"}, {"q": "「ゲタ（carry-over効果）」の説明として正しいものはどれか。", "choices": ["季節調整の誤差のこと", "一時的な水準ジャンプが前年比の比較基準に残り、成長が止まっても前年比がプラスに見え続ける現象", "物価上昇が賃金に波及する効果", "景気指数を平滑化する処理"], "answer": [1], "multi": false, "a": "前年の<b>水準のかさ上げ</b>が比較基準に残り、実際は停滞でも前年比がプラスに見え続ける現象。"}, {"q": "日銀短観の設備投資計画が年度を通じて上方修正され続ける理由として、中小企業に当てはまるものはどれか。", "choices": ["投資に消極的だから", "銀行融資の実行が確定してはじめて計画を確定できるため", "計画を立てないから", "景気に鈍感だから"], "answer": [1], "multi": false, "a": "中小企業は<b>銀行融資の実行が確定して初めて</b>投資計画を確定でき、確定が遅れがちになる。"}, {"q": "2015年1〜2月に貿易統計が荒い動きを見せた主因はどれか。", "choices": ["消費税引き上げ", "旧正月（春節）の時期のずれ", "原油価格の急落", "為替介入"], "answer": [1], "multi": false, "a": "<b>旧正月（春節）</b>の時期が年によりずれ、季節調整が対応しきれなかったため。"}, {"q": "景気の転換点により速く反応するのは前期比(Q/Q)と前年比(Y/Y)のどちらか。", "choices": ["前期比(Q/Q)", "前年比(Y/Y)"], "answer": [0], "multi": false, "a": "<b>前期比(Q/Q)</b>が速い。ただしノイズが大きい。"}, {"q": "ナウキャスティングで用いられる「オルタナティブデータ」の例として適切なものをすべて選べ。", "choices": ["携帯電話位置情報", "POSデータ", "クレジットカードデータ", "国勢調査（5年ごと）"], "answer": [0, 1, 2], "multi": true, "a": "<b>携帯位置情報・POS・クレカ・Webスクレイピング</b>など高頻度データ。国勢調査は低頻度で不適。"}]}, {"title": "第4講　物価", "sub": "物価指数・最適インフレ率・フィッシャー方程式", "questions": [{"q": "代表的な3つの物価指数の組み合わせとして正しいものはどれか。", "choices": ["CPI・GDPデフレータ・CGPI（企業物価指数）", "日経平均・TOPIX・REIT", "マネタリーベース・M2・M3", "失業率・有効求人倍率・賃金指数"], "answer": [0], "multi": false, "a": "<b>CPI・GDPデフレータ・CGPI（企業物価指数）</b>。"}, {"q": "フィッシャー方程式として正しいものはどれか。", "choices": ["i = r + π", "i = r − π", "r = i × π", "π = i × r"], "answer": [0], "multi": false, "a": "<b>i = r + π</b>（名目金利＝実質金利＋期待インフレ率）。"}, {"q": "賃金の下方硬直性があるとき、実質賃金を引き下げるにはどうすればよいか。", "choices": ["名目賃金を引き下げる", "物価を上昇させる（名目賃金据え置きで実質を目減りさせる）", "金利を引き上げる", "為替を円高にする"], "answer": [1], "multi": false, "a": "名目賃金を切り下げにくいので、<b>物価を上昇</b>させて実質賃金を目減りさせる。"}, {"q": "フリードマンルールが示唆する最適インフレ率の符号はどれか。", "choices": ["プラス（緩やかなインフレ）", "ゼロ", "マイナス（緩やかなデフレ）"], "answer": [2], "multi": false, "a": "<b>マイナス（緩やかなデフレ）</b>。貨幣保有の機会費用をゼロにするため（i=0）。"}, {"q": "2%物価目標を正当化する理論的根拠のうち、プラスのインフレ率(π*&gt;0)を支持するものをすべて選べ。", "choices": ["賃金の下方硬直性", "ゼロ金利制約の回避", "フリードマンルール", "資源配分の歪み回避（π*=0）"], "answer": [0, 1], "multi": true, "a": "<b>賃金下方硬直性・ZLB回避</b>はπ*&gt;0を支持。フリードマンルールはπ*&lt;0、歪み回避はπ*≈0を支持し方向が異なる。"}, {"q": "2021年、日本のCPI上昇率が米国より低かった一因とされる政策はどれか。", "choices": ["消費税の引き下げ", "携帯電話料金の引き下げ", "ガソリン補助金", "定額給付金"], "answer": [1], "multi": false, "a": "菅政権の<b>携帯電話料金引き下げ</b>がCPIを押し下げた。"}, {"q": "日米比較で、日本のサービスの特徴として正しいものはどれか。", "choices": ["品質は低評価だが価格転嫁は大きい", "品質は高評価だが価格の上昇（転嫁）は米国より小さい", "品質・価格とも米国より高い", "品質・価格とも米国と同水準"], "answer": [1], "multi": false, "a": "<b>品質は高評価だが価格転嫁は小さい</b>。サービスを「奉仕」とみなす文化的背景が指摘される。"}, {"q": "1973年の第一次オイルショック時の高インフレは何と呼ばれたか。", "choices": ["ハイパーインフレ", "狂乱物価", "スタグフレーション", "バブル物価"], "answer": [1], "multi": false, "a": "<b>狂乱物価</b>。"}, {"q": "講義では、日本は1990年代後半以降「デフレスパイラル」に陥っていたと評価しているか。", "choices": ["陥っていたと評価", "陥っていないと評価"], "answer": [1], "multi": false, "a": "<b>陥っていない</b>と評価。物価下落と景気後退が加速し合う本格的スパイラルではなかった。"}, {"q": "家賃のインフレ率にみられる特徴として正しいものはどれか。", "choices": ["景気に敏感に大きく変動する", "長期にわたりほぼゼロ近傍で推移する「粘着性」が強い", "季節変動が非常に大きい", "CPIに含まれない"], "answer": [1], "multi": false, "a": "家賃は<b>粘着性</b>が強く、長期にわたりゼロ近傍で推移する。"}]}, {"title": "第6講　産業構造", "sub": "製造業・競争力・企業戦略", "questions": [{"q": "製造業の名目GDPシェアは1970年頃のピークから2020年にかけてどう変化したか。", "choices": ["約36%から約21%へ低下", "約21%から約36%へ上昇", "ほぼ横ばい", "約50%から約40%へ低下"], "answer": [0], "multi": false, "a": "<b>約36%(1970)→約21%(2020)</b>へ低下（脱工業化・サービス化）。"}, {"q": "「日本の競争力」と「日本企業の競争力」の違いの説明として正しいものはどれか。", "choices": ["両者は同義である", "前者は国内生産・輸出ベース、後者は海外現地生産も含む企業全体の収益力ベース", "前者が企業単位、後者が国単位", "前者は名目、後者は実質の違い"], "answer": [1], "multi": false, "a": "<b>日本の競争力＝国内生産・輸出ベース</b>、<b>日本企業の競争力＝海外現地生産も含む企業の収益力ベース</b>。"}, {"q": "スマイルカーブの説明として正しいものはどれか。", "choices": ["組立・製造の付加価値が最も高い", "川上(企画・R&D)と川下(販売・アフターサービス)の付加価値が高く、組立・製造が相対的に低い", "すべての工程で付加価値が均等", "川下の付加価値だけが高い"], "answer": [1], "multi": false, "a": "<b>川上と川下が高付加価値、中間の組立・製造が低付加価値</b>とする考え方。"}, {"q": "ソニーが展開する「リカーリングモデル」とは何か。", "choices": ["一括買い切り型の販売", "継続課金型の収益モデル（保険・ゲーム月額課金・音楽配信著作権など）", "下請け中心のOEM", "国内専業モデル"], "answer": [1], "multi": false, "a": "<b>継続課金型（リカーリング）の収益モデル</b>。"}, {"q": "世界のEV販売シェアで日系メーカーはおよそ何％程度か。", "choices": ["約3%", "約21%", "約35%", "約55%"], "answer": [0], "multi": false, "a": "<b>約3%</b>。中国系(約55%)・米国系(約21%)に大きく水をあけられている。"}, {"q": "日本のR&D投資（GDP比）と、その成果面の評価の組み合わせとして正しいものはどれか。", "choices": ["GDP比は低く成果も低い", "GDP比は高いが、特許・被引用など成果面では中国・米国に見劣り", "GDP比・成果とも世界最高", "GDP比は高く成果も世界最高"], "answer": [1], "multi": false, "a": "R&D投資は<b>GDP比では高水準だが成果面で見劣り</b>する。"}, {"q": "「原則を守るか、守らない理由を説明するか」というガバナンス改革の手法を何と呼ぶか。", "choices": ["Comply or explain", "Name and shame", "Too big to fail", "Comply and pay"], "answer": [0], "multi": false, "a": "<b>Comply or explain</b>。コーポレートガバナンス・コード等で用いられる。"}, {"q": "TSMCが半導体工場を進出させた日本の県はどこか。", "choices": ["熊本県", "北海道", "三重県", "広島県"], "answer": [0], "multi": false, "a": "<b>熊本県</b>。"}, {"q": "かつて指摘された企業の「六重苦」に含まれるものをすべて選べ。", "choices": ["円高", "法人税の高さ", "労働市場の硬直性", "低い教育水準"], "answer": [0, 1, 2], "multi": true, "a": "六重苦＝<b>円高・EPAの遅れ・法人税の高さ・労働市場の硬直性・環境規制・電力不足/コスト高</b>。低い教育水準は含まれない。"}]}, {"title": "第7講　貿易・為替・国際経済", "sub": "経常収支・比較優位・為替レート", "questions": [{"q": "経常収支を構成する4項目の組み合わせとして正しいものはどれか。", "choices": ["貿易収支・サービス収支・第1次所得収支・第2次所得収支", "貿易収支・資本移転・金融収支・誤差脱漏", "貿易収支・財政収支・家計収支・企業収支", "輸出・輸入・投資・貯蓄"], "answer": [0], "multi": false, "a": "経常収支＝<b>貿易収支＋サービス収支＋第1次所得収支＋第2次所得収支</b>。"}, {"q": "2011〜2015年に日本の貿易収支が赤字化した主因はどれか。", "choices": ["リーマンショックによる輸出急減", "東日本大震災後の原発停止に伴う火力発電向け燃料輸入の増加", "消費税引き上げ", "急激な円高"], "answer": [1], "multi": false, "a": "<b>原発停止に伴うLNG・原油・石炭など燃料輸入の増加</b>が主因。"}, {"q": "貿易パターンを決めるのは絶対優位か比較優位か。", "choices": ["絶対優位", "比較優位"], "answer": [1], "multi": false, "a": "<b>比較優位</b>。両財で絶対優位を持つ国があっても双方に貿易の利益が生じうる。"}, {"q": "TiVA（Trade in Value Added）データベースは何を測るためのものか。", "choices": ["為替レートの変動", "貿易を付加価値ベースで捉え直し、グローバル・サプライチェーンの実態を把握する", "各国の関税率", "直接投資の残高"], "answer": [1], "multi": false, "a": "<b>付加価値ベースの貿易</b>を捉え、最終需要地やサプライチェーンの実態を把握する。"}, {"q": "為替レートの短期の決定理論として挙げられるものはどれか。", "choices": ["購買力平価（PPP）", "カバーなし金利平価（UIP）／効率市場仮説（ランダムウォーク）", "比較優位説", "三面等価"], "answer": [1], "multi": false, "a": "短期は<b>UIP・効率市場仮説（ランダムウォーク）</b>。PPPは長期の決定理論。"}, {"q": "実質実効為替レートで見た現在の円は、どの時代の水準に近いとされるか。", "choices": ["1990年代のバブル期", "2000年代半ば", "1970年代とほぼ同水準の実質的な円安", "過去最高の円高"], "answer": [2], "multi": false, "a": "実質実効ベースでは<b>1970年代並みの円安</b>水準。"}, {"q": "交易条件は何の比で表されるか。", "choices": ["輸入価格 ÷ 輸出価格", "輸出価格 ÷ 輸入価格", "名目GDP ÷ 実質GDP", "輸出数量 ÷ 輸入数量"], "answer": [1], "multi": false, "a": "交易条件＝<b>輸出価格 ÷ 輸入価格</b>。輸入価格の相対的上昇で悪化。"}, {"q": "対外直接投資は金額ベースでグリーンフィールド型とM&A型のどちらが多いか。", "choices": ["グリーンフィールド型", "M&A型"], "answer": [1], "multi": false, "a": "金額ベースでは<b>M&A型</b>が多い。"}, {"q": "産業空洞化論争において、実証研究は海外進出と国内雇用の関係をどう見ているか。", "choices": ["明確な負の関係を確認している", "明確な負の関係は見出されず、補完的な面も指摘される", "強い正の関係を確認している", "分析不能とされる"], "answer": [1], "multi": false, "a": "<b>明確な負の関係は見出されておらず</b>、本社機能拡大など補完的な面も指摘される。"}, {"q": "TPP11やRCEPは何の代表例か。", "choices": ["自由貿易を含む経済連携協定（EPA）", "関税同盟", "通貨同盟", "軍事同盟"], "answer": [0], "multi": false, "a": "いずれも<b>経済連携協定（EPA）</b>の代表例。"}, {"q": "日本のRCA（顕示比較優位）指数が2000年代以降大きく低下した代表的な品目はどれか。", "choices": ["自動車", "電気機器", "一般機械", "化学製品"], "answer": [1], "multi": false, "a": "<b>電気機器</b>のRCAが大きく低下した。"}]}, {"title": "第8講　財政政策", "sub": "政府債務・債務動学・消費税", "questions": [{"q": "債務動学の式 bt = −pt + bt-1(1+r−g) において、債務比率が収束するための条件式はどれか。（p:プライマリーバランス対GDP比, b:債務対GDP比）", "choices": ["p = b(r−g)", "p = b(r+g)", "p = b ÷ (r−g)", "p = r − g"], "answer": [0], "multi": false, "a": "収束条件は<b>p = b(r−g)</b>。"}, {"q": "日本の一般政府粗債務残高は名目GDP比でおよそ何％か。", "choices": ["約120%", "約180%", "約250%", "約400%"], "answer": [2], "multi": false, "a": "粗債務は名目GDP比<b>約250%</b>でG7最高水準。"}, {"q": "資産を差し引いた純債務（対GDP比）はおよそ何％か。", "choices": ["約60%", "約120%", "約200%", "約250%"], "answer": [1], "multi": false, "a": "純債務では<b>約120%</b>まで下がる。"}, {"q": "日本国債の海外投資家保有比率（現物）はおよそ何％か。", "choices": ["約12%", "約30%", "約50%", "約70%"], "answer": [0], "multi": false, "a": "<b>約12%</b>と低く、大半を国内金融機関・日銀が保有。"}, {"q": "r&lt;g（金利が成長率を下回る）が成り立つ場合、財政の持続可能性についてどう言えるか。", "choices": ["直ちに債務は発散する", "プライマリーバランスがゼロやマイナスでも債務比率は発散せず収束しうる", "プライマリーバランスの黒字化が必須になる", "金利と無関係になる"], "answer": [1], "multi": false, "a": "r&lt;gなら<b>PBがゼロ・マイナスでも債務比率は収束しうる</b>。ただし将来もr&lt;gが続く保証はない点に留保。"}, {"q": "日本の消費税率引き上げの時期と税率の組み合わせとして正しいものをすべて選べ。", "choices": ["1997年4月（3→5%）", "2014年4月（5→8%）", "2019年10月（8→10%、軽減税率あり）", "2008年4月（8→10%）"], "answer": [0, 1, 2], "multi": true, "a": "<b>1997年(3→5)・2014年(5→8)・2019年(8→10、軽減税率)</b>。"}, {"q": "1998年に日本で長期金利の急騰を招いた出来事はどれか。", "choices": ["資金運用部ショック", "トラスショック", "VaRショック", "リーマンショック"], "answer": [0], "multi": false, "a": "<b>資金運用部ショック</b>（資金運用部による国債買入れ停止観測）。"}, {"q": "2022年に英国で長期金利急騰を招いた出来事はどれか。", "choices": ["ブレグジット", "トラスショック（大規模減税案への信認低下）", "ポンド危機（1992）", "リーマンショック"], "answer": [1], "multi": false, "a": "<b>トラスショック</b>。財源なき大規模減税案への信認低下で金利が急騰。"}, {"q": "歳出のうち近年シェアが最も拡大してきた項目はどれか。", "choices": ["公共事業関係費", "防衛関係費", "社会保障関係費", "文教・科学振興費"], "answer": [2], "multi": false, "a": "<b>社会保障関係費</b>。高齢化で歳出の4割超に拡大。"}]}, {"title": "第9講　金融", "sub": "金融システム・自然利子率・銀行行動", "questions": [{"q": "日本の金融システムは直接金融と間接金融のどちらを中心に発達してきたか。", "choices": ["直接金融（市場・証券中心）", "間接金融（銀行仲介中心）"], "answer": [1], "multi": false, "a": "<b>間接金融（銀行仲介）</b>中心。米国は直接金融中心。"}, {"q": "家計金融資産に占める現金・預金の比率は日本でおよそ何％か（国際比較）。", "choices": ["約20%", "約35%", "約54%", "約80%"], "answer": [2], "multi": false, "a": "<b>約54%</b>と米欧より高い。"}, {"q": "企業の借入低迷は資金供給側・需要側どちらの問題とされるか。", "choices": ["供給側（銀行が貸し渋り）", "需要側（銀行の貸出態度はむしろ「緩い」超）"], "answer": [1], "multi": false, "a": "<b>需要側</b>の問題。日銀短観の貸出態度DIは「緩い」超が続き、供給制約ではない。"}, {"q": "自然利子率（r*）の趨勢についての説明として正しいものはどれか。", "choices": ["長期的に上昇している", "長期的に低下し、ゼロ近傍またはマイナス圏との推計もある", "一定で安定している", "計測されていない"], "answer": [1], "multi": false, "a": "自然利子率は<b>趨勢的に低下</b>し、ゼロ近傍〜マイナス圏との推計もある。"}, {"q": "日本でベンチャー企業向け融資が伸び悩む一因はどれか。", "choices": ["銀行融資が不動産等の担保に依存し、担保を持たない若い企業と相性が悪いため", "金利が高すぎるため", "ベンチャーが存在しないため", "法律で禁止されているため"], "answer": [0], "multi": false, "a": "日本の銀行融資は<b>担保依存</b>で、担保資産を持たない創業間もない企業とは相性が悪い。"}, {"q": "CBDC（中央銀行デジタル通貨）が導入されると、金融政策の基本的役割は根本的に変わるとされるか。", "choices": ["根本的に変わる", "変わらない（通貨の形態が変わっても金融システムの基本的役割は不変）"], "answer": [1], "multi": false, "a": "<b>変わらない</b>とされる。"}, {"q": "マクロプルーデンス政策が、物価安定を目的とする金融政策と異なる主な視点はどれか。", "choices": ["短期の物価変動のみを見る", "金融システム全体の安定性・効率性という、より長期的な視点を持つ", "為替レートだけを見る", "財政赤字だけを見る"], "answer": [1], "multi": false, "a": "マクロプルーデンスは<b>金融システム全体の安定性</b>という長期的視点を持つ。"}]}, {"title": "総合模試（オリジナル）", "sub": "全講の範囲から出題／期末試験形式の予想問題", "questions": [{"q": "現在の名目GDPの大きさとして、最も近いものはどれか。", "choices": ["50兆円程度", "150兆円程度", "500兆円程度", "1500兆円程度", "5000兆円程度"], "answer": [2], "multi": false, "a": "日本の名目GDPは約600兆円。最も近いのは<b>500兆円程度</b>。"}, {"q": "現在の消費税率はいくらか。", "choices": ["3%", "5%", "8%", "10%", "15%"], "answer": [3], "multi": false, "a": "現在は<b>10%</b>（2019年10月に8→10%、軽減税率つき）。"}, {"q": "現在の日本銀行の総裁は誰か。", "choices": ["黒田東彦", "植田和男", "白川方明", "上田晃三"], "answer": [1], "multi": false, "a": "日銀総裁は<b>植田和男（Kazuo Ueda）</b>。上田晃三は本講義の担当教員（別人）。"}, {"q": "現在、日本銀行が定める物価安定の目標値はいくつか。", "choices": ["0%", "1%", "2%", "3%"], "answer": [2], "multi": false, "a": "日銀の物価安定目標は<b>2%</b>。"}, {"q": "GDPの三面等価によって、その値がほぼ等しくなる項目をすべて選べ。", "choices": ["家計消費", "総生産", "総所得", "総支出", "総人口"], "answer": [1, 2, 3], "multi": true, "a": "三面等価：<b>総生産＝総所得＝総支出</b>。家計消費は構成要素の一部、総人口は無関係。"}, {"q": "部品会社A社が輸入原材料40万円で部品を生産し、それを80万円で完成品会社B社に販売。B社は自動車160万円分を生産し国内で販売した。純間接税・固定資本減耗は無視するとき、この一連の生産活動で生み出される名目GDPはいくらか。", "choices": ["40万円", "80万円", "120万円", "160万円", "200万円"], "answer": [2], "multi": false, "a": "GDP＝付加価値の合計＝最終財160万−輸入原材料40万＝<b>120万円</b>（A社40万＋B社80万）。輸入原材料は国内付加価値でないため控除。"}, {"q": "下表について、成長会計によればT=1から2までの<b>労働投入(L)の変化</b>は生産量の変化にどの程度寄与したか。最も近いものを選べ。（1次同次、労働分配率0.7・資本分配率0.3）<table class=\"tbl\"><tr><th></th><th>Y</th><th>L</th><th>K</th></tr><tr><th>T=1</th><td>100</td><td>100</td><td>100</td></tr><tr><th>T=2</th><td>104</td><td>104</td><td>100</td></tr></table>", "choices": ["−1%point", "0%point", "1%point", "2%point", "3%point"], "answer": [4], "multi": false, "a": "労働の寄与＝(労働分配率)×(ΔL/L)＝0.7×(+4%)＝<b>2.8%point ≒ 3%point</b>。"}, {"q": "前問と同じ表で、<b>TFP</b>はT=1から2までの生産量の変化にどの程度寄与したか。最も近いものを選べ。（1次同次、労働分配率0.7・資本分配率0.3）<table class=\"tbl\"><tr><th></th><th>Y</th><th>L</th><th>K</th></tr><tr><th>T=1</th><td>100</td><td>100</td><td>100</td></tr><tr><th>T=2</th><td>104</td><td>104</td><td>100</td></tr></table>", "choices": ["−1%point", "0%point", "1%point", "2%point", "3%point"], "answer": [2], "multi": false, "a": "TFP寄与＝ΔY/Y−資本寄与−労働寄与＝4%−(0.3×0%)−(0.7×4%)＝4−0−2.8＝<b>1.2%point ≒ 1%point</b>（残差）。"}, {"q": "不況が突如到来し工場の稼働が停止して総生産が減少したとき、成長会計上、減少はどの項目に最も大きく計上されるか。", "choices": ["資本(K)", "労働(L)", "TFP(A)"], "answer": [2], "multi": false, "a": "稼働率が落ちてもKとLは物理的に不変。減少はすべて残差＝<b>TFP(A)</b>に計上される。TFPは稼働率変動を含み技術進歩そのものではない、という論点。"}, {"q": "景気動向指数のうち、先行指数に含まれる系列をすべて選べ。", "choices": ["完全失業率", "鉱工業生産指数", "東証株価指数", "新設住宅着工床面積", "実質機械受注"], "answer": [2, 3, 4], "multi": true, "a": "先行指数＝<b>東証株価指数・新設住宅着工床面積・実質機械受注</b>など。完全失業率は遅行、鉱工業生産指数は一致。"}, {"q": "フィッシャー方程式として正しいものはどれか。", "choices": ["i = r + π", "i = r − π", "i = r × π", "π = i + r"], "answer": [0], "multi": false, "a": "<b>i = r + π</b>（名目金利＝実質金利＋期待インフレ率）。"}, {"q": "名目金利のゼロ制約と賃金の下方硬直性をあわせて考えると、望ましいインフレ率はどの水準か。", "choices": ["正のインフレ率", "ゼロ・インフレ", "負のインフレ率"], "answer": [0], "multi": false, "a": "ゼロ金利制約の回避も賃金の下方硬直性の潤滑も、いずれも<b>正のインフレ率</b>を望ましいとする。"}, {"q": "円/ドルが100→105、日本の物価が100→98、米国の物価が100→104に変化したとき、ドルに対する円の<b>実質為替レート</b>の変化として最も近いものはどれか。", "choices": ["10%を超える円高", "5〜10%の円高", "5%未満の円高", "変化なし", "5%未満の円安", "5〜10%の円安", "10%を超える円安"], "answer": [6], "multi": false, "a": "実質＝名目×(米国物価/日本物価)＝105×(104/98)≒111.4（T=1は100）。約+11%の円安＝<b>10%を超える円安</b>。日本のデフレと米国の高インフレの差が効く。"}, {"q": "下表は2国A・Bで2財①②を生産するのに必要な労働投入量である。A国はどの財に<b>比較優位</b>を持つか。<table class=\"tbl\"><tr><th></th><th>A国</th><th>B国</th></tr><tr><th>財①</th><td>80人</td><td>60人</td></tr><tr><th>財②</th><td>40人</td><td>20人</td></tr></table>", "choices": ["財①", "財②", "財①と②の両方", "いずれでもない"], "answer": [0], "multi": false, "a": "B国が両財とも絶対優位。機会費用で比較すると、A国の財①の機会費用＝80/40＝2（財②2単位）、B国＝60/20＝3。A国は財①の機会費用が低いので<b>財①に比較優位</b>。"}, {"q": "交易条件（交易利得）が悪化するケースとして適当なものをすべて選べ。", "choices": ["為替円高", "原油高", "輸出価格の上昇", "輸入価格の上昇"], "answer": [1, 3], "multi": true, "a": "交易条件＝輸出価格/輸入価格。輸入価格が相対的に上昇すると悪化＝<b>原油高・輸入価格上昇</b>。円高は輸入安で改善方向、輸出価格上昇も改善方向。"}, {"q": "経常収支に含まれる項目をすべて選べ。", "choices": ["貿易収支", "サービス収支", "第1次所得収支", "財政収支", "家計収支"], "answer": [0, 1, 2], "multi": true, "a": "経常収支＝<b>貿易収支＋サービス収支＋第1次所得収支＋第2次所得収支</b>。財政収支・家計収支は含まれない。"}, {"q": "対内直接投資が低い理由として適当なものをすべて選べ。", "choices": ["市場規模が小さい", "英語ができない（言語の壁）", "期待成長率が低い", "労働者のスキル・教育水準が低い"], "answer": [1, 2], "multi": true, "a": "低い理由は<b>言語の壁（英語）</b>と<b>期待成長率の低さ</b>。高スキル・大きな市場はむしろ強みなので誤り。"}, {"q": "1年物の短期国債金利が、1年目2%、毎年2%ずつ上昇し5年目に10%になるとする。金利の期間構造モデルによれば5年物の長期金利は約何%か。（不確実性なし・リスク中立）", "choices": ["2%", "4%", "6%", "8%", "10%"], "answer": [2], "multi": false, "a": "長期金利≒将来の短期金利の平均＝(2+4+6+8+10)/5＝30/5＝<b>6%</b>。"}, {"q": "日本の一般政府粗債務の名目GDP比として最も近いものはどれか。", "choices": ["約80%", "約120%", "約180%", "約250%", "約400%"], "answer": [3], "multi": false, "a": "粗債務は名目GDP比<b>約250%</b>でG7最高水準（純債務なら約120%）。"}, {"q": "一般会計において、歳出額が1番目と2番目に大きい項目を2つ選べ。", "choices": ["社会保障", "公共事業", "防衛関係費", "国債費", "文教・科学振興"], "answer": [0, 3], "multi": true, "a": "最大は<b>社会保障関係費</b>、次いで<b>国債費</b>。社会保障は歳出の4割超、国債費も約4分の1。"}, {"q": "需要ショックが要因でインフレが生じているとき、理論的に適切なマクロ経済政策はどれか。", "choices": ["財政・金融政策とも引き締め", "財政緩和・金融引き締め", "財政・金融政策とも緩和", "何もしない"], "answer": [0], "multi": false, "a": "需要ショックはインフレと生産を同方向に動かすため、需要を冷ます<b>財政・金融ともに引き締め</b>が適切。ジレンマが生じるのは供給ショックの場合。"}, {"q": "米国と比較して、日本の金融構造の特徴はどれか。", "choices": ["銀行中心の間接金融システム", "企業と家計間の直接金融システム", "企業における社債依存度の高さ", "家計による株式投資比率の高さ"], "answer": [0], "multi": false, "a": "日本は預金→銀行貸出の<b>間接金融（銀行中心）</b>が特徴。直接金融・社債依存・家計の株式投資の高さは米国の姿。"}, {"q": "日銀短観で金融機関の貸出態度をみると「緩い」55%、「さほど厳しくない」30%、「厳しい」15%であった。DIはいくつか（緩い方向をプラス）。", "choices": ["25%", "40%", "55%", "70%", "85%"], "answer": [1], "multi": false, "a": "DI＝「緩い」−「厳しい」＝55−15＝<b>40%</b>（中立の「さほど厳しくない」は算入しない）。"}, {"q": "次のバランスシートで、マネタリーベースはいくらか（貨幣は無視）。<br><b>【日本銀行】</b> 資産：国債300兆円／負債：日本銀行券60兆円・日銀当座預金[②]<br><b>【民間銀行】</b> 資産：国債200兆円・貸出900兆円・日銀当座預金[②]／負債：資本80兆円・預金[③]", "choices": ["60兆円", "240兆円", "300兆円", "1260兆円", "1320兆円"], "answer": [2], "multi": false, "a": "日銀：資産300＝負債(60＋②)より②(日銀当座預金)＝240兆円。マネタリーベース＝日本銀行券60＋日銀当座預金240＝<b>300兆円</b>。"}, {"q": "前問のバランスシートで、マネーストック(M2)はいくらか（貨幣は無視）。<br><b>【日本銀行】</b> 資産：国債300兆円／負債：日本銀行券60兆円・日銀当座預金[②]<br><b>【民間銀行】</b> 資産：国債200兆円・貸出900兆円・日銀当座預金[②]／負債：資本80兆円・預金[③]", "choices": ["300兆円", "900兆円", "1260兆円", "1320兆円", "1560兆円"], "answer": [3], "multi": false, "a": "民間銀行：資産(200＋900＋240＝1340)＝負債(80＋③)より③(預金)＝1260兆円。M2≒現金通貨(日本銀行券60)＋預金(1260)＝<b>1320兆円</b>。日銀当座預金はM2に含まれない。"}, {"q": "米国での関税引き上げの影響を考える。ごく短期的に最も生じやすい出来事はどれか。", "choices": ["米国の輸入量が減少する", "米国の物価が上昇する", "米国を除き世界的に物価が上昇する", "為替が円安になる"], "answer": [1], "multi": false, "a": "ごく短期では数量調整より価格転嫁が先行し、関税分が価格に乗って<b>米国の物価が上昇</b>する。輸入量の減少は次の段階。"}, {"q": "2020年度に政府の歳出が激増した主因はどれか。", "choices": ["少子高齢化", "特別定額給付金", "国債の大量償還", "衆議院総選挙"], "answer": [1], "multi": false, "a": "コロナ対応の<b>特別定額給付金（1人10万円）</b>など大規模な財政出動が主因。"}]}, {"title": "2024年度 期末試験", "sub": "上田晃三先生・日本経済論（2024年7月17日実施／全45問）", "questions": [{"q": "現在の名目GDPの大きさとして、最も近いものは？", "choices": ["5000億円程度またはそれ以下", "5兆円程度", "50兆円程度", "500兆円程度", "5000兆円程度またはそれ以上"], "answer": [3], "multi": false, "a": "日本の名目GDPは約600兆円（≒US$5兆）。選択肢のうち最も近いのは<b>500兆円程度</b>。"}, {"q": "現在の消費税率は？", "choices": ["0%", "3%", "5%", "8%", "10%"], "answer": [4], "multi": false, "a": "消費税は1989年3%→1997年5%→2014年8%→2019年10%と引き上げ。現在は<b>10%</b>（軽減税率つき）。"}, {"q": "現在の日本銀行の総裁は誰か。", "choices": ["Kozo Ueda", "Kazuo Ueda", "Haruhiko Kuroda", "Masaaki Shirakawa", "空席"], "answer": [1], "multi": false, "a": "日銀総裁は<b>植田和男（Kazuo Ueda）</b>。Kozo Uedaは本講義の担当・上田晃三先生（別人）。黒田・白川は歴代総裁。"}, {"q": "GDPの支出項目（需要項目）に含まれるものはどれか。", "choices": ["総所得", "公的資本形成", "デフレータ", "雇用者報酬", "家計消費", "営業余剰"], "answer": [1, 4], "multi": true, "a": "支出面GDP=C+I+G+NX。<b>公的資本形成（=公的投資I/G）</b>と<b>家計消費C</b>が支出項目。総所得・雇用者報酬・営業余剰は分配面、デフレータは価格。"}, {"q": "ISバランスにおいて、国内すべての経済主体が貸し超（net lenders＜saving＞）であるとすると何が起きるか。", "choices": ["経常黒字", "経常赤字", "財政赤字", "財政黒字"], "answer": [0], "multi": false, "a": "［家計貯蓄］＋［企業貯蓄］＋［政府貯蓄］＝経常収支(NX)。全部門が貸し超（貯蓄プラス）なら合計もプラス＝<b>経常黒字</b>。"}, {"q": "ISバランスにおいて、民間企業の貸し超幅がすう勢的に上昇してきた理由として適切なものはどれか。", "choices": ["企業の借入が増えたため", "企業が設備投資を増やしたため", "企業が過去の借入を返済したため", "長期不況で企業収益があまり増えなかったため", "将来の期待成長率が低下したため", "上記どれでもない"], "answer": [2, 4], "multi": true, "a": "企業が貸し超（貯蓄超過）に転じた直接の理由は設備投資の抑制。背景に<b>成長期待の低下(E)</b>と、バブル崩壊後の<b>有利子負債の返済優先(C)</b>。借入増・投資増は逆。収益が増えなければ貯蓄は増えないのでDも不適。"}, {"q": "明治維新期の高度経済成長を引き起こした理由として適切なものはどれか。", "choices": ["財閥による寡占化", "不在地主の小作地の農民への分配", "労働者の権利の保護", "江戸時代からの正の遺産", "高い労働のモビリティ", "上記どれでもない"], "answer": [3, 4], "multi": true, "a": "明治期の成長要因は<b>江戸時代からの正の遺産(D)</b>（教育・インフラ・農業技術）と、中央集権化＝士農工商廃止による<b>高い労働のモビリティ(E)</b>。農地改革(B)・労働三権(C)・財閥解体は戦後(GHQ)改革。"}, {"q": "下表のように生産量Yと投入量(L,K)が変化した。成長会計によれば、T=1から2までの<b>労働投入(L)の変化</b>は生産量の変化にどの程度寄与したか。最も近いものを選べ。（生産関数は1次同次、労働分配率0.7・資本分配率0.3）<table class=\"tbl\"><tr><th></th><th>Y</th><th>L</th><th>K</th></tr><tr><th>T=1</th><td>100</td><td>100</td><td>100</td></tr><tr><th>T=2</th><td>101</td><td>98</td><td>101</td></tr></table>", "choices": ["−2%point", "−1%point", "0%point", "1%point", "2%point", "3%point", "上記の数値からだけでは計算不能"], "answer": [1], "multi": false, "a": "労働の寄与＝(1−α)×(ΔL/L)＝0.7×(−2%)＝<b>−1.4%point ≒ −1%point</b>。"}, {"q": "前問と同じ表で、<b>TFP</b>はT=1から2までの生産量の変化にどの程度寄与したか。最も近いものを選べ。（生産関数は1次同次、労働分配率0.7・資本分配率0.3）<table class=\"tbl\"><tr><th></th><th>Y</th><th>L</th><th>K</th></tr><tr><th>T=1</th><td>100</td><td>100</td><td>100</td></tr><tr><th>T=2</th><td>101</td><td>98</td><td>101</td></tr></table>", "choices": ["−2%point", "−1%point", "0%point", "1%point", "2%point", "3%point", "上記の数値からだけでは計算不能"], "answer": [4], "multi": false, "a": "TFP寄与＝ΔY/Y−資本寄与−労働寄与＝1%−(0.3×1%)−(0.7×−2%)＝1−0.3+1.4＝<b>2.1%point ≒ 2%point</b>（残差として算出）。"}, {"q": "不況が突如到来し工場の稼働が停止し総生産が減少したとする。このとき、成長会計上、どの項目が最も大きく総生産の減少に寄与したといえそうか。", "choices": ["A（TFP）", "K（資本）", "L（労働）"], "answer": [0], "multi": false, "a": "稼働率が落ちてもK（工場・機械）とL（雇用者数）は物理的に不変。減少はすべて残差＝<b>A（TFP）</b>に計上される。TFPは稼働率変動を含み技術進歩そのものではない、という論点。"}, {"q": "景気動向指数のうち先行指数に含まれる系列はどれか。", "choices": ["完全失業率", "大口電力使用量", "株価指数", "生産指数（鉱工業）", "新設住宅着工床面積", "機械受注"], "answer": [2, 4, 5], "multi": true, "a": "先行指数＝<b>東証株価指数(C)・新設住宅着工床面積(E)・実質機械受注(F)</b>など。完全失業率は遅行、鉱工業生産指数は一致、大口電力使用量は2015年に一致指数から除外。"}, {"q": "景気動向指数が急激に減少した時期とイベントの組み合わせとして適切なものはどれか。", "choices": ["1991〜93年 バブル崩壊", "1997〜98年 金融危機・アジア危機", "2008年 リーマンショック", "2013年 量的質的金融緩和政策の導入", "2020年 新型コロナ感染症", "2021年 東京オリンピック"], "answer": [0, 1, 2, 4], "multi": true, "a": "急減局面は<b>バブル崩壊(A)・金融/アジア危機(B)・リーマン(C)・コロナ(E)</b>。2013年のQQEは緩和策（景気を押し上げる方向）、東京五輪は急減の要因ではない。"}, {"q": "XX年3月調査の日銀「短観」で、(XX+1)年度の中小企業の設備投資計画が前年度比±0%であった。このとき実際の設備投資はどう変化すると予想されるか。", "choices": ["増加", "変わらない", "減少"], "answer": [0], "multi": false, "a": "短観の設備投資計画は年度が進むにつれ上方修正される（サーベイのくせ）。当初±0%でも実績は<b>増加</b>する傾向。"}, {"q": "計量経済学の手法で季節調整することが困難なケースはどれか。", "choices": ["貿易における春節（旧正月）の影響の排除", "鉱工業生産における年末年始やゴールデンウイークの影響の排除", "新型コロナの新規陽性者数における週次パターンの排除（特に2020年前半）", "大口電力消費量における季節的要因の排除", "労働時間における季節性の排除"], "answer": [0, 2], "multi": true, "a": "<b>春節(A)</b>は年により時期が前後にずれ通常の季節調整で捉えにくい。<b>コロナ陽性者数(C)</b>は過去データの蓄積が乏しく調整困難。B・D・Eは毎年ほぼ同時期の予測可能な季節性で調整しやすい。"}, {"q": "次のモデルを考える。IS式：y=−0.1×(r−r*)、フィッシャー式：i=r+π、目標インフレ率π*=1%、自然利子率r*=−2%。生産(y)の変動を0に保つには名目金利(i)をいくつにするのが望ましいか。<b>名目金利のゼロ制約がない場合</b>で答えよ。", "choices": ["−2%", "−1%", "0%", "1%", "2%"], "answer": [1], "multi": false, "a": "y=0にはr=r*=−2%が必要。i=r+π*=−2%+1%＝<b>−1%</b>。"}, {"q": "前問のモデルで、<b>名目金利のゼロ制約がある場合</b>、生産(y)の変動を0に保つことにつながりうる政策はどれか。（IS式：y=−0.1×(r−r*)、π*=1%、r*=−2%）", "choices": ["名目金利をゼロにする", "名目金利を正の値に引き上げる", "目標インフレ率を引き下げる", "目標インフレ率を引き上げる", "自然利子率を引き上げる", "上記どれでもない"], "answer": [3, 4], "multi": true, "a": "望ましいi=−1%だがゼロ制約で不可。<b>目標インフレ率π*を引き上げる(D)</b>とi=r+π*でr=−2%を正のiで実現でき、<b>自然利子率r*を引き上げる(E)</b>と必要な金利が上がりゼロ制約を回避できる。"}, {"q": "2021〜22年、消費者物価指数(CPI)の上昇幅と比べてGDPデフレータの上昇幅が小さかった理由として適切なものはどれか。", "choices": ["米国の金利が上昇していたため", "日本の金利がゼロ近傍であったため", "海外の商品価格が高騰していたため", "為替円安が進行したため", "GDPデフレータは輸入分を控除するため", "消費者物価指数は株高・住宅価格高の影響を含むため"], "answer": [2, 3, 4], "multi": true, "a": "輸入物価上昇（<b>海外商品高(C)・円安(D)</b>）は、<b>輸入を控除するGDPデフレータ(E)</b>をむしろ押し下げる（1次効果）。CPIは輸入分を引かないため上昇。CPIは資産価格（株・住宅）を含まないのでFは誤り。"}, {"q": "米国と比較して、わが国労働市場の特徴は何か。", "choices": ["年功序列", "部署間移動、多様な業務の従事", "企業別労働組合", "賞与（ボーナス）の支給", "終身雇用", "移民の活用"], "answer": [0, 1, 2, 3, 4], "multi": true, "a": "年功序列(A)・ジョブローテーション(B)・企業別労組(C)・柔軟な賞与(D)・終身雇用(E)が日本的雇用の特徴。<b>移民の活用(F)は米国の特徴</b>で日本には当てはまらない。"}, {"q": "この約20年で起きたことはどれか。", "choices": ["非正規雇用の減少", "女性労働参加についてのM型カーブの進行（落ち込み幅の拡大）", "失業率の低下", "女性の労働参加率（労働力率）の低下", "高齢者の労働参加率（労働力率）の低下", "労働時間の低下"], "answer": [2, 5], "multi": true, "a": "この約20年で<b>失業率は低下(C)</b>、<b>労働時間は低下(F)</b>。非正規は増加、M字カーブはむしろ緩和、女性・高齢者の労働参加率は上昇したので他は誤り。"}, {"q": "労働に関する以下の指標のうち、景気に敏感に反応する変数を2つ選べ。", "choices": ["従業員数", "所定内労働時間", "所定外労働時間", "所定内賃金", "ボーナス"], "answer": [2, 4], "multi": true, "a": "景気に敏感なのは<b>所定外労働時間（残業, C）</b>と<b>ボーナス(E)</b>。従業員数・所定内賃金は調整が遅く硬直的。"}, {"q": "鉱工業指数について、明らかに不適切な説明はどれか。", "choices": ["国内工場の被災によって減少", "国内から海外への生産移管によって減少", "海外での国産品需要増大によって増加", "海外生産移管にもかかわらず、部品の輸出増大によって増加", "どれでもない（すべての説明は適切）"], "answer": [4], "multi": true, "a": "鉱工業指数は<b>国内生産</b>を測る指標。被災で減少(A)、海外移管で減少(B)、国産品の海外需要増で増加(C)、移管後も部品輸出増で増加(D)——いずれも国内生産の増減として整合的なので、<b>不適切な説明はない(E)</b>。※判断が割れやすい問題。手元の解答で要確認。"}, {"q": "下表で、日本からみた海外GDPはT=1から2にかけてどの程度変化したか。最も近いものを選べ。<table class=\"tbl\"><tr><th></th><th>日本</th><th>米国</th><th>中国</th></tr><tr><th>輸出ウエイト</th><td>—</td><td>0.3</td><td>0.7</td></tr><tr><th>GDP(T=1)</th><td>100</td><td>100</td><td>100</td></tr><tr><th>GDP(T=2)</th><td>110</td><td>120</td><td>200</td></tr></table>", "choices": ["+10%", "+20%", "+50%", "+75%", "+90%", "+100%"], "answer": [3], "multi": false, "a": "海外GDP＝輸出ウエイト加重平均。T=1:0.3×100+0.7×100＝100、T=2:0.3×120+0.7×200＝176。変化は+76%＝<b>約+75%</b>。"}, {"q": "競争力を高めるために、企業が採りうる戦略はなにか。", "choices": ["研究開発", "海外展開", "M&A", "高い付加価値を生む工程へのシフト", "どれでもない"], "answer": [0, 1, 2, 3], "multi": true, "a": "日本企業の競争力戦略は<b>R&D(A)・海外展開(B)・M&A(C)・高付加価値工程へのシフト（スマイルカーブ, D）</b>とニッチ戦略。A〜Dすべて該当。"}, {"q": "サービス収支に含まれる項目のうち、赤字のものはどれか。", "choices": ["貿易収支", "旅行収支", "旅行を除いたサービス収支", "どれでもない"], "answer": [2], "multi": true, "a": "サービス収支のうち<b>旅行を除いたサービス収支(C)は赤字</b>（デジタル赤字など）。旅行収支はインバウンドで黒字。貿易収支は財の収支でサービス収支には含まれない。"}, {"q": "貿易収支が赤字化し、所得収支が黒字化する背景として、最も適切な説明はどれか。", "choices": ["海外企業が競争力を増していったから", "日本企業が競争力を増していったから", "日本企業が海外からの輸入を増やしたから", "日本企業が海外に生産拠点を移転したから", "海外で得られる所得が増えたから"], "answer": [3], "multi": false, "a": "<b>日本企業の海外生産移転(D)</b>が、輸出の伸び悩み（貿易赤字）と海外現地法人からの配当・利子（第1次所得収支の黒字）を同時に説明する。Eは結果の一部にすぎない。"}, {"q": "日本が経済連携協定を結んでいる国・地域はどれか。TPPなど多国間協定加盟国も含む。", "choices": ["オーストラリア", "中国", "シンガポール", "EU", "どれでもない"], "answer": [0, 1, 2, 3], "multi": true, "a": "<b>豪州(A)・シンガポール(C)はTPP11、中国(B)はRCEP、EU(D)は日EU・EPA</b>。いずれも締結済み。日本のEPAカバー率は貿易額の約8割。"}, {"q": "日本円が、名目為替レート以上に実質為替レートで円安が進んでいたとするとき、その背景として論理的に可能性があるのはどのケースか。", "choices": ["日本からの輸出が増加した", "日本からの輸入が増加した", "円安が対米ドルだけでなく対ユーロで進行した", "日本の物価が外国より上がらなかった", "日本の物価が外国より上がった"], "answer": [3], "multi": true, "a": "実質為替＝名目×(外国物価/自国物価)。名目以上に実質で円安＝<b>日本の物価が外国より上がらなかった(D)</b>ことの裏返し。Eなら逆に実質円高方向。"}, {"q": "交易利得が悪化するケースとして適当なものはどれか。", "choices": ["為替円高", "原油高", "米国株高", "輸出価格上昇", "輸入価格上昇"], "answer": [1, 4], "multi": true, "a": "交易利得の悪化＝交易条件(輸出価格/輸入価格)の悪化＝輸入価格が相対的に上昇。<b>原油高(B)・輸入価格上昇(E)</b>が該当。円高は輸入安で改善方向、輸出価格上昇は改善方向。"}, {"q": "対内直接投資が低い理由として、適当なものはどれか。", "choices": ["労働者のスキル・教育水準が低い", "市場規模が小さい", "英語ができない", "失業率が低い", "期待成長率が低い"], "answer": [2, 4], "multi": true, "a": "対内直接投資が低い理由は<b>言語の壁（英語, C）</b>と<b>期待成長率の低さ(E)</b>など。日本のスキル・教育水準は高く市場も大きい（むしろ強み）ので A・B は誤り。"}, {"q": "一般政府の粗債務（gross debt）の名目GDP比はどの程度か。", "choices": ["200%もしくはそれ以上", "140%", "70%", "0%", "−70%", "−200%もしくはそれ以下"], "answer": [0], "multi": false, "a": "日本の一般政府<b>粗</b>債務は名目GDP比<b>約250%</b>でG7最高水準。よって「200%以上」。資産を差し引いた純債務でも約120%。"}, {"q": "1年物の短期国債金利が、最初の1年は1%、毎年1%ずつ上昇し、最後の1年（9→10年目）は10%とする。金利の期間構造モデルによれば10年物の長期金利は約何%か。（不確実性なし・リスク中立を仮定）", "choices": ["1%", "2%", "3%", "5%", "10%"], "answer": [3], "multi": false, "a": "長期金利≒将来の短期金利の平均＝(1+2+…+10)/10＝55/10＝<b>5.5% ≒ 5%</b>。"}, {"q": "2020年度、政府の歳出が激増したのはなぜか。", "choices": ["少子高齢化", "シリコンバレー銀行の破たん", "国債の大量償還", "特別定額給付金", "衆議院総選挙"], "answer": [3], "multi": false, "a": "コロナ対応の<b>特別定額給付金（1人10万円）</b>など大規模な財政出動が主因。"}, {"q": "一般会計において、歳出額が1番目と2番目に大きい項目を2つ選べ。", "choices": ["社会保障", "公共事業", "防衛関係費", "文教および科学振興", "国債費"], "answer": [0, 4], "multi": true, "a": "最大は<b>社会保障関係費(A)</b>、次いで<b>国債費(E)</b>。社会保障は高齢化で拡大し歳出の4割超、国債費も約4分の1。"}, {"q": "米国と比較して、日本の金融構造の特徴はどれか。", "choices": ["銀行中心の金融システム", "企業と家計間の直接金融システム", "企業における社債依存度の高さ", "家計による株式投資の高さ", "どれでもない"], "answer": [0], "multi": true, "a": "日本は預金→銀行貸出の<b>間接金融（銀行中心, A）</b>が特徴。直接金融・社債依存・家計の株式投資の高さは米国の特徴。"}, {"q": "日銀短観で金融機関の貸出態度をみると「緩い」60%、「さほど厳しくない」25%、「厳しい」15%であった。DIはいくつか（緩い方向をプラス）。", "choices": ["85%", "75%", "70%", "60%", "45%"], "answer": [4], "multi": false, "a": "DI＝「緩い」−「厳しい」＝60−15＝<b>45%</b>（中立の「さほど厳しくない」は算入しない）。"}, {"q": "T=1期の日本銀行・民間銀行のバランスシートが下記のとき、［①］に当てはまる名称はどれか。<br><b>【日本銀行】</b> 資産：国債200兆円／負債：日本銀行券50兆円・［①］②<br><b>【民間銀行】</b> 資産：国債300兆円・貸出1000兆円・［①］②／負債：資本100兆円・預金③", "choices": ["貨幣", "当座預金", "貸出", "国債", "外貨預金"], "answer": [1], "multi": false, "a": "①は日銀にとって負債・民間銀行にとって資産＝<b>日銀当座預金</b>。"}, {"q": "前問のバランスシートで、②・③に当てはまる数字はどれか。<br><b>【日本銀行】</b> 資産：国債200兆円／負債：日本銀行券50兆円・［①］②<br><b>【民間銀行】</b> 資産：国債300兆円・貸出1000兆円・［①］②／負債：資本100兆円・預金③", "choices": ["②100兆円、③1300兆円", "②100兆円、③1350兆円", "②150兆円、③1300兆円", "②150兆円、③1350兆円", "②150兆円、③1400兆円", "②150兆円、③1450兆円"], "answer": [3], "multi": false, "a": "日銀：資産200＝負債(50＋②)より<b>②＝150兆円</b>（当座預金）。民間銀行：資産(国債300＋貸出1000＋当座150＝1450)＝負債(資本100＋預金③)より<b>③＝1350兆円</b>。"}, {"q": "前問のバランスシートで、マネタリーベースはいくらか（貨幣は無視）。<br><b>【日本銀行】</b> 資産：国債200兆円／負債：日本銀行券50兆円・［①］②<br><b>【民間銀行】</b> 資産：国債300兆円・貸出1000兆円・［①］②／負債：資本100兆円・預金③", "choices": ["50兆円", "150兆円", "200兆円", "1350兆円", "1400兆円", "1550兆円"], "answer": [2], "multi": false, "a": "マネタリーベース＝日本銀行券＋日銀当座預金＝50＋150＝<b>200兆円</b>。"}, {"q": "前問のバランスシートで、マネーストック(M2)はいくらか（貨幣は無視）。<br><b>【日本銀行】</b> 資産：国債200兆円／負債：日本銀行券50兆円・［①］②<br><b>【民間銀行】</b> 資産：国債300兆円・貸出1000兆円・［①］②／負債：資本100兆円・預金③", "choices": ["50兆円", "150兆円", "200兆円", "1350兆円", "1400兆円", "1550兆円"], "answer": [4], "multi": false, "a": "M2≒現金通貨（日本銀行券50）＋預金（1350）＝<b>1400兆円</b>。日銀当座預金はM2に含まれない。"}, {"q": "マネーストック(M2)が明確に増加するのは、どのケースか。", "choices": ["日本銀行による長期国債の買い入れ", "民間企業への貸出の増加", "日本銀行当座預金の増加", "家計の住宅ローンの増加"], "answer": [1, 3], "multi": true, "a": "M2＝民間非銀行部門が持つ現金＋預金。<b>銀行の貸出（企業向けB・住宅ローンD）</b>は信用創造で預金を生みM2増。日銀の国債買入や当座預金増はマネタリーベースの話でM2は直接増えない。"}, {"q": "現在、日本銀行が定めるインフレ目標値（物価安定の目標値）はいくつか。", "choices": ["5%", "2%", "0%", "どれでもない"], "answer": [1], "multi": false, "a": "日銀の物価安定目標は<b>2%</b>。"}, {"q": "（図表問題）ある国際比較の表は何を比較したものか。<b>※図依存。手元の試験PDFの表を確認のこと。</b>", "choices": ["名目GDP", "資本生産性（実質）", "資本生産性（購買力平価調整後）", "1人当たりの実質GDP", "1人当たりの名目GDP（購買力平価調整後）", "どれでもない"], "answer": [4], "multi": false, "a": "※図に依存。講義では1人当たりGDPの国際比較（日本は名目で低位、PPP調整後で約5.1万ドル）を強調。水準の国際比較には物価調整が要るため、推定は<b>1人当たり名目GDP（PPP調整後, E）</b>。実際の図で要確認。"}, {"q": "（図表問題）労働生産性に関するグラフから読み取れることは何か。<b>※図依存。</b>", "choices": ["労働生産性の増加率は5か国で大差がない", "日本は他国と比べて労働時間の増加による労働生産性への寄与が大きい", "日本は他国と比べて付加価値の増加による労働生産性への寄与が大きい", "日本は他国と比べて労働者数が伸びていない"], "answer": [0, 3], "multi": true, "a": "労働生産性の伸び率は<b>5か国でほぼ同じ(A)</b>。ただし日本は付加価値増ではなく労働投入の削減で生産性を上げており、<b>労働者数が伸びていない(D)</b>（少子高齢化）。B・Cは他国（付加価値増が主因）の姿。"}, {"q": "（図表問題）ある時系列グラフは何を示したものか。<b>※図依存。手元の試験PDFの図を確認のこと。</b>", "choices": ["為替レート", "消費者物価指数", "コールレート", "小麦価格", "原油価格"], "answer": [4], "multi": false, "a": "※図に依存。交易条件の議論に隣接する変動の大きい系列という文脈からの推定は<b>原油価格(E)</b>。実際の図で要確認。"}, {"q": "（図表問題）交易条件に関するグラフから読み取れることは何か。<b>※図依存。</b>", "choices": ["2021年の交易条件は悪化している", "2021年の交易条件悪化の背景は、輸入物価（契約通貨ベース）の下落である", "2021年の交易条件悪化の背景は、輸出物価（契約通貨ベース）の下落である", "2015年の交易条件悪化の背景は、為替円安である"], "answer": [0, 3], "multi": true, "a": "<b>2021年は交易条件が悪化(A)</b>。ただし背景は輸入物価の<b>上昇</b>（資源高）なのでB・Cの「下落」は誤り。<b>2015年の悪化は円安が背景(D)</b>。"}]}, {"title": "2025年度 期末試験", "sub": "上田晃三先生・日本経済論（2025年7月16日実施／全50問）", "questions": [{"q": "現在の名目GDPの大きさとして、最も近いものは？", "choices": ["5000億円程度またはそれ以下", "5兆円程度", "50兆円程度", "500兆円程度", "5000兆円程度またはそれ以上"], "answer": [3], "multi": false, "a": "日本の名目GDPは約600兆円。最も近いのは<b>500兆円程度</b>。"}, {"q": "現在の一般政府債務の大きさ（粗、名目GDP比）として最も近いものは？", "choices": ["250%", "150%", "80%", "15%", "2%"], "answer": [0], "multi": false, "a": "一般政府<b>粗</b>債務は名目GDP比<b>約250%</b>でG7最高水準（純債務なら約120%）。"}, {"q": "ある国で自動車を生産する。部品メーカーA社は海外から原材料を50万円で調達し部品を生産、それを100万円でB社に販売。B社はその部品から自動車200万円分を生産し国内で販売する。A社従業員報酬30万円、B社従業員報酬70万円。純間接税・固定資本減耗は無視。この一連の生産活動で生み出される（名目）GDPはいくらか。", "choices": ["50万円", "150万円", "170万円", "200万円", "250万円"], "answer": [1], "multi": false, "a": "GDP＝付加価値の合計＝最終財200万−輸入原材料50万＝<b>150万円</b>（A社50万＋B社100万）。輸入した原材料は国内付加価値でないため控除。"}, {"q": "前問の自動車生産の例で、B社が国内販売を50万円減らし輸出を50万円増やした。このとき（名目）GDPはどれだけ変化するか。", "choices": ["50万円増加", "変化なし", "50万円減少", "その他"], "answer": [1], "multi": false, "a": "国内最終販売が50万減、輸出が50万増。GDP＝C+I+G+EX−IMでは国内向けも輸出も同じ最終需要なので<b>変化なし</b>。"}, {"q": "GDPの支出項目（需要項目）に含まれるものはどれか。", "choices": ["総所得", "公的資本形成", "デフレータ", "雇用者報酬", "家計消費", "営業余剰"], "answer": [1, 4], "multi": true, "a": "支出面GDP=C+I+G+NX。<b>公的資本形成(B)</b>と<b>家計消費(E)</b>が該当。総所得・雇用者報酬・営業余剰は分配面、デフレータは価格。"}, {"q": "2021〜22年、消費者物価指数の上昇幅と比べてGDPデフレータの上昇幅が小さかった直接的な理由として適切なものはどれか。", "choices": ["米国の金利が上昇していたため", "日本の金利がゼロ近傍であったため", "海外の商品価格が高騰していたため", "為替円安が進行したため", "GDPデフレータは輸入分を控除するため"], "answer": [2, 3, 4], "multi": true, "a": "輸入物価上昇（<b>海外商品高(C)・円安(D)</b>）は<b>輸入を控除するGDPデフレータ(E)</b>を押し下げる（1次効果）。CPIは輸入を引かないため上昇幅が大きい。"}, {"q": "GDPの三面等価によって、その値がほぼ等しい項目を選べ。", "choices": ["家計消費", "公的資本形成", "総所得", "総生産", "総人口", "総支出"], "answer": [2, 3, 5], "multi": true, "a": "三面等価：<b>総生産(D)＝総所得(C)＝総支出(F)</b>。家計消費・公的資本形成は構成要素の一部、総人口は無関係。"}, {"q": "下表で、成長会計によれば、T=1から2までの<b>資本投入(K)の変化</b>は生産量の変化にどの程度寄与したか。最も近いものを選べ。（生産関数は1次同次、労働分配率0.7・資本分配率0.3）<table class=\"tbl\"><tr><th></th><th>Y</th><th>L</th><th>K</th></tr><tr><th>T=1</th><td>100</td><td>100</td><td>100</td></tr><tr><th>T=2</th><td>102</td><td>97</td><td>106</td></tr></table>", "choices": ["−2%point", "−1%point", "0%point", "1%point", "2%point", "3%point"], "answer": [4], "multi": false, "a": "資本の寄与＝α×(ΔK/K)＝0.3×(+6%)＝<b>1.8%point ≒ 2%point</b>。"}, {"q": "前問と同じ表で、<b>TFP</b>はT=1から2までの生産量の変化にどの程度寄与したか。最も近いものを選べ。（生産関数は1次同次、労働分配率0.7・資本分配率0.3）<table class=\"tbl\"><tr><th></th><th>Y</th><th>L</th><th>K</th></tr><tr><th>T=1</th><td>100</td><td>100</td><td>100</td></tr><tr><th>T=2</th><td>102</td><td>97</td><td>106</td></tr></table>", "choices": ["−2%point", "−1%point", "0%point", "1%point", "2%point", "3%point"], "answer": [4], "multi": false, "a": "TFP寄与＝ΔY/Y−資本寄与−労働寄与＝2%−(0.3×6%)−(0.7×−3%)＝2−1.8+2.1＝<b>2.3%point ≒ 2%point</b>。"}, {"q": "不況が突如到来し工場の稼働が停止し総生産が減少したとする。成長会計上どの項目が最も大きく寄与したか、という問いから浮かび上がる問題は何か。", "choices": ["成長率を測るのは困難", "TFPの測定誤差は大きい", "会計には粉飾のリスクがある", "生産性の成長の停滞が長期不況の要因", "何ら問題はない"], "answer": [1], "multi": false, "a": "稼働率の低下は残差＝TFPに計上されてしまう。つまり<b>TFP（ソロー残差）の測定誤差は大きく</b>、技術進歩そのものを表さない、という論点。"}, {"q": "景気動向指数のうち、最近、一致指数から除外された系列はどれか。", "choices": ["完全失業率", "大口電力使用量", "株価指数", "新設住宅着工床面積", "機械受注"], "answer": [1], "multi": false, "a": "<b>大口電力使用量</b>は2015年に一致指数から除外（節電・電力小売自由化で捕捉率低下、景気との対応が弱まったため）。"}, {"q": "XX年3月調査の日銀「短観」で、(XX+1)年度の中小企業の設備投資計画が前年度比±0%であった。実際の設備投資はどう変化すると予想されるか。", "choices": ["増加", "変わらない", "減少"], "answer": [0], "multi": false, "a": "設備投資計画は年度が進むと上方修正される。当初±0%でも実績は<b>増加</b>。"}, {"q": "前問の理由として、（大企業と比較して）中小企業について説明したものの中で適切なものはどれか。", "choices": ["設備投資に消極的だから", "設備投資に積極的だから", "資金制約に直面しているから", "事前に計画を立てないから", "前年度実績と同様の計画を立てる傾向があるから", "あてはまるものはない"], "answer": [2, 4], "multi": true, "a": "中小企業は<b>資金制約(C)</b>が大きく、銀行融資が決まって初めて投資を確定できる。また<b>前年度実績並みの保守的な計画(E)</b>を立てがちで、その後上方修正される。"}, {"q": "個人に物価上昇率について聞くと、どのような傾向があるか。", "choices": ["実際の物価上昇率より高く回答", "実際の物価上昇率を高い精度で回答", "実際の物価上昇率より低く回答"], "answer": [0], "multi": false, "a": "人々の体感物価は実際より高く出やすく、<b>実際の物価上昇率より高く回答</b>する傾向がある。"}, {"q": "消費者物価指数に含まれる調査品目は何か。", "choices": ["米", "パソコン", "電気代", "携帯電話通信費", "株価", "為替レート"], "answer": [0, 1, 2, 3], "multi": true, "a": "CPIは財・サービスの購入価格を対象＝<b>米(A)・パソコン(B)・電気代(C)・携帯電話通信費(D)</b>。株価・為替は資産価格・金融変数でCPIの対象外。"}, {"q": "名目金利のゼロ制約は、賃金の下方硬直性を考慮すると、インフレ率はどの水準が望ましいか。", "choices": ["正のインフレ率", "ゼロ・インフレ", "負のインフレ率"], "answer": [0], "multi": false, "a": "ゼロ金利制約の回避も賃金の下方硬直性の潤滑も、いずれも<b>正のインフレ率</b>を望ましいとする。"}, {"q": "フリードマンルール（貨幣の保有コスト）を考慮すると、インフレ率はどの水準が望ましいか。", "choices": ["正のインフレ率", "ゼロ・インフレ", "負のインフレ率"], "answer": [2], "multi": false, "a": "フリードマンルールは貨幣保有の機会費用をゼロにする＝名目金利i=0が最適。i=r+πよりπ=−r＜0、すなわち<b>負のインフレ率（緩やかなデフレ）</b>が望ましい。ZLBの議論とはトレードオフ。"}, {"q": "米国と比較して、わが国労働市場の特徴は何か。", "choices": ["年功序列", "部署間移動、多様な業務の従事", "企業別労働組合", "賞与（ボーナス）の支給", "終身雇用", "移民の活用"], "answer": [0, 1, 2, 3, 4], "multi": true, "a": "年功序列・ジョブローテーション・企業別労組・柔軟な賞与・終身雇用が特徴。<b>移民の活用(F)は米国の特徴</b>で日本には当てはまらない。"}, {"q": "高齢者の労働参加率の上昇要因として適当なものは何か。", "choices": ["少子化による若年の労働供給不足", "年金支給の少なさ、将来不安", "健康、高寿命化", "あてはまるものはない"], "answer": [0, 1, 2], "multi": true, "a": "<b>若年労働の供給不足(A)</b>が高齢者を労働市場に引き込み、<b>年金の不足・将来不安(B)</b>が就労を促し、<b>健康・長寿命化(C)</b>が就労を可能にする。A〜Cすべて該当。"}, {"q": "この約30年の正規・非正規雇用をめぐる動きとして適当なものは何か。", "choices": ["非正規雇用の減少", "自主的に非正規雇用を選択する者は少数派", "非正規雇用者の賃金の上昇", "平均的な賃金の伸びが、正規や非正規それぞれの賃金の伸びを下回った", "非正規雇用の大部分は女性"], "answer": [2, 3, 4], "multi": true, "a": "近年の人手不足で<b>非正規の賃金は上昇(C)</b>。正規・非正規それぞれは伸びても、低賃金の非正規比率が高まったため<b>平均賃金の伸びは両者を下回った（構成効果, D）</b>。<b>非正規の多くは女性(E)</b>。非正規は増加、自主的選択も多数派なのでA・Bは誤り。"}, {"q": "労働に関する以下の指標のうち、景気に敏感に反応する変数を2つ選べ。", "choices": ["従業員数", "所定内労働時間", "所定外労働時間", "所定内賃金", "ボーナス"], "answer": [2, 4], "multi": true, "a": "景気に敏感なのは<b>所定外労働時間（残業, C）</b>と<b>ボーナス(E)</b>。"}, {"q": "鉱工業指数において、この20年間、国内生産が顕著に減少した品目は何か。", "choices": ["携帯電話", "テレビ", "炭素繊維", "美容化粧品", "鉄鋼"], "answer": [0, 1], "multi": true, "a": "電機の<b>携帯電話(A)・薄型テレビ(B)</b>は国内生産が急減（統計の調査対象から外れるものも）。炭素繊維・鉄鋼は「じわじわ減少」、美容化粧品は近年伸びている。"}, {"q": "競争力を高めるために、企業が採りうる戦略はなにか。", "choices": ["研究開発", "海外展開", "M&A", "高い付加価値を生む工程へのシフト", "どれでもない"], "answer": [0, 1, 2, 3], "multi": true, "a": "<b>R&D・海外展開・M&A・高付加価値工程へのシフト</b>が該当（A〜D）。"}, {"q": "AIの産業・労働への影響として正しいものは何か。2つ選べ。", "choices": ["労働需要を減少させる", "労働供給を減少させる", "労働生産性を改善させる", "肉体的タスクより事務的タスクへの影響が大きい"], "answer": [2, 3], "multi": true, "a": "AIは<b>労働生産性を改善(C)</b>し、<b>肉体的タスクより事務的（認知的）タスクへの影響が大きい(D)</b>。"}, {"q": "経常収支に含まれる項目は何か。", "choices": ["貿易収支", "サービス収支", "家計収支", "財政収支", "第1次所得収支", "どれでもない"], "answer": [0, 1, 4], "multi": true, "a": "経常収支＝<b>貿易収支(A)＋サービス収支(B)＋第1次所得収支(E)＋第2次所得収支</b>。家計収支・財政収支は含まれない。"}, {"q": "経常収支に含まれる項目のうち、赤字のものはどれか。", "choices": ["貿易収支", "サービス収支", "家計収支", "財政収支", "第1次所得収支", "どれでもない"], "answer": [0, 1], "multi": true, "a": "近年、<b>貿易収支(A)</b>は資源高・円安で赤字化、<b>サービス収支(B)</b>もデジタル赤字などで赤字。第1次所得収支は大幅黒字。家計・財政収支は経常収支の項目でない。"}, {"q": "米国での関税引き上げの影響を考える。ごく短期的に生じうる出来事として最も適切なものはどれか。", "choices": ["米国の輸入量が減少", "米国の物価が上昇", "（米国を除き）世界的に物価が低下", "為替高", "株安"], "answer": [1], "multi": false, "a": "ごく短期では数量調整より価格転嫁が先行し、関税分が価格に乗って<b>米国の物価が上昇</b>する。輸入量の減少は次の段階。"}, {"q": "前問に続き、次の段階に生じうる出来事として適切なものはどれか（前問の解答「米国の物価上昇」は除く）。", "choices": ["米国の輸入量が減少", "米国の物価が上昇", "（米国を除き）世界的に物価が低下", "為替高", "株安"], "answer": [0, 2, 3], "multi": true, "a": "次段階では<b>輸入量が減少(A)</b>、米国向けを失った財が他地域に流れ<b>世界的に物価が低下(C)</b>、関税で輸入需要が減り自国通貨が<b>為替高(D)</b>に。※株安(E)も実際には観測されうるが、標準理論の帰結はA・C・D。手元の解答で要確認。"}, {"q": "下表は2か国A・Bにおける2財①②の生産に必要な労働投入量である。A国はどの財の生産に<b>絶対優位</b>を持つか。<table class=\"tbl\"><tr><th></th><th>A国</th><th>B国</th></tr><tr><th>財①</th><td>100人</td><td>120人</td></tr><tr><th>財②</th><td>20人</td><td>30人</td></tr></table>", "choices": ["財①", "財②", "財①と②", "いずれでもない"], "answer": [2], "multi": false, "a": "絶対優位＝より少ない労働で生産できる。財①（100<120）も財②（20<30）もA国が少ない労働で作れるので<b>財①と②の両方</b>。"}, {"q": "前問の表で、A国はどの財の生産に<b>比較優位</b>を持つか。<table class=\"tbl\"><tr><th></th><th>A国</th><th>B国</th></tr><tr><th>財①</th><td>100人</td><td>120人</td></tr><tr><th>財②</th><td>20人</td><td>30人</td></tr></table>", "choices": ["財①", "財②", "財①と②", "いずれでもない"], "answer": [1], "multi": false, "a": "機会費用で比較。A国の財①の機会費用＝100/20＝5（財②5単位）、B国＝120/30＝4。A国は財①の機会費用が高く財②が低いので<b>財②に比較優位</b>。"}, {"q": "交易条件が悪化するのはどの場合か。", "choices": ["円高", "輸出用自動車価格の上昇", "原油高", "どれでもない"], "answer": [2], "multi": true, "a": "交易条件＝輸出価格/輸入価格。輸入価格の上昇で悪化するので<b>原油高(C)</b>。円高は輸入安で改善方向、輸出価格上昇も改善方向。"}, {"q": "円安の輸出への効果を論じたものとして、理論的に間違っているものはどれか。（PCP=生産者通貨建て、LCP=現地通貨建て）", "choices": ["PCPの場合、米国での売値が上昇する", "LCPの場合、米国での売値が上昇する", "PCPの場合、米国への輸出数量が増加する", "LCPの場合、米国への輸出数量が増加する", "PCPの場合、米国への輸出金額（円建）が増加する", "LCPの場合、米国への輸出金額（円建）が増加する"], "answer": [0, 1, 3], "multi": true, "a": "円安で——PCPは円建価格固定→米国のドル売値は<b>下落</b>（Aは誤り）、数量増(C正)・円建金額増(E正)。LCPはドル売値固定→売値は上がらず(Bは誤り)、数量も不変(Dは誤り)、ただし円換算の受取は増える(F正)。よって間違いは<b>A・B・D</b>。"}, {"q": "日本のほか米国・ユーロ圏からなる世界を考える。下表の為替・物価変化のとき、<b>ユーロに対する日本円の名目為替レート</b>の変化はいくつか。<table class=\"tbl\"><tr><th></th><th>円/ドル</th><th>円/ユーロ</th><th>日本物価</th><th>米国物価</th><th>ユーロ圏物価</th></tr><tr><th>T=1</th><td>100</td><td>100</td><td>100</td><td>100</td><td>100</td></tr><tr><th>T=2</th><td>103</td><td>97</td><td>95</td><td>105</td><td>110</td></tr></table><span style=\"font-size:13px\">貿易ウエイト：米国70%・ユーロ圏30%</span>", "choices": ["10%を超える円高", "5%以上10%以下の円高", "5%未満の円高", "変化なし", "5%未満の円安", "5%以上10%以下の円安", "10%を超える円安"], "answer": [2], "multi": false, "a": "円/ユーロは100→97。ユーロあたりの円が減った＝円高で、変化は(97−100)/100＝−3%。よって<b>5%未満の円高</b>。"}, {"q": "前問と同じ表で、<b>ユーロに対する日本円の実質為替レート</b>の変化はいくつか。<table class=\"tbl\"><tr><th></th><th>円/ドル</th><th>円/ユーロ</th><th>日本物価</th><th>米国物価</th><th>ユーロ圏物価</th></tr><tr><th>T=1</th><td>100</td><td>100</td><td>100</td><td>100</td><td>100</td></tr><tr><th>T=2</th><td>103</td><td>97</td><td>95</td><td>105</td><td>110</td></tr></table><span style=\"font-size:13px\">貿易ウエイト：米国70%・ユーロ圏30%</span>", "choices": ["10%を超える円高", "5%以上10%以下の円高", "5%未満の円高", "変化なし", "5%未満の円安", "5%以上10%以下の円安", "10%を超える円安"], "answer": [6], "multi": false, "a": "実質＝名目×(ユーロ圏物価/日本物価)。T=2：97×(110/95)≒112.3（T=1は100）。約+12%＝<b>10%を超える円安</b>。ユーロ圏の高インフレ(+10%)と日本のデフレ(−5%)の差が効く。"}, {"q": "前々問と同じ表のケースで、<b>日本円の名目実効為替レート</b>の変化はいくつか。<table class=\"tbl\"><tr><th></th><th>円/ドル</th><th>円/ユーロ</th><th>日本物価</th><th>米国物価</th><th>ユーロ圏物価</th></tr><tr><th>T=1</th><td>100</td><td>100</td><td>100</td><td>100</td><td>100</td></tr><tr><th>T=2</th><td>103</td><td>97</td><td>95</td><td>105</td><td>110</td></tr></table><span style=\"font-size:13px\">貿易ウエイト：米国70%・ユーロ圏30%</span>", "choices": ["10%を超える円高", "5%以上10%以下の円高", "5%未満の円高", "変化なし", "5%未満の円安", "5%以上10%以下の円安", "10%を超える円安"], "answer": [4], "multi": false, "a": "対ドルは3%円安、対ユーロは3%円高。ウエイト加重＝0.7×(−3%)＋0.3×(+3%)＝−1.2%（円安方向）。よって<b>5%未満の円安</b>。"}, {"q": "任天堂のSwitch2が米国で200ドル、日本で2万円で売られている。為替は1ドル150円、輸送コストはゼロとする。正しいのはどれか。", "choices": ["米国で買って日本で売れば利益をあげられる", "日本で買って米国で売れば利益をあげられる", "一物一価が成立している", "Switch2に関する限り、円が過剰に強い（円高）状況にある", "Switch2に関する限り、円が過剰に弱い（円安）状況にある"], "answer": [1, 4], "multi": true, "a": "米国200ドル＝3万円、日本2万円。日本の方が安いので<b>日本で買い米国で売れば利益(B)</b>。購買力平価は100円/ドルなのに市場は150円/ドル＝<b>円が過剰に弱い(円安, E)</b>。一物一価は不成立。"}, {"q": "対内直接投資が低い理由として、適当なものはどれか。", "choices": ["労働者のスキル・教育水準が高い", "市場規模が大きい", "英語ができない", "失業率が高い", "期待成長率が低い"], "answer": [2, 4], "multi": true, "a": "低い理由は<b>言語の壁（英語, C）</b>と<b>期待成長率の低さ(E)</b>。高スキル・大きな市場はむしろ投資を呼び込む強み。高失業率は安価な労働力を意味し障壁でない。"}, {"q": "一般政府の粗債務（gross debt）の名目GDP比はどの程度か。", "choices": ["200%もしくはそれ以上", "140%", "70%", "0%", "−70%", "−200%もしくはそれ以下"], "answer": [0], "multi": false, "a": "日本の一般政府粗債務は名目GDP比<b>約250%</b>＝「200%以上」。"}, {"q": "1年物の短期国債金利が、最初の1年は1%、毎年1%ずつ上昇し、最後の1年（9→10年目）は10%とする。金利の期間構造モデルによれば10年物の長期金利は約何%か。（不確実性なし・リスク中立を仮定）", "choices": ["1%", "2%", "3%", "5%", "10%"], "answer": [3], "multi": false, "a": "長期金利≒将来短期金利の平均＝(1+…+10)/10＝<b>5.5% ≒ 5%</b>。"}, {"q": "需要ショックが要因でインフレが生じているとき、理論的に適切なマクロ経済政策はどれか。", "choices": ["財政も金融政策も引き締め", "財政政策は引き締め、金融政策は緩和", "財政政策は緩和、金融政策は引き締め", "財政も金融政策も緩和", "財政も金融政策も何もしない"], "answer": [0], "multi": false, "a": "需要ショックはインフレと生産を同方向に動かすため、需要を冷ます<b>財政・金融ともに引き締め</b>が適切。ジレンマが生じるのは供給ショックの場合。"}, {"q": "2020年度、政府の歳出が激増したのはなぜか。", "choices": ["少子高齢化", "シリコンバレー銀行の破たん", "国債の大量償還", "特別定額給付金", "衆議院総選挙"], "answer": [3], "multi": false, "a": "コロナ対応の<b>特別定額給付金（1人10万円）</b>など大規模財政出動が主因。"}, {"q": "一般会計において、歳出額が1番目と2番目に大きい項目を2つ選べ。", "choices": ["社会保障", "公共事業", "防衛関係費", "文教および科学振興", "国債費"], "answer": [0, 4], "multi": true, "a": "最大は<b>社会保障(A)</b>、次いで<b>国債費(E)</b>。"}, {"q": "米国と比較して、日本の金融構造の特徴はどれか。", "choices": ["銀行中心の金融システム", "企業と家計間の直接金融システム", "企業における社債依存度の高さ", "家計による株式投資の高さ", "どれでもない"], "answer": [0], "multi": true, "a": "日本は<b>銀行中心の間接金融(A)</b>が特徴。直接金融・社債依存・家計の株式投資の高さは米国の姿。"}, {"q": "（図表問題）企業の借入等に関するグラフから観察できることはなにか。<b>※図依存。</b>", "choices": ["資本の稼働率は、スタートアップ企業で高い", "成熟企業ほど、借入割合が高い", "成熟企業ほど、借入割合が低い", "銀行はベンチャーへの投資を積極化している", "どれでもない"], "answer": [1], "multi": true, "a": "日本の銀行融資は不動産などの担保が前提で、担保に乏しい創業間もない企業は借りにくい。したがって<b>成熟企業ほど借入割合が高い(B)</b>。日本のVC投資はGDP比で低水準でDは誤り。※図で要確認。"}, {"q": "この約20年における金融をめぐる動きとして、正しいものを選べ。", "choices": ["無借金企業の割合の上昇", "金融機関による新規事業の拡大", "自然利子率、期待成長率の上昇", "海外融資残高の増加", "民間銀行の収益率（利ざや、マージン）の改善", "どれでもない"], "answer": [0, 1, 3], "multi": true, "a": "企業の借入返済で<b>無借金企業が増加(A)</b>、銀行は<b>新規事業（人材紹介・電力小売など）に多角化(B)</b>、大手行の<b>海外融資残高が増加(D)</b>。自然利子率・期待成長率は低下、利ざやはこの間むしろ縮小したのでC・Eは誤り。"}, {"q": "T=1期の日本銀行・民間銀行のバランスシートが下記のとき、［①］に当てはまる名称はどれか。<br><b>【日本銀行】</b> 資産：国債200兆円／負債：日本銀行券50兆円・［①］②<br><b>【民間銀行】</b> 資産：国債300兆円・貸出1000兆円・［①］②／負債：資本100兆円・預金③", "choices": ["貨幣", "当座預金", "貸出", "国債", "外貨預金"], "answer": [1], "multi": false, "a": "①は日銀の負債・民間銀行の資産＝<b>日銀当座預金</b>。"}, {"q": "前問のバランスシートで、②・③に当てはまる数字はどれか。<br><b>【日本銀行】</b> 資産：国債200兆円／負債：日本銀行券50兆円・［①］②<br><b>【民間銀行】</b> 資産：国債300兆円・貸出1000兆円・［①］②／負債：資本100兆円・預金③", "choices": ["②100兆円、③1300兆円", "②100兆円、③1350兆円", "②150兆円、③1300兆円", "②150兆円、③1350兆円", "②150兆円、③1400兆円", "②150兆円、③1450兆円"], "answer": [3], "multi": false, "a": "日銀：200＝50＋②より<b>②＝150兆円</b>。民間銀行：資産(300＋1000＋150＝1450)＝負債(100＋③)より<b>③＝1350兆円</b>。"}, {"q": "前問のバランスシートで、マネタリーベースはいくらか（貨幣は無視）。<br><b>【日本銀行】</b> 資産：国債200兆円／負債：日本銀行券50兆円・［①］②<br><b>【民間銀行】</b> 資産：国債300兆円・貸出1000兆円・［①］②／負債：資本100兆円・預金③", "choices": ["50兆円", "150兆円", "200兆円", "1350兆円", "1400兆円", "1550兆円"], "answer": [2], "multi": false, "a": "マネタリーベース＝日本銀行券50＋日銀当座預金150＝<b>200兆円</b>。"}, {"q": "マネーストック(M2)が明確に増加するのは、どのケースか。", "choices": ["日本銀行による長期国債の買い入れ", "民間企業への貸出の増加", "日本銀行当座預金の増加", "家計の住宅ローンの増加"], "answer": [1, 3], "multi": true, "a": "<b>銀行の貸出（企業向けB・住宅ローンD）</b>は信用創造で預金＝M2を増やす。日銀の国債買入・当座預金増はマネタリーベースの話でM2は直接増えない。"}, {"q": "現在、日本銀行が運営している金融政策として正しいものを選べ。", "choices": ["量的・質的金融緩和", "マイナス金利", "インフレ目標", "イールドカーブコントロール", "どれでもない"], "answer": [2], "multi": true, "a": "日銀は2024年3月にマイナス金利・イールドカーブコントロール・QQEの枠組みを終了。現在も続くのは<b>2%のインフレ目標(C)</b>。"}]}];
+
+let session=null;
+let lastWrongPool=null;
+
+function letter(i){return String.fromCharCode(65+i);}
+
+function showScreen(name){
+  ['setup','quiz','result'].forEach(function(s){
+    document.getElementById('screen-'+s).classList.toggle('hidden', s!==name);
+  });
+  window.scrollTo(0,0);
+}
+
+function initSetup(){
+  const list=document.getElementById('sectionList');
+  list.innerHTML=DATA.map(function(sec,i){
+    return '<label class="section-item">'
+      +'<input type="checkbox" class="sectionChk" value="'+i+'" checked>'
+      +'<span class="section-body">'
+        +'<span class="section-title">'+sec.title+'</span>'
+        +(sec.sub?'<span class="section-sub">'+sec.sub+'</span>':'')
+      +'</span>'
+      +'<span class="section-count">'+sec.questions.length+'問</span>'
+      +'</label>';
+  }).join('');
+}
+
+function getSelectedSections(){
+  return new Set(Array.prototype.map.call(
+    document.querySelectorAll('.sectionChk:checked'), function(el){return Number(el.value);}
+  ));
+}
+
+function buildPool(sectionsSet){
+  const pool=[];
+  DATA.forEach(function(sec, si){
+    if(!sectionsSet.has(si)) return;
+    sec.questions.forEach(function(item){
+      pool.push({
+        q:item.q, choices:item.choices, answer:item.answer,
+        multi:item.multi, a:item.a, chapter:sec.title
+      });
+    });
+  });
+  return pool;
+}
+
+function shuffle(arr){
+  const a=arr.slice();
+  for(let i=a.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    const tmp=a[i]; a[i]=a[j]; a[j]=tmp;
+  }
+  return a;
+}
+
+function showError(msg){
+  const el=document.getElementById('setupError');
+  el.textContent=msg;
+  el.classList.remove('hidden');
+}
+function hideError(){
+  document.getElementById('setupError').classList.add('hidden');
+}
+
+function startBtnHandler(){
+  const sections=getSelectedSections();
+  if(sections.size===0){ showError('出題範囲を1つ以上選んでください'); return; }
+  let pool=buildPool(sections);
+  if(pool.length===0){ showError('選んだ範囲に問題がありません'); return; }
+  hideError();
+  if(document.getElementById('randomToggle').checked) pool=shuffle(pool);
+  beginSession(pool);
+}
+
+function beginSession(pool){
+  session={pool:pool, idx:0, results:new Array(pool.length).fill(null), selected:null, graded:false};
+  showScreen('quiz');
+  renderQuestion();
+}
+
+function renderQuestion(){
+  const item=session.pool[session.idx];
+  session.selected=new Set();
+  session.graded=false;
+
+  document.getElementById('progressCount').textContent=(session.idx+1)+'/'+session.pool.length;
+  document.getElementById('progressChapter').textContent=item.chapter||'';
+  document.getElementById('progressFill').style.width=(session.idx/session.pool.length*100)+'%';
+
+  const badges=document.getElementById('qBadges');
+  badges.innerHTML='<span class="q-badge'+(item.multi?' multi':'')+'">'
+    +(item.multi?'複数選択（あてはまるものをすべて）':'1つ選択')+'</span>';
+
+  document.getElementById('qText').innerHTML=item.q;
+
+  const choicesEl=document.getElementById('choices');
+  choicesEl.innerHTML=item.choices.map(function(c,i){
+    return '<button type="button" class="choice" data-i="'+i+'">'
+      +'<span class="choice-letter">'+letter(i)+'</span>'
+      +'<span class="choice-text">'+c+'</span>'
+      +'<span class="choice-mark"></span>'
+      +'</button>';
+  }).join('');
+  Array.prototype.forEach.call(choicesEl.querySelectorAll('.choice'), function(btn){
+    btn.addEventListener('click', function(){ onChoiceClick(Number(btn.dataset.i)); });
+  });
+
+  document.getElementById('pickError').classList.add('hidden');
+  document.getElementById('answerBox').classList.add('hidden');
+  const checkBtn=document.getElementById('checkBtn');
+  checkBtn.classList.remove('hidden');
+}
+
+function onChoiceClick(i){
+  if(session.graded) return;
+  const item=session.pool[session.idx];
+  if(item.multi){
+    if(session.selected.has(i)) session.selected.delete(i); else session.selected.add(i);
+  } else {
+    session.selected=new Set([i]);
+  }
+  updateChoiceStyles();
+  document.getElementById('pickError').classList.add('hidden');
+}
+
+function updateChoiceStyles(){
+  const choicesEl=document.getElementById('choices');
+  Array.prototype.forEach.call(choicesEl.querySelectorAll('.choice'), function(btn){
+    const i=Number(btn.dataset.i);
+    btn.classList.toggle('selected', session.selected.has(i));
+  });
+}
+
+function setsEqual(a, b){
+  if(a.size!==b.length) return false;
+  for(let k=0;k<b.length;k++){ if(!a.has(b[k])) return false; }
+  return true;
+}
+
+function checkAnswer(){
+  if(session.graded) return;
+  if(session.selected.size===0){
+    document.getElementById('pickError').classList.remove('hidden');
+    return;
+  }
+  session.graded=true;
+  const item=session.pool[session.idx];
+  const ansSet=new Set(item.answer);
+  const isCorrect=setsEqual(session.selected, item.answer);
+  session.results[session.idx]=isCorrect;
+
+  const choicesEl=document.getElementById('choices');
+  Array.prototype.forEach.call(choicesEl.querySelectorAll('.choice'), function(btn){
+    const i=Number(btn.dataset.i);
+    btn.classList.remove('selected');
+    btn.classList.add('locked');
+    const mark=btn.querySelector('.choice-mark');
+    if(ansSet.has(i)){
+      btn.classList.add('correct');
+      if(session.selected.has(i)) mark.textContent='✓';
+    } else if(session.selected.has(i)){
+      btn.classList.add('wrong');
+      mark.textContent='✕';
+    }
+  });
+
+  const verdict=document.getElementById('verdict');
+  verdict.className='verdict '+(isCorrect?'ok':'ng');
+  verdict.textContent=isCorrect?'正解':'不正解';
+
+  const keyLetters=item.answer.map(letter).join('・');
+  document.getElementById('answerKey').textContent='正解： '+keyLetters;
+  document.getElementById('aText').innerHTML=item.a||'';
+
+  document.getElementById('checkBtn').classList.add('hidden');
+  document.getElementById('answerBox').classList.remove('hidden');
+
+  const nextBtn=document.getElementById('nextBtn');
+  nextBtn.textContent=(session.idx>=session.pool.length-1)?'結果を見る':'次の問題へ';
+}
+
+function nextQuestion(){
+  session.idx++;
+  if(session.idx>=session.pool.length){
+    finishSession();
+  } else {
+    renderQuestion();
+  }
+}
+
+function finishSession(){
+  document.getElementById('progressFill').style.width='100%';
+  showScreen('result');
+
+  const total=session.pool.length;
+  const correct=session.results.filter(function(r){return r===true;}).length;
+  const pct=total?Math.round(correct/total*100):0;
+
+  document.getElementById('ringPct').textContent=pct+'%';
+  document.getElementById('ringSub').textContent=correct+'/'+total+'問正解';
+
+  const circumference=2*Math.PI*52;
+  const fg=document.getElementById('ringFg');
+  fg.style.strokeDasharray=String(circumference);
+  fg.style.strokeDashoffset=String(circumference*(1-pct/100));
+  fg.style.stroke=pct>=80?'var(--correct)':(pct>=50?'var(--accent)':'var(--incorrect)');
+
+  const wrongItems=session.pool.filter(function(item,i){return session.results[i]===false;});
+  lastWrongPool=wrongItems;
+
+  const wrongListEl=document.getElementById('wrongList');
+  if(wrongItems.length===0){
+    wrongListEl.innerHTML='<p class="all-correct">全問正解でした。</p>';
+  } else {
+    wrongListEl.innerHTML='<h3>間違えた問題（'+wrongItems.length+'問）</h3>'+wrongItems.map(function(item){
+      const keyLetters=item.answer.map(letter).join('・');
+      return '<details class="wrong-item"><summary>'+item.q+'</summary>'
+        +'<div class="wrong-answer"><span class="key">正解： '+keyLetters+'</span><br>'+(item.a||'')+'</div></details>';
+    }).join('');
+  }
+  document.getElementById('reviewWrongBtn2').classList.toggle('hidden', wrongItems.length===0);
+  updateSetupReviewButton();
+}
+
+function updateSetupReviewButton(){
+  const btn=document.getElementById('reviewWrongBtn');
+  if(lastWrongPool && lastWrongPool.length>0){
+    btn.classList.remove('hidden');
+    document.getElementById('wrongCount').textContent=lastWrongPool.length;
+  } else {
+    btn.classList.add('hidden');
+  }
+}
+
+function startReviewWrong(){
+  if(!lastWrongPool || lastWrongPool.length===0) return;
+  let pool=lastWrongPool.slice();
+  if(document.getElementById('randomToggle').checked) pool=shuffle(pool);
+  beginSession(pool);
+}
+
+function retrySameCondition(){
+  if(!session) return;
+  let pool=session.pool.slice();
+  if(document.getElementById('randomToggle').checked) pool=shuffle(pool);
+  beginSession(pool);
+}
+
+initSetup();
+document.getElementById('selectAllBtn').addEventListener('click', function(){
+  document.querySelectorAll('.sectionChk').forEach(function(c){c.checked=true;});
+});
+document.getElementById('selectNoneBtn').addEventListener('click', function(){
+  document.querySelectorAll('.sectionChk').forEach(function(c){c.checked=false;});
+});
+document.getElementById('startBtn').addEventListener('click', startBtnHandler);
+document.getElementById('checkBtn').addEventListener('click', checkAnswer);
+document.getElementById('nextBtn').addEventListener('click', nextQuestion);
+document.getElementById('quitBtn').addEventListener('click', function(){showScreen('setup');});
+document.getElementById('reviewWrongBtn').addEventListener('click', startReviewWrong);
+document.getElementById('reviewWrongBtn2').addEventListener('click', startReviewWrong);
+document.getElementById('retryAllBtn').addEventListener('click', retrySameCondition);
+document.getElementById('backToSetupBtn').addEventListener('click', function(){showScreen('setup');});
+</script>
+</body>
+</html>
