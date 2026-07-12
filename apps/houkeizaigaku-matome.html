@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>法と経済学 まとめ＆記述式問題演習</title>
+<style>
+:root{
+  --bg:#f7f5f0;
+  --bg-card:#ffffff;
+  --fg:#2b2620;
+  --fg-muted:#6b6355;
+  --accent:#b0632f;
+  --accent-fg:#ffffff;
+  --border:#e2dccf;
+  --correct:#4c7a4c;
+  --incorrect:#b0432f;
+  --radius:14px;
+  --shadow:0 2px 10px rgba(0,0,0,0.06);
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#1c1a17;
+    --bg-card:#26221d;
+    --fg:#efe9df;
+    --fg-muted:#a89c88;
+    --accent:#d98a53;
+    --accent-fg:#1c1a17;
+    --border:#3a352c;
+    --correct:#7cbf7c;
+    --incorrect:#e08066;
+    --shadow:0 2px 14px rgba(0,0,0,0.4);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#1c1a17;
+  --bg-card:#26221d;
+  --fg:#efe9df;
+  --fg-muted:#a89c88;
+  --accent:#d98a53;
+  --accent-fg:#1c1a17;
+  --border:#3a352c;
+  --correct:#7cbf7c;
+  --incorrect:#e08066;
+  --shadow:0 2px 14px rgba(0,0,0,0.4);
+}
+:root[data-theme="light"]{
+  --bg:#f7f5f0;
+  --bg-card:#ffffff;
+  --fg:#2b2620;
+  --fg-muted:#6b6355;
+  --accent:#b0632f;
+  --accent-fg:#ffffff;
+  --border:#e2dccf;
+  --correct:#4c7a4c;
+  --incorrect:#b0432f;
+  --shadow:0 2px 10px rgba(0,0,0,0.06);
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:var(--bg);
+  color:var(--fg);
+  font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  line-height:1.7;
+  padding-bottom:96px;
+}
+.wrap{max-width:880px;margin:0 auto;padding:0 16px;}
+.topbar{
+  position:sticky;top:0;z-index:20;
+  background:var(--bg);
+  border-bottom:1px solid var(--border);
+  padding:14px 0 0 0;
+}
+.topbar h1{
+  font-size:1.15rem;
+  margin:0 0 4px 0;
+  padding:0 16px;
+  max-width:880px;
+  margin-left:auto;margin-right:auto;
+}
+.topbar .sub{
+  font-size:0.82rem;
+  color:var(--fg-muted);
+  padding:0 16px;
+  max-width:880px;
+  margin:0 auto 10px auto;
+}
+.tabs{
+  display:flex;
+  gap:6px;
+  max-width:880px;
+  margin:0 auto;
+  padding:0 16px;
+}
+.tab-btn{
+  flex:1;
+  padding:10px 8px;
+  border:1px solid var(--border);
+  border-bottom:none;
+  background:var(--bg-card);
+  color:var(--fg-muted);
+  border-radius:10px 10px 0 0;
+  cursor:pointer;
+  font-size:0.92rem;
+  font-weight:600;
+}
+.tab-btn.active{
+  color:var(--accent);
+  background:var(--bg-card);
+  border-color:var(--accent);
+}
+main{padding-top:14px;}
+.tab-panel{display:none;}
+.tab-panel.active{display:block;}
+.unit-card{
+  background:var(--bg-card);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+  margin-bottom:14px;
+  overflow:hidden;
+}
+.unit-card summary{
+  cursor:pointer;
+  list-style:none;
+  padding:14px 16px;
+  font-weight:700;
+  font-size:1rem;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+}
+.unit-card summary::-webkit-details-marker{display:none;}
+.unit-card summary::after{
+  content:"▾";
+  color:var(--accent);
+  font-size:0.9rem;
+  transition:transform .15s;
+  flex-shrink:0;
+}
+.unit-card[open] summary::after{transform:rotate(180deg);}
+.unit-card .body{
+  padding:0 16px 16px 16px;
+  border-top:1px solid var(--border);
+  padding-top:12px;
+}
+.unit-card .body ul{margin:0;padding-left:1.3em;}
+.unit-card .body li{margin-bottom:8px;}
+.unit-card .body li:last-child{margin-bottom:0;}
+.q-badge{
+  display:inline-block;
+  font-size:0.7rem;
+  font-weight:700;
+  color:var(--accent-fg);
+  background:var(--accent);
+  padding:2px 8px;
+  border-radius:999px;
+  margin-right:8px;
+  flex-shrink:0;
+}
+.q-meta{
+  font-size:0.75rem;
+  color:var(--fg-muted);
+  margin-bottom:8px;
+}
+.q-card summary{align-items:flex-start;}
+.q-text{font-weight:600;}
+.q-text-jp{font-weight:400;color:var(--fg-muted);font-size:0.88rem;margin-top:4px;}
+.answer-box{
+  margin-top:12px;
+  padding:12px 14px;
+  background:var(--bg);
+  border:1px dashed var(--border);
+  border-radius:10px;
+}
+.answer-box .label{
+  font-size:0.78rem;
+  font-weight:700;
+  color:var(--accent);
+  margin-bottom:8px;
+  text-transform:uppercase;
+  letter-spacing:.03em;
+}
+.past-tag{
+  display:inline-block;
+  font-size:0.7rem;
+  font-weight:700;
+  color:var(--incorrect);
+  border:1px solid var(--incorrect);
+  padding:1px 7px;
+  border-radius:999px;
+  margin-bottom:6px;
+}
+.footer{
+  max-width:880px;margin:24px auto 0 auto;padding:0 16px;
+  color:var(--fg-muted);font-size:0.8rem;text-align:center;
+}
+.intro-box{
+  background:var(--bg-card);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+  padding:14px 16px;
+  margin-bottom:16px;
+  font-size:0.9rem;
+  color:var(--fg-muted);
+}
+.intro-box b{color:var(--fg);}
+
+/* timer widget */
+#timerWidget{
+  position:fixed;
+  right:12px;
+  bottom:12px;
+  z-index:50;
+  background:var(--bg-card);
+  border:1px solid var(--border);
+  box-shadow:var(--shadow);
+  border-radius:16px;
+  padding:10px 12px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  font-variant-numeric:tabular-nums;
+}
+#timerWidget.collapsed .timer-controls,
+#timerWidget.collapsed .timer-reset-btn,
+#timerWidget.collapsed .timer-set-btn{
+  display:none;
+}
+#timerDisplay{
+  font-size:1.25rem;
+  font-weight:700;
+  min-width:74px;
+  text-align:center;
+  cursor:pointer;
+}
+#timerDisplay.warn{color:var(--incorrect);}
+.timer-controls button, .timer-reset-btn, .timer-set-btn{
+  border:none;
+  border-radius:999px;
+  padding:8px 12px;
+  font-size:0.82rem;
+  font-weight:700;
+  cursor:pointer;
+}
+.timer-controls .start-btn{background:var(--accent);color:var(--accent-fg);}
+.timer-reset-btn, .timer-set-btn{background:var(--bg);color:var(--fg-muted);border:1px solid var(--border);}
+.timer-collapse-btn{
+  background:none;border:none;color:var(--fg-muted);
+  font-size:0.9rem;cursor:pointer;padding:4px;
+}
+
+@media (max-width:520px){
+  .topbar h1{font-size:1rem;}
+  #timerWidget{right:8px;bottom:8px;padding:8px 10px;}
+  #timerDisplay{font-size:1.05rem;min-width:60px;}
+  .tab-btn{font-size:0.82rem;padding:9px 4px;}
+}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="topbar">
+    <h1>法と経済学 まとめ＆記述式問題演習</h1>
+    <div class="sub">Kohei Kawamura 教授「Law and Economics」講義スライド全体（Intro〜消費者保護の経済学）に基づく学習用まとめ。記述式問題は MidtermExamguide2026s.pdf のOxfordスタイル（曖昧・広範な論述問題）を参考に作成。</div>
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="notes">📝 まとめノート</button>
+      <button class="tab-btn" data-tab="quiz">✍️ 記述式問題演習</button>
+    </div>
+  </div>
+
+  <main>
+    <section id="tab-notes" class="tab-panel active">
+      <div class="intro-box">
+        各単元をタップ / クリックすると開閉します。試験直前の見直し用に、講義スライドの要点だけを凝縮しています。詳細な数値例や図は元スライド・教科書（Cooter and Ulen）を参照してください。
+      </div>
+      <div id="notesContainer"></div>
+    </section>
+
+    <section id="tab-quiz" class="tab-panel">
+      <div class="intro-box">
+        本試験は「45分・2問中1問選択・記述式」の形式（<b>Preparation Guide for the Midterm Exam</b> より）。設問は曖昧で広い視野を要求する Oxford スタイルです。まず自分で答案構成（10〜15分目安）をしてから「模範解答のポイントを見る」をクリックして照合してください。下の30分タイマーで本番同様に時間を計りながら演習できます。
+      </div>
+      <div id="quizContainer"></div>
+    </section>
+  </main>
+
+  <div class="footer">法と経済学（Kawamura）講義資料に基づく個人学習用まとめアプリ。自己採点・自己添削の目安として使用してください。オフライン単一ファイル・外部通信なし。</div>
+</div>
+
+<div id="timerWidget" class="collapsed">
+  <span id="timerDisplay">30:00</span>
+  <span class="timer-controls">
+    <button class="start-btn" id="timerStartBtn">開始</button>
+  </span>
+  <button class="timer-reset-btn" id="timerResetBtn">リセット</button>
+  <button class="timer-collapse-btn" id="timerCollapseBtn">▾</button>
+</div>
+
+<script>
+/* ============ データ ============ */
+const NOTES = [
+{title:"1. イントロダクション／コースの定理", body:`
+<ul>
+<li>「法と経済学」＝<b>法の経済学的分析</b>であり、法学的な経済分析ではない。前提として初級ミクロ経済学の理解が必要。</li>
+<li>厚生経済学の基本：完全競争・市場の不完全性がなければ私的最適化行動が社会的最適を達成する。市場の不完全性（外部性など）があると私的最適と社会的最適が乖離する。</li>
+<li><b>Sturges v Bridgman (1876)</b>：60年間営業してきた菓子屋の騒音・振動と、後から越してきた医師の診療への支障が対立。裁判所は医師（原告）の請求を認め、菓子屋に「長年苦情なく営業してきたことで権利は生まれない」とした。これは負の外部性の経済理論ではなく<b>法学的アプローチ</b>による判断だった点がポイント。</li>
+<li><b>コースの定理（Coase, 1960, "The Problem of Social Cost"）</b>：①財産権が明確に定義され、②当事者間の交渉費用がゼロ（またはごく低い）であれば、裁判所がどちらに権利を与えても、<b>効率的な資源配分（価値の高い方が営業する）が実現する</b>。変わるのは富の分配のみ。</li>
+<li>数値例：菓子屋の営業価値と医師の被害額を比較。どちらに権利を与えても、価値の高い活動が継続する（低い方が高い方に補償を支払う、または権利を売買する）。</li>
+<li>なぜ画期的か：法（権利の初期配分）と経済効率性という別問題を一つの枠組みに統合し、「財産権の明確化」と「交渉費用の低さ」が効率性の前提条件であることを示した。</li>
+<li>コースの定理が成り立つなら「法は重要でない（経済分析は不要）」ことになる。逆に言えば、<b>現実には①財産権が曖昧、②交渉費用が高い</b>ことが多いからこそ、法と経済学という分野が必要になる。</li>
+<li>取引費用の3要素：①探索費用（Search cost：相手を見つける費用）、②交渉費用（Negotiation cost：条件を詰める費用）、③履行確認費用（Enforcement cost：契約が守られているか監視する費用）。</li>
+<li><b>規範的コースの定理</b>：交渉費用を下げるように法を設計すべき（例：単純明快な財産権のルール、「先に占有した者が権利を持つ」、公開された権利記録）。</li>
+<li><b>規範的ホッブズの定理</b>：交渉費用がゼロでなくても、初期の財産権は「それを最も高く評価する当事者」に割り当てるべき（大規模取引での摩擦を最小化）。交渉費用が本当に低ければ、初期配分に関係なく価値の高い当事者に権利が移転する。</li>
+<li>主観的価値の保護：市場の自発的取引だけが当事者の主観的価値（市場価格に現れない価値）を反映できる。</li>
+</ul>
+`},
+{title:"2. ミクロ経済学ツールの復習（ゲーム理論）", body:`
+<ul>
+<li>利得行列（Payoff matrix）：2人・2行動ゲームの基本表記。行プレイヤー・列プレイヤーそれぞれの利得を整理する。</li>
+<li><b>囚人のジレンマ</b>：両者が黙秘すれば軽い刑（協力的に望ましい結果）だが、相手の行動に関わらず「自白」の方が自分の利得が高い＝<b>支配戦略</b>。結果、両者自白（非効率な均衡）が実現する。</li>
+<li><b>ナッシュ均衡</b>：相手の戦略を所与として、自分の戦略を変える誘因がない組み合わせ。支配戦略均衡はナッシュ均衡の特殊ケースだが、ナッシュ均衡は支配戦略を必要としない。</li>
+<li>法と経済学への教訓：単独の意思決定では「選択肢が多いほど良い」が、<b>戦略的環境（自分の行動が他人の利得に影響する状況）では、特定の行動を禁止する方が全員にとって望ましい</b>ことがある（例：ドーピング禁止は「クリーンでいる／ドーピングする」の囚人のジレンマ構造を解消する）。</li>
+<li><b>逐次ゲームと後ろ向き帰納法</b>：最後の意思決定から遡って解く。訴訟ゲームの例：契約違反（renege）した相手を訴える（sue）ことが第二手番にとって割に合わなければ、その「訴える」という脅しは<b>信憑性のない脅し（non-credible threat）</b>となり、第一手番は違反を選ぶ。</li>
+<li>第二手番の訴訟費用が下がり「訴える」ことが本人にとって得になれば、脅しは<b>信憑性のある脅し（credible threat）</b>となり、第一手番は契約を守る（＝均衡では訴訟は実際には起きない）。</li>
+</ul>
+`},
+{title:"3. 財産権の経済理論", body:`
+<ul>
+<li>財産の経済分析の4つの問い：①何を所有できるか（私有か共有か）、②所有権の紛争をどう解決するか、③自分の所有物に対して何をしてよいか、④社会（政府）は私有財産に対して何をしてよいか（規制・収用）。</li>
+<li><b>コースの定理</b>の再確認：交渉費用ゼロなら初期配分に関係なく効率的配分が実現（例：牧場主とフェンス建設費用の数値例、Farmers' rights vs Ranchers' rights）。</li>
+<li>取引費用がある場合：交渉が成立しない可能性があり、<b>法のデフォルト・ルールが実際の結果を左右する</b>（例：通信費用がある場合、農民の権利ルールならフェンスが建つが、牧場主の権利ルールでは建たない）。</li>
+<li>「不変性版」コースの定理は現実的でない：どちらが権利を持つかで<b>富の分配は変わる</b>（法的権利の付与自体が受給者を富ませる）。</li>
+<li><b>財産権保護の2ルール</b>：
+  <ul>
+  <li><b>財産ルール（Property Rule）</b>：差止命令で保護。侵害するには権利者との交渉（同意）が必須。当事者自身が相対的評価を裁判所より正確にでき、かつ交渉費用が低い場合に効率的。</li>
+  <li><b>責任ルール（Liability Rule）</b>：金銭賠償で保護。裁判所が「仮想的市場取引」を模擬して客観的な価格（賠償額）を決める。交渉費用が高く当事者間の合意が成立しない場合に効率的。</li>
+  </ul>
+</li>
+<li>過去の侵害（もう起きたこと）は通常<b>責任ルール</b>（損害賠償）、将来の侵害の予防は通常<b>財産ルール</b>（差止命令）で保護される。</li>
+<li>主観的価値の保護は財産ルール（自発的交渉）でのみ可能。責任ルールは客観的（市場的）価値しか反映できない。</li>
+</ul>
+`},
+{title:"4. 知的財産", body:`
+<ul>
+<li>情報の性質：<b>非競合性・非排除性</b>（公共財的性質）を持つため、市場に任せると<b>過少供給（フリーライダー問題）</b>が生じる。</li>
+<li>知財保護がなければ、限界費用＝価格（ほぼゼロ）となり創作・発明のインセンティブが失われる。しかし保護は<b>独占</b>を生み、価格上昇・数量減少・死荷重損失（デッドウェイトロス）という非効率をもたらす。</li>
+<li><b>事前（ex ante）と事後（ex post）のトレードオフ</b>：事後的には無保護（競争価格）が効率的だが、事前的には無保護では創作意欲が失われる。</li>
+<li><b>特許設計の2変数</b>：①幅（breadth：類似技術がどこまで侵害とみなされるか）、②期間（length：保護期間）。</li>
+<li>理論的結論：同じ独占利潤を保証するなら、<b>「弱く（狭く）長い」特許の方が「強く（広く）短い」特許より社会的に効率的</b>。価格が下がるほど独占企業の利潤減少より死荷重損失の減少の方が大きいため。</li>
+<li>特許は同時に<b>情報公開の手段</b>でもある（社会的価値あり）。狭すぎる特許は模倣のコストを下げ、企業が特許を出願せず<b>営業秘密（trade secret）</b>を選ぶ誘因を生む。営業秘密には期限がないが、リバースエンジニアリングで模倣されるリスクがある。</li>
+<li>特許期間はほとんどの国で20年で統一（実質的な理由は乏しいが200年以上の慣行）。発明ごとに最適期間を個別査定するのは行政・取引コストが高すぎて非現実的。</li>
+<li><b>オーファンドラッグ法（米国, 1983年）</b>：希少疾病用医薬品に7年間の独占的販売権を付与（同じ患者集団を対象とすれば化学的に異なる薬でも排除＝通常の特許より強い）。特定産業向けにIP保護を調整した稀な成功例：施行前年10件→施行後年20件超に承認数が増加。</li>
+</ul>
+`},
+{title:"5. 財産権のさらなるトピック（著作権・商標・コモンズ）", body:`
+<ul>
+<li><b>著作権の存続期間はなぜ有限か</b>：①独占の弊害を無期限にしないため、②<b>追跡費用（tracing cost）</b>の抑制——保護期間が短いほど、新しい創作者が「過去のどの作品まで無断利用のチェックが必要か」の範囲が狭まる、③創作者は先人の作品の上に成り立つ（"standing on the shoulders of giants"）ため、他者の借用を積極的に許容（補助）すべき。</li>
+<li>著作権期間が200年で延び続けてきた理由：複製費用・追跡費用の低下（違法コピーが容易に）、識字率・所得の向上による創作物需要の増加（同時に違法コピー需要も増加）。</li>
+<li><b>フェアユース</b>：教育目的の利用等は「多数派のデフォルト（majoritarian default）」として無許諾利用を認める（取引費用の節約）。パロディは多くの権利者が望まないが、社会的価値のため別途保護。</li>
+<li><b>商標</b>には存続期間の制限がない：唯一の社会的費用は「一般名称化（genericide：アスピリン、ゼロックス等）」による独占の弊害のみで、権利者自身にブランドの識別性を守るインセンティブがあるため。</li>
+<li><b>コモンズの悲劇</b>：非排除性・競合性を持つ資源（共有資源プール）の過剰利用（漁業資源、渋滞、乱伐等）。解決策：アクセス制限（ガバナンス）、または私有化（単独所有者が外部費用を内部化）。</li>
+<li><b>アンチコモンズの悲劇</b>：権利を細分化しすぎると、逆に誰も使えなくなる（遺伝子特許が診断薬開発を妨げる等）。「一貫した権利の束」の設計と、ライセンス実務の柔軟化が処方箋。</li>
+<li>企業が自主的に発見をパブリックドメインへ投資する例（アンチコモンズ回避）：遺伝子配列の公開データベース、Meta の Llama、Google の TensorFlow、Creative Commons ライセンス。</li>
+</ul>
+`},
+{title:"6. 不法行為法の経済理論", body:`
+<ul>
+<li>不法行為法の経済的目的＝<b>事故の社会的費用の最小化</b>＝予防費用＋期待事故損失＋行政費用の和。</li>
+<li>基本モデルの前提（単純化）：合理的で自己利益を追求する当事者、訴訟費用ゼロ、保険なし、他の政策手段なし。</li>
+<li><b>過失責任（Negligence）</b>：法定注意義務水準 x* 未満（x &lt; x*）なら賠償責任あり、x* 以上なら免責。x* は「限界予防費用＝限界期待便益（事故確率・損害の減少）」が成立する水準＝社会的費用最小化点。</li>
+<li><b>ハンドルール（Learned Hand判事, U.S. v. Carroll Towing Co., 1947）</b>：予防の負担 &lt; （事故の重大性）×（発生確率）なら過失（有責）。この定式化が x* の実務的な求め方。</li>
+<li>過失責任は加害者だけでなく<b>被害者にも最適注意を促す</b>：注意義務を果たした加害者は免責されるため、被害者は「自分の損失は自分で負う可能性がある」と認識し、自らも費用対効果に見合う予防をとる（<b>双方的注意 bilateral precaution</b>）。</li>
+<li><b>比較過失（Comparative negligence）</b>：加害者のみ過失なら加害者が全額負担、被害者のみ過失なら被害者が全額負担、双方過失なら過失割合に応じて按分、双方無過失なら賠償なし。</li>
+<li><b>厳格責任（Strict liability）</b>：加害者の注意水準に関係なく常に賠償責任を負う。加害者の期待賠償額曲線＝社会的費用曲線そのものとなり、加害者は自然に x* を選ぶ。<b>片務的注意（unilateral precaution）</b>——被害者側にできることがほぼない状況（異常に危険な活動：ダイナマイト、猛獣飼育等）に適する。</li>
+<li><b>厳格責任＋寄与過失</b>：被害者が注意義務を怠っていた場合のみ加害者は免責（製造物責任などで多用：メーカーが主たる予防者だが、消費者側にも一定の注意を期待するケース）。</li>
+</ul>
+`},
+{title:"7. 不法行為責任の経済学トピック", body:`
+<ul>
+<li>基本モデルの前提を緩和した場合の含意：</li>
+<li><b>限定合理性</b>：人は予測可能な判断ミスをする（例：運転技能の過信）。シートベルト等のパッシブな安全装置が有効。誰がより正確にリスクを内部化できるかで責任を割り当てる。</li>
+<li><b>訴訟費用</b>：訴訟が有料なら加害者は「訴訟費用より安ければ予防する」と考える一方、被害者は「訴訟費用が見合わなければ訴えない」。集団訴訟・成功報酬制はこれを緩和。</li>
+<li><b>保険</b>：自己負担額・共同保険はモラルハザードを抑制。第三者（賠償責任）保険の<b>経験料率</b>は事故歴を保険料に反映し予防インセンティブを維持。故意の不法行為は保険対象外が一般的。</li>
+<li><b>有限責任</b>：企業が倒産すれば賠償を免れうるため、危険な事業ほど<b>過小資本化</b>し予防投資を怠るインセンティブが生じる（例：産業廃棄物処理業者）。</li>
+<li><b>基準（Standard）vs ルール（Rule）</b>：基準（例：過失＝「合理的に行動したか」を事後・個別判断）は柔軟だが不確実性が高い。ルール（例：制限速度）は事前に明確だが状況に応じた調整ができない。</li>
+<li>損害賠償額の算定：①<b>無差別性（indifference）</b>——市場代替財があるとき、事故前後で無差別になる金額、②<b>合理性（reasonableness）</b>——市場価格がない場合（生命・健康）は「統計的生命価値（VSL）」等のリスク等価法で推定。</li>
+<li><b>懲罰的損害賠償</b>：不完全な訴訟制度（すべての被害者が訴えるわけではない）を補正し、期待賠償額を実際の損害と一致させるために必要。過大な懲罰的賠償は逆に非効率（米最高裁 <i>State Farm v. Campbell</i>, 2003：補償的賠償の一桁台の倍率が目安、二桁（10倍以上）は違憲の疑いあり）。</li>
+<li><b>不法行為改革</b>：訴訟要件の強化（専門家パネルの事前認定等）、損害賠償上限、懲罰的賠償の証拠基準引き上げ、米国ルール（各自負担）から英国ルール（敗訴者負担）への転換案。</li>
+<li>医療過誤：<b>防衛医療（defensive medicine）</b>——責任回避目的の過剰治療という社会的浪費の可能性。マス・トート（アスベスト等）：因果関係の立証困難、信託基金による解決。</li>
+<li><b>オンラインプラットフォームの責任</b>：Cheapest Cost Avoider（最も安く事故を防げる主体）に責任を負わせる発想。米通信品位法(CDA)230条はプラットフォームに免責を与えるが、<i>Bolger v. Amazon.com</i>・<i>Anderson v. TikTok</i>のように、実質的に販売者的役割を果たす／アルゴリズムが積極的に有害コンテンツを推奨した場合は免責が否定されうる。</li>
+</ul>
+`},
+{title:"8. 契約法の経済理論", body:`
+<ul>
+<li>契約法の必要性：将来の履行への<b>信頼（reliance）</b>を保護し、事前の投資（コミットメント）を可能にする。契約なしでは相手の機会主義的行動（裏切り）を恐れ、効率的な投資が行われない（プリンシパル・エージェントのゲーム木で説明）。</li>
+<li><b>効率的違反（Efficient Breach）</b>：不確実な状況が実現し、履行のコストが履行の総便益を上回るなら、契約を破る方が社会的に効率的な場合がある。</li>
+<li>効率性の条件：（約束者の履行純便益＋受約者の履行純便益）≥（約束者の違反純便益＋受約者の違反純便益）なら履行すべき。</li>
+<li>個人合理性の条件：約束者は「履行純便益 ≥ 違反純便益 − 賠償額」なら履行する。この2条件が一致するのは<b>賠償額＝受約者の履行純便益−違反純便益</b>のとき＝<b>完全期待利益損害賠償（Perfect Expectation Damages）</b>。</li>
+<li>完全期待利益賠償があれば、約束者は自己利益の最大化行動が自動的に社会的効率性と一致する（違反時の予防行動も含め）。<b>懲罰的賠償は非効率</b>（本来破るべき契約を無理に履行させてしまう）。</li>
+<li><b>補償のパラドックス</b>：完全期待利益賠償は約束者に効率的な履行/違反判断を促す一方、受約者には「違反確率を無視した<b>過剰な信頼投資</b>」を招く（違反時の予防投資は過小になる）。加害者への完全補償＝被害者の完全補償であり、両方を同時に効率化する単一の賠償ルールは存在しない。</li>
+<li>対策：<b>仮想的期待利益賠償（hypothetical expectation damages）</b>＝受約者が効率的に信頼していたと仮定した場合の賠償額のみ払う。<b>予見可能性の原則（foreseeability）</b>：<i>Hadley v Baxendale (1854)</i>——特殊事情（予備の主軸を持たないこと）を事前に伝えなかった原告は、通常の（予見可能な）損害しか賠償請求できない。</li>
+<li>賠償額の大きさの順：<b>期待利益賠償 ≥ 機会費用賠償 ≥ 信頼利益賠償</b>。</li>
+<li><b>違約金（Penalty）</b>と契約自由：裁判所は実損害を超える違約金の強制執行に消極的（私人による「罰」の権限行使への警戒、非効率な過剰履行の誘発）。ただし数学的には「違約金＋低い基本料金」と「ボーナス＋高い基本料金」は等価になりうる（保険としての解釈も可能）。</li>
+</ul>
+`},
+{title:"9. 契約法のさらなるトピック", body:`
+<ul>
+<li><b>契約成立の抗弁（合意が無効・取消可能になる場合）</b>：①強要・強迫（Duress：脅しにより抽出された合意は無効。ただし価値創造への協力の対価としての要求は有効）、②緊急避難（Necessity：第三者による過酷な制約）、③無能力（Incompetency：判断力を欠く場合）、④錯誤（Mutual Mistake：双方が事実を誤認）。</li>
+<li><b>情報の生産的情報 vs 再分配的情報</b>：<b>生産的情報</b>（イノベーション・芸術的発見など付加価値を生む情報）は、能動的投資によって得られたものであれば<b>開示義務なしで契約を有効</b>とすべき（発見への投資インセンティブ保護、特許保護の論理と同様）。<b>再分配的情報</b>（例：高速道路建設予定地の情報）は付加価値を生まないため、能動的投資で得たものでも保護（無開示の許容）すべきでない＝レントシーキングを助長するため。</li>
+<li>安全性に関する<b>潜在的欠陥（latent defects）</b>は原則として開示義務がある（消費者保護のための"caveat emptor"の例外）。</li>
+<li><b>不当条項（Unconscionability）</b>：手続的不当性（procedural：取引プロセスにおける不当な優位性の濫用）と実体的不当性（substantive：市場価格から著しく乖離した条件）の両面から審査。定型約款は取引費用削減の観点から一定の合理性を持つ。</li>
+<li><b>履行の免責</b>：①<b>目的の失敗（Frustration of Purpose）</b>——双方が重要な偶発事象を誤認していた場合（例：戴冠式パレード中止で沿道の部屋賃貸契約が無価値化）、②<b>履行不能（Impossibility）</b>——契約後に生じた過酷な制約で履行できなくなった場合（強要とは異なり、第三者ではなく状況そのものに起因）。</li>
+<li>免責の判断基準＝<b>効率的リスク配分</b>：どちらの当事者がより安く情報を得られた／リスクを予防できたかで責任を割り当てる。</li>
+<li>新しい論点：<b>クリックラップ契約</b>（十分な検討なしのクリック同意は拘束力を持つべきか）、判断力に制約のある消費者（高齢者等）の保護と契約自由・尊厳のバランス。</li>
+</ul>
+`},
+{title:"10. 法的手続の経済理論", body:`
+<ul>
+<li>米国でも訴訟に至る紛争は全体の5%未満と推定。<b>訴訟は私的費用として当事者が負担</b>するため、訴訟制度自体の効率性を分析する必要がある。</li>
+<li>手続法の経済的目的＝<b>法制度の社会的費用の最小化</b>＝行政費用＋誤判費用。和解と裁判が同じ結果に至るなら誤判費用は同じなので、行政費用がはるかに低い<b>和解が優先されるべき</b>。</li>
+<li>訴訟の意思決定：訴訟の期待価値（EVC＝勝訴確率×賠償額−訴訟費用）と和解案を比較し、高い方を選ぶ。当事者は交渉の脅点（threat point：裁判に進んだ場合の期待利得）を基準に和解額を交渉する。</li>
+<li><b>相対的楽観主義（Relative Optimism）</b>：原告・被告双方が自分に有利な勝訴確率を主観的に見積もっている場合、和解の「協力余剰（訴訟費用の節約分）」がマイナスになりうる＝<b>不合意への合意（agreeing to disagree）</b>により裁判に至る。両者が同じ確率認識を共有していれば、和解は必ず双方を裁判より良くする。</li>
+<li>相対的楽観主義が生じる理由：私的・非対称情報、自信過剰などの認知バイアス。</li>
+<li><b>情報開示（ディスカバリー）</b>：偽の悲観論を是正し不確実性を減らす効果がある一方、偽の楽観論を是正すると和解条件が厳しくなり、かえって和解費用を高め（訴訟に至りやすく）する場合もある——効果は理論的にあいまい。</li>
+<li>訴訟が発生する条件：<b>相対的楽観主義の大きさ（ΔEJ）が、和解によるコスト節約（訴訟費用−和解費用）を上回るとき</b>。</li>
+</ul>
+`},
+{title:"11. 犯罪と刑罰の経済学", body:`
+<ul>
+<li>刑事法が民事（不法行為）法と異なる点：①<b>犯意（故意・計画性）</b>の有無、②<b>公共の害</b>（原告が「社会」を代表する検察官）、③<b>立証基準の高さ</b>（合理的疑いを超える証明。無実の人を有罪にすることは有罪の人を無罪にすることより悪いとされる）、④<b>刑罰</b>（被害者への補償ではなく加害者への罰）。</li>
+<li>不法行為法だけでは不十分な理由：①完全な補償が不可能（死亡・身体傷害）、②権利そのものの保護（恐怖なく生活する権利は経済的利益を超える価値を持つ）、③抑止のための刑罰が必要（合理的・無道徳的な個人には金銭賠償だけでは不十分）、④刑罰は公共財的性質（国防に類似）。</li>
+<li><b>Becker (1968) の合理的犯罪者モデル</b>：期待便益 y(x) &gt; 期待費用 p(x)f(x)（検挙確率×刑罰の重さ）なら犯罪を実行。最適な深刻度 x* は限界便益＝限界期待費用で決まる。</li>
+<li>社会は①検挙・有罪確率の引き上げ、②刑罰の強化、③犯罪の機会費用（合法的な就業機会等）の引き上げ、のいずれか（または組み合わせ）で犯罪を抑止できる。</li>
+<li><b>限定合理性・割引率</b>：突発的犯罪（衝動・飲酒等）は主観的割引率 r が一時的に急上昇するとモデル化でき、期待費用が p(x)f(x)/(1+r) と割り引かれ、厳罰化の抑止効果が働きにくい。計画的犯罪ほど p(x)f(x) を冷静に計算するため厳罰化の効果が出やすい。</li>
+<li>実証：厳罰化（刑の長期化）自体の抑止効果を示す確固たる証拠は乏しいが、<b>検挙・処罰の確実性（probability）の向上</b>には一定の抑止効果があるとの実証がある。</li>
+<li>Donohue and Levitt (2001) の議論（賛否両論あり）：中絶合法化による出生数減少・構成変化が1990年代の米国犯罪率低下の一因という仮説（量的効果＋質的効果）。</li>
+<li>AIによる検挙確率 p(x) の上昇（顔認証・ナンバープレート自動認識等）：モデル上は同じ抑止力を維持しつつ刑罰 f(x) を軽減できる可能性を示唆するが、冤罪リスクや応報・無害化といった刑罰の他の目的も考慮が必要。</li>
+<li>犯罪類型によって最適な抑止設計は異なる：侵入窃盗（金銭目的、検挙確率向上が有効）、脱税・環境汚染（計画的な経済犯罪、期待刑罰の引き上げが有効）など、一律の刑罰設計は最適ではない。</li>
+</ul>
+`},
+{title:"12. 消費者保護の経済学", body:`
+<ul>
+<li>効率的取引の条件：買い手の支払意思額（WTP）≥ 価格 ≥ 売り手の費用。両方が満たされたときに余剰（社会的価値）が生まれる。消費者保護は<b>WTP &lt; 価格</b>となる取引（消費者が損をする取引）に着目する。</li>
+<li><b>消費者契約が失敗する3つのメカニズム</b>：
+  <ul>
+  <li>①<b>情報の非対称性</b>：製品の質、料金体系、契約内容（例：DAZNの「月980円」表示の裏に最初の3か月で総額26,340円）。</li>
+  <li>②<b>限定合理性</b>：現在バイアス、自信過剰、判断力低下、注意の限界（自動更新の見落とし等）。</li>
+  <li>③<b>選好（WTP）操作</b>：不安・恐怖の煽り、身体的拘束、時間制限による意思決定環境の歪め（霊感商法、SNS型投資詐欺等）。</li>
+  </ul>
+</li>
+<li>対応する救済手段：①には情報開示義務・誤認取消・総額表示・不当条項の無効、②には自動更新の制限・解約手続の簡略化、③には<b>取消権の拡大</b>。</li>
+<li><b>霊感商法</b>の例：令和4年臨時国会改正で、本人だけでなく<b>家族にも取消権</b>を付与し行使期間を延長——契約自由への顕著な制限だが、意思決定環境そのものが歪められているケースとして正当化。令和4年改正では退去困難な場所での勧誘、威迫による相談妨害、契約前の現状変更行為（竿竹商法等）も新たに規制対象化。</li>
+<li><b>キャンセル料</b>は「罰」ではなく、事業者の損害補填・キャンセル判断へのインセンティブ・予防努力インセンティブ・リスク分担の手段。高すぎれば望ましいキャンセルも起きなくなる（違約罰との違いに注意）。取消不可＝実質100%のキャンセル料。返金可・不可の価格差別は不確実性下でのスクリーニングとして経済合理性を持ちうる（ただし消費者が期待総額支払いを正しく判断できるかが論点）。</li>
+<li><b>情報開示のアンラベリング定理（Unravelling）</b>：完全合理的な当事者間では「情報を隠すこと自体が悪い情報のシグナル」となるため、最悪でない限りすべての情報が自発的に開示されるはず、という理論。開示費用や限定合理性があると成立しなくなる（消費者は複雑な製品詳細を理解できない）。</li>
+<li><b>消費者保護が政治的に進みにくい理由</b>：消費者側の被害は広く浅く分散し組織化しにくい一方、事業者側は業界全体としての損失が集中し政策介入のインセンティブを持つ（公共選択論的説明）。妥協点として「努力義務」が使われがちだが、悪質事業者ほど努力義務を果たさないというソフトローの限界がある一方、遵守費用が過大な場合は強制義務より効率的な可能性もある。</li>
+<li>オンライン特有の論点：解約妨害（自動更新・ダークパターン・UI誘導）、フェイクレビュー、ECプラットフォームの設計責任（Cheapest cost avoider の考え方）。</li>
+</ul>
+`}
+];
+
+const QUESTIONS = [
+{unit:"1. イントロダクション／コースの定理", q:"Explain why Ronald Coase's 1960 argument was considered revolutionary, using the Sturges v Bridgman case as an illustration.", points:[
+"Before Coase, law (the assignment of property rights) and economic efficiency were treated as separate, unrelated fields.",
+"Coase showed that as long as (i) property rights are well-defined and (ii) bargaining is costless, the initial legal assignment of rights does not affect which party ends up using the resource in the efficiency-maximizing way.",
+"In Sturges v Bridgman, the court ruled for the doctor purely on legal grounds (60 years of undisturbed operation does not create a right to cause nuisance) without any consideration of economic efficiency.",
+"Using the numerical example: regardless of who is granted the legal right, bargaining leads the confectioner to keep operating if his profit exceeds the doctor's loss, and to stop otherwise — the efficient outcome is invariant to the legal rule.",
+"What does change with the legal rule is the distribution of wealth between the parties, not the efficient allocation itself.",
+"Implication: law and economics is worthwhile precisely because, in reality, property rights are often not well-defined and/or bargaining is costly — Coase's argument identifies exactly the conditions under which law stops mattering for efficiency."
+]},
+{unit:"1. イントロダクション／コースの定理", q:"Explain the Coase Theorem and discuss its normative implications for the design of property rights.", points:[
+"Coase Theorem: if transaction costs are zero (or very low), an efficient allocation of resources will be reached regardless of the initial legal assignment of the entitlement.",
+"Normative Hobbes Theorem: even where transaction costs are low, the initial entitlement should be assigned to the party who values it most, in order to minimize the friction of large-scale bargaining.",
+"Normative Coase Theorem: structure the law to remove impediments to private bargaining — e.g. simple and clear property rights, a publicly available record of ownership ('first in time, first in right').",
+"Protecting subjective (not just market/objective) value requires enabling voluntary exchange rather than dictating outcomes by rule.",
+"Determinants of transaction costs (number of parties, homogeneity of the good, timing, complexity) should inform how legal rules are designed to lower bargaining frictions.",
+"The theorem is not meant to be realistic; like perfect competition, it is a benchmark for identifying precisely when and why bargaining fails to achieve efficiency."
+]},
+{unit:"2. ミクロ経済学ツールの復習", q:"Using the Prisoner's Dilemma, explain why individually rational behaviour can lead to a socially inefficient outcome, and discuss the lesson this has for law and economics.", points:[
+"'Confess' is a dominant strategy for each player: it yields a higher payoff regardless of what the other player does.",
+"The resulting Nash equilibrium (confess, confess) is worse for both players than the cooperative outcome (silent, silent) — individually rational play produces a group-inefficient result.",
+"This illustrates the tension between individual rationality and group (collective) rationality.",
+"Lesson: in single-person decision-making, more choice is (weakly) always better, but in a strategic environment where one person's action affects others' payoffs, prohibiting certain actions can make everyone strictly better off.",
+"Example: banning doping in sport restricts athletes' choice set but can be Pareto-improving relative to allowing free choice, because it escapes a Prisoner's-Dilemma-like structure.",
+"This justifies legal prohibitions and regulation as tools for escaping inefficient non-cooperative equilibria that individuals cannot unilaterally escape on their own."
+]},
+{unit:"2. ミクロ経済学ツールの復習", q:"Explain the difference between a Nash equilibrium and a dominant strategy equilibrium, and discuss why the credibility of threats matters in sequential (litigation) games.", points:[
+"A dominant strategy is optimal for a player regardless of the opponent's action; a Nash equilibrium only requires each player's strategy to be a best response to the other's — it does not require dominance.",
+"Sequential games are solved by backward induction: solve the last stage first, then work backwards to earlier stages.",
+"In the litigation game, if the second mover's cost of suing exceeds the benefit, 'sue' is a non-credible threat — anticipating this, the first mover rationally reneges (breaches).",
+"If the second mover's litigation cost is low enough, 'sue' becomes a credible threat; knowing this, the first mover complies, and litigation is never actually observed in equilibrium.",
+"Implication: lowering the injured party's litigation costs (e.g. easier court access, contingency fees) can strengthen the credibility of a threat to sue, thereby increasing voluntary compliance without any actual litigation.",
+"This shows that the mere possibility (not the actual use) of legal enforcement shapes pre-litigation behaviour."
+]},
+{unit:"3. 財産権の経済理論", q:"Compare and contrast property rules and liability rules as means of protecting legal entitlements.", points:[
+"Property rule: the entitlement is protected by an injunction; anyone wishing to use it must bargain with and obtain the consent of the holder.",
+"Liability rule: the entitlement is protected by an award of money damages; the infringer may take the entitlement without consent but must pay court-determined compensation.",
+"Property rules are efficient when the parties themselves can assess relative value more accurately than the court and when transaction costs are low, allowing bargaining to resolve the relative valuation problem.",
+"Liability rules are efficient when transaction costs are high and bargaining cannot occur; the court then performs a 'hypothetical market bargain' to set an objective price.",
+"Property rules preserve subjective value through voluntary exchange; liability rules substitute an objective, court-determined valuation that may not reflect the holder's true subjective value.",
+"Typical pattern: prospective infringements on property are usually protected by property rules (injunctions), while past infringements are usually protected by liability rules (money damages)."
+]},
+{unit:"3. 財産権の経済理論", q:"Discuss the role of transaction costs in determining whether property disputes should be resolved through private bargaining or through legal intervention.", points:[
+"When transaction costs are low, the Coase Theorem implies private bargaining alone achieves efficiency regardless of the legal rule — legal intervention affects distribution, not efficiency.",
+"When transaction costs are high (e.g. the farmer/rancher fencing example with communication costs), the identity of the legal rule (farmers' rights vs. ranchers' rights) determines whether the efficient outcome (fence built or not) is actually reached.",
+"High transaction costs can prevent efficient bargains from occurring at all, so the law should assign the entitlement to the party most likely to value it (Normative Hobbes Theorem) to approximate the efficient outcome directly.",
+"The determinants of transaction costs (number of parties, homogeneity, timing, complexity) inform whether property rules (favouring bargaining) or liability rules (substituting for missing bargains) are more appropriate.",
+"Overall: transaction costs are the central variable explaining why the design of law matters at all within a Coasean framework."
+]},
+{unit:"4. 知的財産", q:"Discuss the trade-off between ex ante and ex post efficiency in intellectual property protection, and explain how patent breadth and length can be used to manage it.", points:[
+"Ex post: once a work exists, no protection (competitive/zero profit) is efficient, since the marginal cost of reproducing information is near zero — protection creates monopoly deadweight loss.",
+"Ex ante: without protection, the free-rider problem means innovators cannot recoup R&D costs, so creation and innovation would be severely under-supplied.",
+"Optimal policy accepts some ex post inefficiency (monopoly) as the price of preserving ex ante incentives.",
+"Patent breadth (how broadly related technologies infringe) and length (duration) are the two policy levers; theory suggests a 'narrow and long' patent can guarantee the same reward to the inventor while causing smaller deadweight loss than a 'wide and short' patent, because deadweight loss rises disproportionately with the size of monopoly profit.",
+"Tailoring protection to a specific industry (e.g. the Orphan Drug Act's 7-year exclusivity) can further improve the trade-off, though bespoke case-by-case patent terms are generally impractical due to the cost of assessing ex ante value."
+]},
+{unit:"4. 知的財産", q:"Why might narrowly defined patents discourage firms from applying for patents at all, and how does this relate to the social value of information disclosure?", points:[
+"A patent functions partly as compulsory publication of technical information, which has social value (enabling follow-on innovation, avoiding duplicated research).",
+"If a patent is defined too narrowly, rivals may achieve a similar innovation without technically infringing, using the disclosed information — the cost of disclosure (helping rivals) can become large relative to the narrow protection received.",
+"Anticipating this, a rational firm may choose not to patent at all and rely instead on trade secrecy, which has no time limit but is vulnerable to reverse engineering.",
+"This creates a tension: policies designed to limit ex post monopoly harm (narrow patents) can undermine the ex ante social benefit of information disclosure that the patent system is partly designed to produce.",
+"Balancing this requires weighing not just monopoly deadweight loss but the social value lost when firms opt for secrecy instead of patenting."
+]},
+{unit:"5. 財産権のさらなるトピック（過去問）", q:"Compare and contrast the durations of copyrights and trademarks.", points:[
+"Copyright duration is limited (currently author's life + 70 years in the US, after successive extensions from 14+14 years); trademark duration is unlimited, lasting as long as the owner continues to use and enforce it.",
+"Rationale for limiting copyright: (i) it does create a monopoly that should not last forever; (ii) limiting duration reduces 'tracing costs' — a good-faith creator only needs to check a limited period backward to ensure she is not inadvertently infringing; (iii) creators routinely and beneficially 'stand on the shoulders of giants,' and society wants to subsidize this borrowing after a reasonable period of exclusivity.",
+"Copyright duration has lengthened over 200 years because falling copying/tracing costs raised the risk of illegitimate copying, and rising literacy/incomes raised both legitimate and illegitimate demand for creative works.",
+"Trademarks carry essentially only the social cost of potential monopoly if a mark becomes generic (e.g. Aspirin, Xerox); since owners have a private incentive to prevent genericide, there is no strong efficiency argument for capping duration.",
+"In short, copyright duration reflects a deliberate ex ante/ex post trade-off and tracing-cost logic that does not apply to trademarks, whose social benefit (reducing search costs, incentivizing quality) has no natural expiry logic and whose social cost is self-limiting via genericide."
+]},
+{unit:"5. 財産権のさらなるトピック", q:"Explain the tragedy of the commons and the tragedy of the anticommons, and discuss how 'propertization' can both solve and create inefficiency.", points:[
+"Tragedy of the commons: overuse/depletion of a non-exclusive but rival resource, because no individual internalizes the cost their use imposes on others (overfishing, congestion, unregulated logging) — solved by restricting access or by privatization (a single owner internalizes external costs).",
+"Tragedy of the anticommons: when a resource's rights are fragmented among many owners each with the power to exclude, the resource becomes underused because the transaction cost of reassembling all necessary permissions is prohibitive (e.g. overlapping gene patents blocking diagnostic development).",
+"Both arise from ill-defined property rights, but the fixes point in opposite directions: the commons needs more clearly assigned/exclusive rights, while the anticommons needs fewer/more coherent bundles of rights.",
+"Private solutions to anticommons risk: firms sometimes voluntarily place discoveries into the public domain (gene sequence databases, open-source models like Llama, Creative Commons licensing) to pre-empt a future anticommons.",
+"Lesson: propertization is not uniformly good — the efficient level and structure of property rights depends on whether the underlying problem is overuse or underuse."
+]},
+{unit:"6. 不法行為法の経済理論", q:"Explain the economic rationale behind the negligence rule, with reference to the Hand Rule (US v. Carroll Towing Co.).", points:[
+"Under negligence, the injurer is liable only if his precaution x is below the legally required standard x*; if x ≥ x*, he is not liable at all.",
+"x* is chosen to minimize the expected social cost of accidents (precaution cost + expected accident loss) — formally where marginal cost of precaution equals the marginal reduction in expected accident losses.",
+"The Hand Rule (Judge Learned Hand, 1947) operationalizes this: a party is negligent if the burden of precaution is less than (probability of accident) × (gravity of the harm) — i.e. cost-justified precaution was not taken.",
+"The negligence rule induces the injurer to choose exactly x*, because his expected-liability curve follows the social-cost curve up to x* then flattens to just the precaution cost, so a rational injurer minimizes his cost precisely at x*.",
+"Negligence also induces efficient precaution by the victim: because a compliant injurer is exonerated, the victim knows she may bear her own losses and thus has an incentive to take her own cost-justified precautions (bilateral precaution)."
+]},
+{unit:"6. 不法行為法の経済理論", q:"Compare and contrast negligence and strict liability as means of inducing efficient precaution, and discuss when each is more appropriate.", points:[
+"Under negligence, the injurer's expected liability equals precaution cost up to x* then flattens — a rational injurer chooses x* to minimize total private cost.",
+"Under strict liability, the injurer is liable regardless of precaution; his expected-cost curve equals the social-cost curve everywhere, so he again minimizes it exactly at x*.",
+"Both rules can induce efficient precaution x* by the injurer under idealized assumptions, but they differ in how they treat the victim: strict liability alone does not directly induce victim precaution, whereas negligence (via exoneration) induces both parties to take care — suiting bilateral-precaution situations.",
+"Strict liability (or strict liability with contributory negligence) is preferred in unilateral-precaution situations where only the injurer can realistically influence harm — e.g. abnormally dangerous activities, or products where the manufacturer is best placed to prevent harm.",
+"Strict liability with contributory negligence combines unilateral injurer responsibility with a check on victim carelessness (injurer liable unless the victim herself was at fault)."
+]},
+{unit:"7. 不法行為責任の経済学（過去問）", q:"Why do we need tort law, despite the fact that an injurer and a victim can always engage in a private negotiation to determine liability and damages?", points:[
+"Tort law addresses situations where transaction costs between potential injurers and potential victims are too high for them to bargain over liability before an accident (e.g. drivers cannot contract with every stranger they might injure).",
+"Because ex ante bargaining is infeasible, the law must set rules (negligence, strict liability) that internalize the externality an injurer would otherwise ignore.",
+"Even where post-accident negotiation might seem possible, it is a poor substitute: perfect compensation is often impossible (death, permanent injury), and rights (e.g. the right to walk safely) have intrinsic value beyond a purely negotiated economic interest.",
+"Deterrence: for a rational, amoral potential injurer, only the ex ante threat of legal liability (probability of detection × damages) creates an incentive for efficient precaution — without it, individuals consider only private costs/benefits.",
+"Liability functions partly as a public good (like national defence) — a generally applicable system of rules is more efficient than requiring every potential injurer/victim pair to negotiate a bespoke advance contract.",
+"Conclusion: because bargaining is not actually available before most accidents, tort law substitutes for the missing market, replicating what an efficient bargain would have produced."
+]},
+{unit:"7. 不法行為責任の経済学", q:"Discuss how liability insurance, limited liability, and litigation costs can each undermine the deterrence goal of tort law.", points:[
+"Liability insurance: if premiums are not closely experience-rated to an individual's accident history, insurance can blunt the injurer's precaution incentive, since the cost of harming others is shifted to the insurer/risk pool (moral hazard).",
+"Limited liability: corporations can become 'undercapitalized' relative to potential harm (e.g. hazardous-waste firms), since bankruptcy caps their exposure — this creates an incentive to underinvest in precaution.",
+"Litigation costs: because litigation is costly, not every victim sues, so the injurer's actual expected liability is lower than the 'full compensation' benchmark, leading to systematic underinvestment in precaution unless offset.",
+"Each friction breaks the clean link between cost-justified precaution and expected liability assumed by the basic models, meaning optimal deterrence in practice may require complementary tools: experience-rated insurance, minimum capital requirements, punitive damages, and lower litigation-cost mechanisms (class actions, contingency fees)."
+]},
+{unit:"8. 契約法の経済理論", q:"Explain the concept of 'efficient breach', and discuss why perfect expectation damages induce a promisor to make efficient performance/breach decisions.", points:[
+"Efficient breach: when an uncertain state is realized, it may be socially optimal for the promisor to break the promise rather than perform, if performing now costs more than the joint benefit of performance.",
+"Total-surplus condition: perform if (promisor's + promisee's net benefit of performing) ≥ (promisor's + promisee's net benefit of breaching); otherwise breach is efficient.",
+"The promisor privately performs only if his own net benefit of performing exceeds his net benefit of breaching minus damages owed — this individual-rationality condition coincides with the efficiency condition exactly when damages equal the promisee's net benefit of performing minus her net benefit of breaching — the definition of perfect expectation damages.",
+"Because private and social conditions coincide under perfect expectation damages, the promisor's self-interested decision automatically maximizes joint surplus; punitive/excessive damages instead induce inefficient over-performance.",
+"Perfect expectation damages also give the promisor an efficient incentive to take precaution against having to breach, since he still bears the downside of non-performance."
+]},
+{unit:"8. 契約法の経済理論", q:"Explain the 'paradox of compensation' in contract law. Why can no single measure of damages simultaneously achieve efficient reliance and efficient breach?", points:[
+"Reliance is investment by the promisee, made before performance is due, whose return depends on the promisor actually performing.",
+"Efficient breach requires the promisor to fully internalize the cost of breaching by paying perfect expectation damages.",
+"Efficient reliance requires the opposite: the promisee should receive no compensation for reliance losses, so she only relies to the extent efficient given the probability of breach — otherwise she over-relies, ignoring that breach might be efficient.",
+"Paradox: what the promisor pays is exactly what the promisee receives, so one cannot simultaneously fully compensate the promisee (for efficient breach) and give her zero compensation (for efficient reliance) — these goals are mechanically incompatible under a single fixed rule.",
+"Partial solution: hypothetical expectation damages compensate the promisee only for the harm she would have suffered had she relied efficiently, restoring her incentive to rely efficiently.",
+"The foreseeability doctrine (Hadley v Baxendale, 1854) implements this: the promisor is only liable for foreseeable losses given information actually disclosed to him — undisclosed special circumstances are treated as 'overreliance' and excluded from damages."
+]},
+{unit:"9. 契約法のさらなるトピック", q:"Discuss the economic rationale for excusing a promisor from performance under doctrines such as impossibility, frustration of purpose, or commercial impracticability.", points:[
+"These doctrines apply when an unaddressed contingency makes performance impossible or valueless; the underlying question is always efficient risk allocation — which party could have anticipated, prevented, or insured against the contingency at lower cost?",
+"Impossibility: a dire constraint arising after contract formation prevents performance, contrasted with duress where the constraint is imposed by the other contracting party.",
+"Frustration of purpose: both parties are mistaken about a crucial contingency that makes performance valueless (e.g. renting a room along a cancelled coronation parade route) — courts excused performance because neither party had cheaper access to the relevant information.",
+"The efficient outcome places liability on whichever party was the cheaper cost avoider of the risk — if one party had privileged/cheap access to relevant information, that party should bear the risk.",
+"This reflects the general 'gap-filling' theme in contract law: courts allocate undiscussed risks the way informed, costlessly-bargaining parties would have allocated them themselves."
+]},
+{unit:"9. 契約法のさらなるトピック", q:"Compare and contrast productive and redistributive information in the context of contract formation, and explain why the law treats them differently.", points:[
+"Productive information creates real value added (an invention, an artistic insight, discovery of an untapped market); redistributive information merely shifts bargaining power/wealth without creating new value (e.g. private knowledge of where a highway will be built).",
+"Contracts based on one party's superior knowledge of productive information — especially where actively and costly acquired through investment — should be enforced without a disclosure obligation, preserving the incentive to invest in generating valuable information (parallel to patent logic).",
+"Information acquired casually/by chance need not be protected either way, since there was no investment incentive to preserve.",
+"Redistributive information acquired through active investment should generally not be protected by non-disclosure, since protecting it would encourage costly, socially wasteful rent-seeking rather than value creation.",
+"This four-way classification explains why the law enforces some information asymmetries (rewarding productive discovery) while imposing disclosure duties elsewhere (e.g. safety-related latent defects)."
+]},
+{unit:"10. 法的手続の経済理論", q:"Explain why 'relative optimism' between litigating parties can prevent settlement, even though settlement is generally more efficient than trial.", points:[
+"Settlement and trial, if reaching the same expected outcome, generate identical error costs, but settlement has far lower administrative costs — hence a strong presumption favours settlement on efficiency grounds.",
+"A rational party settles if the expected value of trial is less attractive than the settlement offer; otherwise they proceed to trial.",
+"If both parties agree on the probability of winning, splitting the cooperative surplus (savings from avoiding litigation costs) makes both parties strictly better off than trial, so a mutually acceptable settlement exists.",
+"'Relative optimism' occurs when each party believes their own probability of winning is inconsistent with the other's belief (arising from asymmetric information or behavioural overconfidence) — when large enough, the cooperative surplus from settling becomes negative, and no settlement transfer can make both parties better off ('agreeing to disagree').",
+"Formally: a case proceeds to trial when the difference in the parties' expected judgments (ΔEJ) exceeds the cost savings from settling instead of litigating (LC − SC)."
+]},
+{unit:"10. 法的手続の経済理論", q:"Discuss the economic objective of procedural law and explain the ambiguous role of discovery in promoting or discouraging settlement.", points:[
+"The economic objective of procedural law is to minimize the total social cost of the legal system: administrative costs plus error costs.",
+"Because settlement and trial (assuming similar substantive accuracy) have similar error costs but very different administrative costs, procedural rules should generally encourage settlement without sacrificing accuracy.",
+"Discovery (compelled information disclosure) can promote settlement by correcting false pessimism and reducing uncertainty/suspicion, damping unwarranted relative optimism.",
+"However, discovery can also correct a party's false pessimism into confidence, causing them to demand better settlement terms — making settlement relatively more expensive and, paradoxically, sometimes less likely.",
+"Whether discovery increases or decreases settlement likelihood is theoretically ambiguous, depending on which effect dominates — showing procedural reforms must be evaluated for their effect on the informational (relative optimism) gap, not assumed automatically efficient."
+]},
+{unit:"11. 犯罪と刑罰の経済学", q:"Using Becker's economic model of crime, explain how society can optimally deter criminal behaviour, and discuss why harsher punishment may be less effective in deterring spontaneous crimes than premeditated ones.", points:[
+"Becker's model: a rational, amoral potential criminal commits an offence of severity x if the private benefit y(x) exceeds the expected cost of punishment p(x)f(x), where p(x) is the detection/conviction probability and f(x) the magnitude of punishment.",
+"Society can reduce crime by raising detection probability, raising punishment severity, or raising the opportunity cost of crime — probability and severity are theoretical substitutes, though raising probability is often more administratively costly than raising severity.",
+"For spontaneous ('lapse') crimes, decision-makers effectively apply a much higher discount rate r at the moment of the crime — modelled as maximizing y(x) − p(x)f(x)/(1+r); as r rises (intoxication, strong emotion), perceived future punishment cost shrinks regardless of its actual severity.",
+"For premeditated crimes, offenders are assumed to weigh p(x)f(x) carefully, so raising severity or detection probability has a meaningfully larger deterrent effect.",
+"Empirical evidence broadly supports this: little evidence that longer sentences alone deter crime, but stronger evidence that raising the probability of apprehension has a significant deterrent effect."
+]},
+{unit:"11. 犯罪と刑罰の経済学", q:"Discuss whether all types of crime should be punished in the same way, and how the socially optimal level of expected punishment should be determined.", points:[
+"Optimal deterrence requires equalizing the overall marginal social benefit of further deterrence (reduced harm) with the overall marginal social cost of achieving it (enforcement cost + error cost of wrongly convicting the innocent).",
+"A given level of expected punishment p(x)f(x) can be achieved via high-probability/low-severity or low-probability/high-severity combinations; since raising detection probability is typically more administratively costly than raising severity, cost-minimization tends to favour severity, but this must be balanced against fairness and against the limited deterrence effectiveness for spontaneous crimes (behavioural discounting).",
+"Different offences differ in ease of detection and offender rationality/premeditation — economic (calculated) crimes like tax evasion or corporate pollution are more responsive to expected punishment than impulsive crimes.",
+"New detection technologies (CCTV, facial recognition, AI fraud detection) that raise p(x) suggest punishment severity could in principle be reduced while maintaining deterrence — though this must be weighed against non-deterrence goals (retribution, incapacitation) and wrongful-conviction risk.",
+"Conclusion: there is no theoretically 'correct' uniform punishment; optimal design requires crime-specific consideration of detection cost, offender rationality, and error costs."
+]},
+{unit:"12. 消費者保護の経済学", q:"情報の非対称性・限定合理性・選好操作という3つのメカニズムが消費者契約の失敗にどうつながるかを説明し、それぞれに対応する法的救済手段を論じよ。（Explain how information asymmetry, bounded rationality, and preference manipulation each undermine efficient consumer contracting, and discuss the corresponding legal remedies.）", points:[
+"Efficient trade requires WTP (buyer's willingness to pay) ≥ price ≥ seller's cost; consumer protection targets situations where WTP < price at the moment of contracting.",
+"Information asymmetry: consumers cannot observe product quality, true pricing structure, or contract terms (e.g. a headline monthly fee concealing a much higher total cost) — remedy: mandatory disclosure, all-inclusive total-price display, rescission for mistaken belief, invalidation of unfair terms.",
+"Bounded rationality: present bias and limited attention mean consumers systematically misjudge auto-renewal terms even when information is technically disclosed — remedy: restrictions on automatic renewal, mandatory simplification of cancellation.",
+"Preference (WTP) manipulation: sellers can directly manipulate stated willingness to pay via fear, physical restraint, or artificial time pressure (e.g. spiritual/'reikan' sales) — remedy: expanded rescission rights, since the 'contract' reflects a manipulated rather than genuine preference and disclosure alone is insufficient.",
+"Across all three mechanisms, the policy goal is to restore the conditions under which 'agreement to trade = both parties gain,' the normative benchmark for respecting contracts as efficient."
+]},
+{unit:"12. 消費者保護の経済学", q:"なぜ消費者保護規制が政治的に進みにくいのか、公共選択論の観点から論じよ。（Discuss, from a public-choice perspective, why consumer protection regulation is politically difficult to advance.）", points:[
+"Consumer harms from any single unfair practice tend to be widely dispersed and individually small, making collective organization/lobbying costly, despite large aggregate harm.",
+"Businesses have concentrated interests: an entire industry can suffer significant losses from a consumer-protection rule, giving firms a strong individual incentive to lobby against regulation.",
+"This asymmetry (concentrated costs to industry vs. diffuse benefits to consumers) is a classic public-choice explanation for regulatory inertia/capture.",
+"A common compromise is a non-binding 'duty of effort' rather than an enforceable right — this can be inefficient (worst-behaving firms are least likely to comply voluntarily) but can also be efficient where compliance costs are highly heterogeneous across firms.",
+"Appropriate targets for mandatory compliance are low-cost, high-benefit obligations (e.g. a clearly visible cancel button, clear disclosure of exemption clauses) that can be justified even where broader reform stalls politically."
+]}
+];
+
+/* ============ レンダリング ============ */
+function renderNotes(){
+  const el = document.getElementById('notesContainer');
+  el.innerHTML = NOTES.map(u => `
+    <details class="unit-card">
+      <summary>${u.title}</summary>
+      <div class="body">${u.body}</div>
+    </details>
+  `).join('');
+}
+
+function renderQuiz(){
+  const el = document.getElementById('quizContainer');
+  el.innerHTML = QUESTIONS.map(item => {
+    const isPast = item.unit.includes('過去問');
+    return `
+    <details class="unit-card q-card">
+      <summary>
+        <div>
+          ${isPast ? '<div class="past-tag">過去問ベース</div><br>' : ''}
+          <div class="q-meta">${item.unit}</div>
+          <div class="q-text">${item.q}</div>
+        </div>
+      </summary>
+      <div class="body">
+        <div class="answer-box">
+          <div class="label">模範解答のポイント</div>
+          <ul>${item.points.map(p => `<li>${p}</li>`).join('')}</ul>
+        </div>
+      </div>
+    </details>
+    `;
+  }).join('');
+}
+
+renderNotes();
+renderQuiz();
+
+/* ============ タブ切り替え ============ */
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+  });
+});
+
+/* ============ 30分タイマー ============ */
+const TOTAL_SECONDS = 30 * 60;
+let remaining = TOTAL_SECONDS;
+let timerInterval = null;
+let running = false;
+
+const timerDisplay = document.getElementById('timerDisplay');
+const timerStartBtn = document.getElementById('timerStartBtn');
+const timerResetBtn = document.getElementById('timerResetBtn');
+const timerWidget = document.getElementById('timerWidget');
+const timerCollapseBtn = document.getElementById('timerCollapseBtn');
+
+function formatTime(sec){
+  const m = Math.floor(Math.abs(sec) / 60);
+  const s = Math.abs(sec) % 60;
+  const sign = sec < 0 ? '-' : '';
+  return sign + String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+}
+
+function updateDisplay(){
+  timerDisplay.textContent = formatTime(remaining);
+  if(remaining <= 60){
+    timerDisplay.classList.add('warn');
+  } else {
+    timerDisplay.classList.remove('warn');
+  }
+}
+
+function tick(){
+  remaining -= 1;
+  updateDisplay();
+}
+
+function startTimer(){
+  if(running) return;
+  running = true;
+  timerStartBtn.textContent = '一時停止';
+  timerInterval = setInterval(tick, 1000);
+}
+
+function pauseTimer(){
+  running = false;
+  timerStartBtn.textContent = '再開';
+  clearInterval(timerInterval);
+}
+
+function resetTimer(){
+  pauseTimer();
+  remaining = TOTAL_SECONDS;
+  timerStartBtn.textContent = '開始';
+  updateDisplay();
+}
+
+timerStartBtn.addEventListener('click', () => {
+  if(running){ pauseTimer(); } else { startTimer(); }
+});
+timerResetBtn.addEventListener('click', resetTimer);
+
+timerCollapseBtn.addEventListener('click', () => {
+  timerWidget.classList.toggle('collapsed');
+  timerCollapseBtn.textContent = timerWidget.classList.contains('collapsed') ? '▾' : '▴';
+});
+timerDisplay.addEventListener('click', () => {
+  timerWidget.classList.remove('collapsed');
+  timerCollapseBtn.textContent = '▴';
+});
+
+updateDisplay();
+</script>
+</body>
+</html>
