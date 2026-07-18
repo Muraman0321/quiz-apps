@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>国際経済学 試験対策アプリ</title>
+<style>
+:root{
+  --bg:#f4f5f7;
+  --bg-card:#ffffff;
+  --fg:#1c1e21;
+  --fg-muted:#6b7280;
+  --accent:#4f46e5;
+  --accent-fg:#ffffff;
+  --border:#e5e7eb;
+  --correct:#16a34a;
+  --incorrect:#dc2626;
+  --radius:16px;
+  --shadow:0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.04);
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#111318;
+    --bg-card:#1c1f26;
+    --fg:#f2f3f5;
+    --fg-muted:#9aa1ac;
+    --accent:#818cf8;
+    --accent-fg:#111318;
+    --border:#2c303a;
+    --correct:#4ade80;
+    --incorrect:#f87171;
+    --shadow:0 1px 3px rgba(0,0,0,.4),0 1px 2px rgba(0,0,0,.3);
+  }
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{margin:0;padding:0;}
+body{
+  background:var(--bg);
+  color:var(--fg);
+  font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic UI","Segoe UI",Roboto,sans-serif;
+  line-height:1.65;
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+}
+.topbar{
+  position:sticky;top:0;z-index:10;
+  background:var(--bg-card);
+  border-bottom:1px solid var(--border);
+  padding:14px 20px;
+}
+.topbar h1{
+  margin:0;font-size:17px;font-weight:700;text-align:center;
+}
+#app{
+  flex:1;
+  width:100%;
+  max-width:560px;
+  margin:0 auto;
+  padding:20px 16px 40px;
+}
+.screen.hidden{display:none;}
+.lead{
+  color:var(--fg-muted);
+  font-size:14px;
+  margin:0 0 18px;
+}
+.panel{
+  background:var(--bg-card);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:16px;
+  margin-bottom:14px;
+  box-shadow:var(--shadow);
+}
+.panel h2{
+  margin:0 0 10px;
+  font-size:14px;
+  font-weight:700;
+  color:var(--fg-muted);
+}
+.panel-head{
+  display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;
+}
+.panel-head h2{margin:0;}
+.panel-actions{display:flex;gap:10px;}
+.link-btn{
+  background:none;border:none;color:var(--accent);font-size:13px;font-weight:600;
+  padding:4px 2px;cursor:pointer;
+}
+.chip-group{display:flex;gap:8px;flex-wrap:wrap;}
+.chip{
+  display:flex;align-items:center;gap:6px;
+  border:1px solid var(--border);
+  border-radius:999px;
+  padding:8px 14px;
+  font-size:14px;
+  cursor:pointer;
+  user-select:none;
+}
+.chip input{accent-color:var(--accent);width:16px;height:16px;}
+.section-list{display:flex;flex-direction:column;gap:2px;max-height:320px;overflow-y:auto;}
+.section-item{
+  display:flex;align-items:center;gap:10px;
+  padding:9px 4px;
+  border-bottom:1px solid var(--border);
+  cursor:pointer;
+}
+.section-item:last-child{border-bottom:none;}
+.section-item input{accent-color:var(--accent);width:17px;height:17px;flex:none;}
+.section-title{flex:1;font-size:14px;}
+.section-count{font-size:11px;color:var(--fg-muted);white-space:nowrap;}
+.switch-row{
+  display:flex;align-items:center;justify-content:space-between;
+  font-size:14px;cursor:pointer;
+}
+.switch-row input{accent-color:var(--accent);width:38px;height:22px;}
+.error{
+  background:rgba(220,38,38,.1);
+  color:var(--incorrect);
+  border-radius:10px;
+  padding:10px 14px;
+  font-size:13px;
+  margin-bottom:14px;
+}
+.error.hidden{display:none;}
+.primary-btn{
+  display:block;width:100%;
+  background:var(--accent);
+  color:var(--accent-fg);
+  border:none;border-radius:12px;
+  padding:15px;
+  font-size:16px;font-weight:700;
+  cursor:pointer;
+  margin-bottom:10px;
+}
+.primary-btn:active{opacity:.85;}
+.primary-btn.hidden{display:none;}
+.secondary-btn{
+  display:block;width:100%;
+  background:var(--bg-card);
+  color:var(--fg);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:14px;
+  font-size:15px;font-weight:600;
+  cursor:pointer;
+  margin-bottom:10px;
+}
+.secondary-btn.hidden{display:none;}
+.quit-btn{
+  display:block;width:100%;text-align:center;margin-top:18px;color:var(--fg-muted);
+}
+
+/* quiz screen */
+.progress-wrap{margin-bottom:16px;}
+.progress-bar{
+  height:8px;border-radius:999px;background:var(--border);overflow:hidden;
+}
+.progress-fill{
+  height:100%;background:var(--accent);width:0%;
+  transition:width .25s ease;
+}
+.progress-label{
+  display:flex;justify-content:space-between;
+  font-size:12px;color:var(--fg-muted);margin-top:6px;
+}
+.card{
+  background:var(--bg-card);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:20px;
+  box-shadow:var(--shadow);
+}
+.q-type-badge{
+  display:inline-block;
+  font-size:11px;font-weight:700;
+  padding:3px 10px;border-radius:999px;
+  margin-bottom:12px;
+  background:rgba(79,70,229,.12);
+  color:var(--accent);
+}
+.q-type-badge.essay{
+  background:rgba(220,38,38,.1);
+  color:var(--incorrect);
+}
+.q-text{font-size:17px;font-weight:600;margin-bottom:14px;word-break:break-word;}
+.q-text b{font-weight:800;}
+.essay-input{
+  width:100%;min-height:90px;
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:10px 12px;
+  font-size:14px;
+  font-family:inherit;
+  background:var(--bg);
+  color:var(--fg);
+  margin-bottom:14px;
+  resize:vertical;
+}
+.essay-input.hidden{display:none;}
+.answer-box{
+  margin-top:16px;
+  padding-top:16px;
+  border-top:1px dashed var(--border);
+}
+.answer-box.hidden{display:none;}
+.answer-label{
+  font-size:11px;font-weight:700;color:var(--fg-muted);margin-bottom:6px;
+}
+.a-text{font-size:15px;margin-bottom:16px;word-break:break-word;}
+.grade-row{display:flex;gap:10px;}
+.grade-btn{
+  flex:1;border:none;border-radius:12px;padding:14px;
+  font-size:15px;font-weight:700;cursor:pointer;color:#fff;
+}
+.grade-btn.right{background:var(--correct);}
+.grade-btn.wrong{background:var(--incorrect);}
+
+/* 多肢選択（choice）モード */
+.choice-hint{font-size:12px;color:var(--fg-muted);margin:-4px 0 12px;}
+.choice-hint.hidden{display:none;}
+.grade-row.hidden{display:none;}
+.choice-list{display:flex;flex-direction:column;gap:9px;margin-bottom:14px;}
+.choice-list.hidden{display:none;}
+.choice-opt{
+  display:flex;align-items:flex-start;gap:11px;
+  border:1.5px solid var(--border);border-radius:12px;
+  padding:12px 14px;font-size:15px;cursor:pointer;
+  background:var(--bg-card);
+  transition:border-color .15s ease, background .15s ease;
+  word-break:break-word;
+}
+.choice-opt .opt-mark{
+  flex:none;width:23px;height:23px;border-radius:7px;
+  border:1.5px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;font-weight:700;margin-top:1px;
+}
+.choice-opt.selected{border-color:var(--accent);background:rgba(79,70,229,.08);}
+.choice-opt.selected .opt-mark{background:var(--accent);color:var(--accent-fg);border-color:var(--accent);}
+.choice-opt.opt-correct{border-color:var(--correct);background:rgba(22,163,74,.1);}
+.choice-opt.opt-correct .opt-mark{background:var(--correct);color:#fff;border-color:var(--correct);}
+.choice-opt.opt-wrong{border-color:var(--incorrect);background:rgba(220,38,38,.1);}
+.choice-opt.opt-wrong .opt-mark{background:var(--incorrect);color:#fff;border-color:var(--incorrect);}
+.choice-opt.locked{cursor:default;}
+.q-type-badge.choice{background:rgba(79,70,229,.12);color:var(--accent);}
+.verdict{font-weight:800;margin-bottom:8px;font-size:15px;}
+.verdict.ok{color:var(--correct);}
+.verdict.ng{color:var(--incorrect);}
+
+/* result screen */
+.ring-wrap{
+  position:relative;
+  width:180px;height:180px;
+  margin:10px auto 22px;
+}
+.ring{width:100%;height:100%;transform:rotate(-90deg);}
+.ring-bg{fill:none;stroke:var(--border);stroke-width:10;}
+.ring-fg{
+  fill:none;stroke:var(--accent);stroke-width:10;stroke-linecap:round;
+  transition:stroke-dashoffset .6s ease, stroke .3s ease;
+}
+.ring-center{
+  position:absolute;inset:0;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+}
+.ring-pct{font-size:32px;font-weight:800;}
+.ring-sub{font-size:13px;color:var(--fg-muted);margin-top:2px;}
+.result-actions{margin-bottom:18px;}
+.wrong-list h3{font-size:14px;color:var(--fg-muted);margin:18px 0 10px;}
+.all-correct{
+  text-align:center;color:var(--correct);font-weight:700;padding:20px 0;
+}
+.wrong-item{
+  background:var(--bg-card);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:12px 14px;
+  margin-bottom:8px;
+}
+.wrong-item summary{
+  font-size:14px;font-weight:600;cursor:pointer;
+}
+.wrong-answer{
+  margin-top:10px;padding-top:10px;
+  border-top:1px dashed var(--border);
+  font-size:14px;color:var(--fg-muted);
+}
+.footer{
+  text-align:center;
+  font-size:11px;
+  color:var(--fg-muted);
+  padding:16px;
+}
+</style>
+</head>
+<body>
+<header class="topbar"><h1>国際経済学 試験対策（金子昭彦）</h1></header>
+<main id="app">
+
+  <section id="screen-setup" class="screen">
+    <p class="lead">金子昭彦先生「国際経済学」の期末対策。2025年度過去問40問（解答・解説付き）＋一問一答・記述式。出題形式と範囲を選んで演習を始めます。</p>
+
+    <div class="panel">
+      <h2>出題形式</h2>
+      <div class="chip-group" id="modeChips">
+        <label class="chip"><input type="checkbox" value="choice" checked>多肢選択</label>
+        <label class="chip"><input type="checkbox" value="qa" checked>一問一答</label>
+        <label class="chip"><input type="checkbox" value="essay" checked>記述式</label>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">
+        <h2>範囲</h2>
+        <div class="panel-actions">
+          <button type="button" id="selectAllBtn" class="link-btn">全選択</button>
+          <button type="button" id="selectNoneBtn" class="link-btn">全解除</button>
+        </div>
+      </div>
+      <div class="section-list" id="sectionList"></div>
+    </div>
+
+    <div class="panel">
+      <label class="switch-row">
+        <span>ランダム出題</span>
+        <input type="checkbox" id="randomToggle" checked>
+      </label>
+    </div>
+
+    <div id="setupError" class="error hidden"></div>
+    <button type="button" id="startBtn" class="primary-btn">演習を始める</button>
+    <button type="button" id="reviewWrongBtn" class="secondary-btn hidden">間違えた問題だけ復習する（前回 <span id="wrongCount">0</span>問）</button>
+  </section>
+
+  <section id="screen-quiz" class="screen hidden">
+    <div class="progress-wrap">
+      <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+      <div class="progress-label"><span id="progressCount">1/1</span><span id="progressChapter"></span></div>
+    </div>
+    <div class="card" id="qCard">
+      <div class="q-type-badge" id="qTypeBadge">一問一答</div>
+      <div class="q-text" id="qText"></div>
+      <div class="choice-hint hidden" id="choiceHint">当てはまる選択肢をすべて選んで答え合わせ（複数選択可）</div>
+      <div class="choice-list hidden" id="choiceList"></div>
+      <textarea id="essayInput" class="essay-input hidden" placeholder="ここに要点を書き出してから答え合わせ（採点はされません・自己チェック用です）"></textarea>
+      <button type="button" id="revealBtn" class="primary-btn">答えを見る</button>
+      <button type="button" id="choiceCheckBtn" class="primary-btn hidden">答え合わせ</button>
+      <div class="answer-box hidden" id="answerBox">
+        <div class="answer-label">解答</div>
+        <div class="a-text" id="aText"></div>
+        <div class="grade-row" id="gradeRow">
+          <button type="button" id="gradeWrongBtn" class="grade-btn wrong">× 不正解</button>
+          <button type="button" id="gradeRightBtn" class="grade-btn right">○ 正解</button>
+        </div>
+        <button type="button" id="choiceNextBtn" class="primary-btn hidden">次の問題へ</button>
+      </div>
+    </div>
+    <button type="button" id="quitBtn" class="link-btn quit-btn">中断してトップへ戻る</button>
+  </section>
+
+  <section id="screen-result" class="screen hidden">
+    <div class="ring-wrap">
+      <svg viewBox="0 0 120 120" class="ring">
+        <circle class="ring-bg" cx="60" cy="60" r="52"></circle>
+        <circle class="ring-fg" id="ringFg" cx="60" cy="60" r="52"></circle>
+      </svg>
+      <div class="ring-center">
+        <div class="ring-pct" id="ringPct">0%</div>
+        <div class="ring-sub" id="ringSub">0/0問正解</div>
+      </div>
+    </div>
+    <div class="result-actions">
+      <button type="button" id="reviewWrongBtn2" class="primary-btn hidden">間違えた問題だけ復習する</button>
+      <button type="button" id="retryAllBtn" class="secondary-btn">同じ条件でもう一度</button>
+      <button type="button" id="backToSetupBtn" class="secondary-btn">最初から選び直す</button>
+    </div>
+    <div class="wrong-list" id="wrongList"></div>
+  </section>
+
+</main>
+<footer class="footer">講義デッキ・2025年度過去問に基づく学習用アプリ／解答はClaudeによる推定を含み自己採点は目安です</footer>
+<script>
+const DATA=[{"title": "第1章　余剰分析・自由貿易の利益", "choice": [{"q": "<span style=\"color:#818cf8;font-weight:700\">【過去問2025】<\/span> Q4. 小国経済。国内需要曲線 X=80−2p、国内供給曲線 X=p−10。国際価格が35のとき、<b>特化の利益<\/b>は？", "choices": ["37.5", "55", "112.5"], "correct": [0], "a": "正解：<b>37.5<\/b>。自給自足価格は 80−2p=p−10 → p=30、生産＝消費＝20。国際価格35＞30なので輸出国。<br>総貿易利益＝(1/2)(35−30)(輸出15)＝<b>37.5<\/b>。内訳は交換の利益(1/2)(5)(消費減10)＝25、特化の利益(1/2)(5)(生産増5)＝12.5。<br>※「特化の利益」単体は12.5だが選択肢に無く、総貿易利益37.5が正答と解される（要確認）。"}, {"q": "<span style=\"color:#818cf8;font-weight:700\">【過去問2025】<\/span> Q6. 国A・Bの2国モデル。財が国Aから国Bに輸出されているとき、この財の<b>価格の上昇<\/b>により", "choices": ["国Aの貿易利益が減少し、国Bの貿易利益が増加する", "国Aの貿易利益が増加し、国Bの貿易利益が減少する", "国A・国Bともに貿易利益が減少する", "国A・国Bともに貿易利益が増加する"], "correct": [1], "a": "正解：<b>2<\/b>。輸出国Aは交易条件（輸出財価格÷輸入財価格）が改善→貿易利益増加。輸入国Bは交易条件悪化→貿易利益減少。"}, {"q": "<span style=\"color:#818cf8;font-weight:700\">【過去問2025】<\/span> Q7. 正しいものを選べ。", "choices": ["輸入需要曲線の高さは輸入の社会的限界便益を、輸出供給曲線の高さは輸出の社会的限界費用を表す", "輸入需要曲線の高さは輸入の社会的限界費用を、輸出供給曲線の高さは輸出の社会的限界便益を表す"], "correct": [0], "a": "正解：<b>1<\/b>。需要曲線の高さ＝消費の限界便益、供給曲線の高さ＝限界費用。よって輸入需要曲線＝社会的限界便益、輸出供給曲線＝社会的限界費用。"}, {"q": "<span style=\"color:#818cf8;font-weight:700\">【過去問2025】<\/span> Q8. 国A：需要 X=−p+20, 供給 X=2p。国B：需要 X=−p+6, 供給 X=p。自由貿易下の国際価格は？", "choices": ["4.2", "5.2", "5.8"], "correct": [1], "a": "正解：<b>5.2<\/b>。世界需給一致：Aの超過需要(20−p)−2p＝3p−20の符号を問わず、Aの超過需要＝Bの超過供給。(20−p−2p)＝−(6−p−p) → 20−3p＝−(6−2p) → 20−3p＝−6+2p → 26＝5p → <b>p=5.2<\/b>（AがB→輸入、BがA→輸出）。"}], "qa": [{"q": "<b>交換の利益<\/b>とは？", "a": "国内生産の調整が行われなくとも、国内消費水準の調整だけで発生する貿易利益。"}, {"q": "<b>特化の利益<\/b>とは？", "a": "国内消費水準が調整されなくとも、国内生産が調整されることで発生する貿易利益。"}, {"q": "<b>交易条件<\/b>の定義は？", "a": "輸出財価格 ÷ 輸入財価格。大きくなる＝改善、小さくなる＝悪化。"}, {"q": "交易条件の改善・悪化と貿易利益の関係は？", "a": "交易条件の改善＝貿易利益の増加、悪化＝貿易利益の減少。"}, {"q": "需要曲線の高さ・供給曲線の高さは各々何を表す？", "a": "需要曲線の高さ＝消費の限界便益、供給曲線の高さ＝限界費用（輸出供給曲線の高さ＝社会的限界費用）。"}], "essay": [{"q": "小国の自由貿易利益が「交換の利益」と「特化の利益」に分解できることを、価格変化・消費調整・生産調整の観点から説明せよ。", "a": "要点：①貿易で国内価格が国際価格に一致。②消費だけを新価格に合わせて調整すると得られるのが交換の利益（便益と費用の差）。③さらに生産を新価格に合わせて調整（比較優位財へ特化）すると得られるのが特化の利益。④両者の和が総余剰の増加＝自由貿易の利益。"}], "sub": ""}, {"title": "第2章　比較優位・リカードモデル", "choice": [{"q": "<span style=\"color:#818cf8;font-weight:700\">【過去問2025】<\/span> Q14. 労働投入係数が下表のとき、正しい選択肢は？<br><table style=\"border-collapse:collapse;margin:6px 0;font-size:14px\"><tr><th style=\"border:1px solid #999;padding:3px 12px;text-align:center\"><\/th><th style=\"border:1px solid #999;padding:3px 12px;text-align:center\">工業品<\/th><th style=\"border:1px solid #999;padding:3px 12px;text-align:center\">農産品<\/th><\/tr><tr><td style=\"border:1px solid #999;padding:3px 12px;text-align:center\">自国<\/td><td style=\"border:1px solid #999;padding:3px 12px;text-align:center\">4<\/td><td style=\"border:1px solid #999;padding:3px 12px;text-align:center\">9<\/td><\/tr><tr><td style=\"border:1px solid #999;padding:3px 12px;text-align:center\">外国<\/td><td style=\"border:1px solid #999;padding:3px 12px;text-align:center\">8<\/td><td style=\"border:1px solid #999;padding:3px 12px;text-align:center\">8<\/td><\/tr><\/table><div style=\"font:11px sans-serif;color:#6b7280\">表1：労働投入係数<\/div>", "choices": ["自国は工業品にも農産品にも比較優位を持つ", "外国は工業品にも農産品にも比較優位を持つ", "自国は工業品に、外国は農産品に比較優位を持つ", "自国は農産品に、外国は工業品に比較優位を持つ", "どちらの国にも比較優位を持つ財はない"], "correct": [2], "a": "正解：<b>3<\/b>。工業品の機会費用（農産品で測る）は 自国4/9≈0.44 ＜ 外国8/8＝1。よって自国は工業品に、外国は農産品に比較優位。"}, {"q": "<span style=\"color:#818cf8;font-weight:700\">【過去問2025】<\/span> Q15. 同じく表1。工業品価格P1・農産品価格P2。国際市場で<b>成立しえない<\/b>相対価格 P1/P2 を<b>すべて<\/b>選べ。<br><table style=\"border-collapse:collapse;margin:6px 0;font-size:14px\"><tr><th style=\"border:1px solid #999;padding:3px 12px;text-align:center\"><\/th><th style=\"border:1px solid #999;padding:3px 12px;text-align:center\">工業品<\/th><th style=\"border:1px solid #999;padding:3px 12px;text-align:center\">農産品<\/th><\/tr><tr><td style=\"border:1px solid #999;padding:3px 12px;text-align:center\">自国<\/td><td style=\"border:1px solid #999;padding:3px 12px;text-align:center\">4<\/td><td style=\"border:1px solid #999;padding:3px 12px;text-align:center\">9<\/td><\/tr><tr><td style=\"border:1px solid #999;padding:3px 12px;text-align:center\">外国<\/td><td style=\"border:1px solid #999;padding:3px 12px;text-align:center\">8<\/td><td style=\"border:1px solid #999;padding:3px 12px;text-align:center\">8<\/td><\/tr><\/table><div style=\"font:11px sans-serif;color:#6b7280\">表1：労働投入係数<\/div>", "choices": ["0.5", "1.2", "1.5", "2.5"], "correct": [1, 2, 3], "a": "正解：<b>2・3・4<\/b>。均衡相対価格は両国の自給自足相対価格 [4/9, 1]＝[0.44, 1] の間。0.5は範囲内で成立可。1.2/1.5/2.5はすべて1超で成立しえない（両国とも工業品のみ生産し農産品が供給されない）。"}, {"q": "<span style=\"color:#818cf8;font-weight:700\">【過去問2025】<\/span> Q16. リカードモデル。ある国が第2財に完全特化したとき、閉鎖経済と比べ第2財で測った実質賃金は(A)、第1財で測った実質賃金は(B)。第1財完全特化時は逆。不完全特化時は第1財で測った実質賃金(C)、第2財で測った実質賃金(D)。", "choices": ["A変わらず・B上昇・C変わらず・D変わらない", "A低下・B上昇・C変わらず・D変わらない", "A変わらず・B上昇・C上昇・D変わらない", "A変わらず・B低下・C変わらず・D低下"], "correct": [0], "a": "正解：<b>1<\/b>。生産している財で測った実質賃金は 1/(労働投入係数) で不変。輸入する財で測った実質賃金は貿易で安く手に入るため上昇。不完全特化なら相対価格＝自給自足価格のままで両財とも実質賃金は不変。"}], "qa": [{"q": "比較優位はどの指標で判定する？", "a": "機会費用（財間の労働投入係数の比）。機会費用の低い財に比較優位を持つ。"}, {"q": "リカードモデルで、完全特化した国が生産している財で測った実質賃金は貿易で変化する？", "a": "変化しない。生産財で測った実質賃金は労働生産性 1/a_L に等しく一定。"}, {"q": "完全特化した国が、輸入する財で測った実質賃金はどうなる？", "a": "上昇する（貿易で相手国の財を安く入手できるため）。"}, {"q": "2国の均衡相対価格が取りうる範囲は？", "a": "両国それぞれの自給自足相対価格（＝機会費用）の間。"}], "sub": "", "essay": []}, {"title": "第3章　関税・数量割当・貿易政策の余剰分析", "choice": [{"q": "<span style=\"color:#818cf8;font-weight:700\">【過去問2025】<\/span> Q1. 授業で提示した2022年までのデータで、平均関税率がもっとも低いのは", "choices": ["高所得国", "中所得国", "低所得国"], "correct": [0], "a": "正解：<b>1<\/b>。所得が高い国ほど平均関税率は低い傾向（高所得国が最も低い）。"}, {"q": "<span style=\"color:#818cf8;font-weight:700\">【過去問2025】<\/span> Q5. 関税と輸入数量割当の同値命題が成立しているとする。同額の割当時、<b>誤っている<\/b>選択肢は？", "choices": ["どちらの政策でも当該国の総余剰は同じ", "どちらの政策でも国内生産量と国内消費量は同じ", "どちらの政策でも国内生産者余剰と消費者余剰は同じ"], "correct": [0], "a": "正解：<b>1が誤り<\/b>。同値命題は「国内価格・生産量・消費量が等しい」ことを言うので、価格が同じ→2(数量)・3(PS/CS)は正しい。しかし関税収入は政府へ入る一方、割当ではレントとして貿易業者へ流出しレントシーキングも生じるため、<b>総余剰は同じとは限らない<\/b>（割当の方が自国厚生に不利になりうる）。"}, {"q": "<span style=\"color:#818cf8;font-weight:700\">【過去問2025】<\/span> Q9. 小国が単位当たり t の従量関税を課した。余剰の変化は（図1）<br><svg viewBox=\"0 0 340 250\" style=\"max-width:100%;height:auto;background:#fff;border:1px solid #e5e7eb;border-radius:8px;margin:6px 0\" xmlns=\"http://www.w3.org/2000/svg\"><style>.ax{stroke:#333;stroke-width:1.2}.cv{stroke:#1c1e21;stroke-width:1.6;fill:none}.dl{stroke:#888;stroke-width:.8;stroke-dasharray:3 2}.lb{font:italic 11px serif;fill:#111}.sm{font:9px serif;fill:#111}<\/style><polygon points=\"152,110 118,150 152,150\" fill=\"rgba(220,38,38,.25)\"/><polygon points=\"171,110 226,150 171,150\" fill=\"rgba(220,38,38,.25)\"/><rect x=\"152\" y=\"110\" width=\"19\" height=\"40\" fill=\"rgba(79,70,229,.18)\"/><line class=\"ax\" x1=\"45\" y1=\"25\" x2=\"45\" y2=\"215\"/><line class=\"ax\" x1=\"45\" y1=\"215\" x2=\"320\" y2=\"215\"/><text class=\"sm\" x=\"18\" y=\"30\">価格<\/text><text class=\"sm\" x=\"300\" y=\"230\">数量<\/text><text class=\"sm\" x=\"34\" y=\"228\">O<\/text><line class=\"dl\" x1=\"45\" y1=\"110\" x2=\"300\" y2=\"110\"/><line class=\"dl\" x1=\"45\" y1=\"150\" x2=\"300\" y2=\"150\"/><text class=\"sm\" x=\"0\" y=\"108\">p_t(=p*+t)<\/text><text class=\"sm\" x=\"26\" y=\"153\">p*<\/text><line class=\"cv\" x1=\"70\" y1=\"205\" x2=\"205\" y2=\"52\"/><text class=\"lb\" x=\"208\" y=\"52\">S<\/text><line class=\"cv\" x1=\"90\" y1=\"48\" x2=\"300\" y2=\"205\"/><text class=\"lb\" x=\"302\" y=\"205\">D<\/text><line class=\"dl\" x1=\"118\" y1=\"150\" x2=\"118\" y2=\"215\"/><line class=\"dl\" x1=\"152\" y1=\"110\" x2=\"152\" y2=\"215\"/><line class=\"dl\" x1=\"171\" y1=\"110\" x2=\"171\" y2=\"215\"/><line class=\"dl\" x1=\"226\" y1=\"150\" x2=\"226\" y2=\"215\"/><text class=\"sm\" x=\"108\" y=\"227\">qᶠs<\/text><text class=\"sm\" x=\"143\" y=\"227\">qᵗs<\/text><text class=\"sm\" x=\"163\" y=\"227\">qᵗc<\/text><text class=\"sm\" x=\"218\" y=\"227\">qᶠc<\/text><circle cx=\"152\" cy=\"110\" r=\"2.2\"/><text class=\"sm\" x=\"140\" y=\"107\">Eᵗs<\/text><circle cx=\"171\" cy=\"110\" r=\"2.2\"/><text class=\"sm\" x=\"173\" y=\"107\">Eᵗc<\/text><circle cx=\"118\" cy=\"150\" r=\"2.2\"/><text class=\"sm\" x=\"104\" y=\"147\">Eᶠs<\/text><circle cx=\"226\" cy=\"150\" r=\"2.2\"/><text class=\"sm\" x=\"228\" y=\"147\">Eᶠc<\/text><circle cx=\"152\" cy=\"150\" r=\"2.2\"/><text class=\"sm\" x=\"150\" y=\"163\">G_s<\/text><circle cx=\"171\" cy=\"150\" r=\"2.2\"/><text class=\"sm\" x=\"171\" y=\"163\">G_c<\/text><circle cx=\"160\" cy=\"99\" r=\"2.2\"/><text class=\"sm\" x=\"150\" y=\"96\">A<\/text><\/svg><div style=\"font:11px sans-serif;color:#6b7280\">図1：輸入関税の余剰図（小国）。赤＝生産の歪み(EᵗsEᶠsG_s)／消費の歪み(EᵗcEᶠcG_c)、青＝関税収入(EᵗsEᵗcG_cG_s)。<\/div>", "choices": ["生産の歪み EᵗsEᶠsG_s と消費の歪み EᵗcEᶠcG_c で表される", "消費の歪み EᵗsEᶠsG_s と生産の歪み EᵗcEᶠcG_c で表される", "消費の歪み EᵗsEᶠsG_s と生産の歪み EᵗcEᶠcG_c と関税収入 EᵗsEᵗcG_cG_s で表される", "生産の歪み EᵗsEᶠsG_s と消費の歪み EᵗcEᶠcG_c と関税収入 EᵗsEᵗcG_cG_s で表される"], "correct": [0], "a": "正解：<b>1<\/b>。小国は価格受容者で交易条件効果が無いため、関税による総余剰の<b>減少（純損失）<\/b>は 生産の歪み(供給側 EᵗsEᶠsG_s)＋消費の歪み(需要側 EᵗcEᶠcG_c) のみ。関税収入は消費者から政府への移転で純損失には含めない。"}, {"q": "<span style=\"color:#818cf8;font-weight:700\">【過去問2025】<\/span> Q10. 図1で、関税の代わりに単位当たり t の<b>生産補助金<\/b>を課したときの、自由貿易と比べた余剰の変化は", "choices": ["EᵗsEᶠsG_s である", "EᵗcEᶠcG_c である", "Dp_tEᵗc である", "p*EᶠsEᵗsp_t である"], "correct": [0], "a": "正解：<b>1<\/b>。生産補助金は生産者価格だけを p*+t に引き上げ消費者価格は p* のまま。よって歪みは<b>生産の歪み EᵗsEᶠsG_s のみ<\/b>（消費の歪みは生じない）。関税より損失が小さい。"}, {"q": "<span style=\"color:#818cf8;font-weight:700\">【過去問2025】<\/span> Q11. 図1で、関税の代わりに単位当たり t の<b>消費税<\/b>を課したときの、自由貿易と比べた余剰の変化は", "choices": ["EᵗsEᶠsG_s である", "EᵗcEᶠcG_c である", "Dp_tEᵗc である", "p*EᶠsEᵗsp_t である"], "correct": [1], "a": "正解：<b>2<\/b>。消費税は消費者価格だけを p*+t に引き上げ生産者価格は p* のまま。よって歪みは<b>消費の歪み EᵗcEᶠcG_c のみ<\/b>。"}, {"q": "<span style=\"color:#818cf8;font-weight:700\">【過去問2025】<\/span> Q12. 独占産業を抱える国が小国として貿易を開始。自給自足価格より国際価格が高ければ、", "choices": ["必ずこの国は輸入国になる", "必ずこの国は輸出国になる", "輸出国になるか輸入国になるか分からない"], "correct": [1], "a": "正解：<b>2<\/b>。貿易開始で独占企業は国際価格の価格受容者となる。国際価格＞自給自足価格なら、MC=国際価格まで生産が拡大し消費は減るため、必ず<b>輸出国<\/b>になる。"}, {"q": "<span style=\"color:#818cf8;font-weight:700\">【過去問2025】<\/span> Q13. ある財を輸出する外国企業にとって、同じ輸入抑制量を実現する次の3政策のうち、<b>最も望ましくない<\/b>のは？", "choices": ["小国が関税を課す", "小国が輸入数量を割り当て制限する", "外国企業が輸出自主規制に合意する"], "correct": [0], "a": "正解：<b>1（関税）<\/b>と解される。輸出自主規制(VER)は価格上昇分のレントを外国企業自身が獲得でき最も有利。関税では外国企業は国際価格しか受け取れずレントを一切得られないため最も不利。（数量割当はレントの帰属次第で中間。要確認）"}, {"q": "<span style=\"color:#818cf8;font-weight:700\">【過去問2025】<\/span> Q17. 外国企業独占。輸入需要 p=100−X、外国企業のMC=10一定、Xは自国輸入量。自由貿易から10の従量関税をかけると自国の経済厚生は（　）だけ増える。", "choices": ["135.5", "155.5", "187.5", "205.5"], "correct": [2], "a": "正解：<b>187.5<\/b>。自由貿易：MR=100−2X=MC=10→X=45, p=55, CS=(1/2)(45)(45)=1012.5。関税t=10：純受取価格90−X、利潤(80−X)X最大化→X=40, p=60, CS=(1/2)(40)(40)=800、関税収入=10×40=400。厚生変化＝(800+400)−1012.5=<b>187.5<\/b>。外国独占レントを奪う「レント奪取関税」。"}, {"q": "<span style=\"color:#818cf8;font-weight:700\">【過去問2025】<\/span> Q18. 戦略的貿易政策における関税の役割として最も適切なものは", "choices": ["自国産業の保護", "関税収入の確保", "自国総余剰の増加"], "correct": [2], "a": "正解：<b>3<\/b>。不完全競争下では、外国企業のレントを自国に移転して<b>自国総余剰を増加<\/b>させることが戦略的貿易政策の狙い。"}], "qa": [{"q": "小国が関税をかけたときの総余剰の減少は何と何の和？", "a": "生産の歪み＋消費の歪み（小国は交易条件効果が無いため純損失はこの2つのみ）。"}, {"q": "生産の歪み・消費の歪みはそれぞれ何から生じる？", "a": "生産の歪み：国内価格上昇で国内生産が過大になる。消費の歪み：国内消費が過小になる。"}, {"q": "数量割当で、関税なら関税収入だった長方形はどこへ行く？", "a": "超過利潤（レント）として貿易業者のもとへ。レントシーキングという非生産的活動も生じうる。"}, {"q": "関税と数量割当の「同値命題」の意味は？", "a": "同じ輸入量を実現する限り、国内価格・国内生産量・国内消費量が等しくなること。"}, {"q": "自国独占下で同値命題が成立しない理由は？", "a": "数量割当では国内独占企業が独占力を保持したままになるため（関税とは価格・数量が一致しない）。"}, {"q": "タリフ・エスカレーションとは？", "a": "最終財の関税率を高く、輸入原材料・中間財の関税率を低くする政策。"}, {"q": "最適関税とは？", "a": "自国の総余剰を最大化する（大国の）輸入関税。関税が0近傍では交易条件改善効果が歪みを上回り総余剰が増える。"}], "essay": [{"q": "同じ輸入抑制量を関税・数量割当・輸出自主規制で実現する場合、外国企業の利潤と自国厚生の観点で3政策を比較せよ。", "a": "要点：①関税＝外国企業は国際価格のみ受取、レントは自国政府の関税収入に。②数量割当＝レントは輸入ライセンス保有者（貿易業者）へ、レントシーキングの弊害。③輸出自主規制＝レントを外国企業が獲得するため自国厚生に最も不利・外国企業に最も有利。"}], "sub": ""}, {"title": "第4章　市場の失敗・幼稚産業保護・外部性・ダンピング", "choice": [{"q": "<span style=\"color:#818cf8;font-weight:700\">【過去問2025】<\/span> Q19. マーシャルの外部性が存在する小国の産業。正しいものを選べ。", "choices": ["自由貿易の利益は常に正である", "マーシャルの外部性があるので、その財の輸入国になった場合は自由貿易の利益が負の場合もある", "マーシャルの外部性があるので、その財の輸出国になった場合は自由貿易の利益が負の場合もある"], "correct": [0], "a": "正解：<b>1<\/b>（講義準拠）。講義モデルでは、外部性のある財を輸入して国内生産が0になっても、消費者余剰の増加が生産者余剰の消失を上回り、<b>自由貿易の利益は生じる（正）<\/b>。外部性は産業集積の理論として貿易とは別に成立し、貿易は集積を促進しうる。"}, {"q": "<span style=\"color:#818cf8;font-weight:700\">【過去問2025】<\/span> Q20. 輸出先国での当該財の価格弾力性が大きいほど、自国内より輸出先で価格が低いという意味での<b>ダンピング<\/b>は", "choices": ["起こりにくいであろう", "起こりやすいであろう"], "correct": [1], "a": "正解：<b>2<\/b>。独占企業は弾力性の高い市場ほど低い価格を付ける。輸出先の弾力性が高いほどそこで安く売る→ダンピングが<b>起こりやすい<\/b>。"}], "qa": [{"q": "幼稚産業保護の「バステーブルの基準」とは？", "a": "保護で生み出される将来利潤の割引現在価値が、保護の費用（現在の損失）を上回ること。"}, {"q": "バステーブルの基準への代表的な批判は？", "a": "その条件が成り立つなら企業は金融機関から損失を埋める借入ができるはずで、政策介入は不要ではないか、という批判。"}, {"q": "マーシャルの外部性が存在しても自由貿易の利益は生じる？", "a": "生じる（講義モデルの結論）。さらに貿易は世界需要を増やし産業集積を促進しうる。"}, {"q": "ダンピングが起きやすいのはどんな市場条件のとき？", "a": "輸出先市場の需要の価格弾力性が高いとき（弾力性の高い市場ほど低価格を付けるため）。"}, {"q": "有効保護率で、最終財のみに20%関税をかけた場合と最終財・中間財の両方に20%かけた場合、有効保護率が高いのは？", "a": "最終財のみに20%かけた場合（中間財が無関税だと付加価値に対する保護がより大きくなる）。"}], "sub": "", "essay": []}, {"title": "第5章　独占的競争・産業内貿易", "choice": [{"q": "<span style=\"color:#818cf8;font-weight:700\">【過去問2025】<\/span> Q2. 東アジア域内貿易とEU域内貿易を比べたとき、<b>産業内貿易<\/b>の割合が大きいのは", "choices": ["東アジア域内貿易", "EU域内貿易"], "correct": [1], "a": "正解：<b>2（EU域内貿易）<\/b>。講義データ（1996–2000）では、産業内貿易（垂直＋水平）の割合はEU域内が約65%と高く、東アジア域内は約25–30%（一方向＝産業間貿易が7割前後）。"}], "qa": [{"q": "グルーベル＝ロイド指数の式と値の範囲は？", "a": "GLᵢ = 1 − |EXᵢ−IMᵢ|/(EXᵢ+IMᵢ)。産業内貿易が無い（輸出のみ/輸入のみ）と0、輸出量＝輸入量で最大値1。"}, {"q": "垂直的産業内貿易と水平的産業内貿易の違いは？", "a": "垂直的＝同一産業内で質が異なるもの（部品と完成品など）の相互取引。水平的＝質は同じで差別化された品目（自動車、アパレルなど）。"}, {"q": "独占的競争モデルで閉鎖経済から自由貿易に移ると、価格・製品種類はどうなる？", "a": "市場規模拡大で各企業の生産量が増え平均費用・価格が低下し、利用可能な製品の種類が増える。"}, {"q": "オフショアリング／フラグメンテーションとは？", "a": "業務の一部を海外企業に委託するのがオフショアリング、製造過程の一部を外部企業に分割委託するのがフラグメンテーション。"}], "sub": "", "essay": []}, {"title": "第6章　国民所得勘定・国際収支", "choice": [{"q": "<span style=\"color:#818cf8;font-weight:700\">【過去問2025】<\/span> Q3. 日本の国際収支の近年の特徴として正しいものは？", "choices": ["GDPがGNIを上回り、経常収支と貿易収支は黒字を計上し続けている", "GDPがGNIを上回り、経常収支と第一次所得収支は黒字を計上し続けている", "GNIがGDPを上回り、経常収支と第一次所得収支は黒字を計上し続けている", "GNIがGDPを上回り、経常収支と第一次所得収支は赤字を計上し続けている", "GNIがGDPを上回り、経常収支と貿易収支は黒字を計上し続けている"], "correct": [2], "a": "正解：<b>3<\/b>。日本は海外からの投資収益が大きく第一次所得収支が黒字→GNI＞GDP。経常収支と第一次所得収支は黒字が続く（近年は貿易収支は赤字の年もある）。"}, {"q": "<span style=\"color:#818cf8;font-weight:700\">【過去問2025】<\/span> Q21. 輸出=740、輸入=850、サービス収支=−30、第一次所得収支=200、第二次所得収支=−20、資本移転等収支=−20、誤差脱漏=0。<b>金融収支<\/b>はいくつか？", "choices": ["10", "20", "−10", "−20"], "correct": [1], "a": "正解：<b>20<\/b>。貿易収支＝740−850＝−110。経常収支＝−110−30+200−20＝40。恒等式：経常＋資本移転等−金融＋誤差脱漏＝0 → 金融収支＝40+(−20)+0＝<b>20<\/b>。"}, {"q": "<span style=\"color:#818cf8;font-weight:700\">【過去問2025】<\/span> Q22. 日本が車を10万円分輸出。日本の国際収支統計では（A）収支の貸方（B）万円、（C）収支の借方に（D）万円記録される。", "choices": ["A経常・B10・C金融・D10", "A金融・B10・C経常・D10", "A経常・B−10・C金融・D−10", "A金融・B−10・C経常・D−10"], "correct": [0], "a": "正解：<b>1<\/b>。財の輸出は経常収支（貿易）の貸方10万円。代金の受取（対外資産の増加）は金融収支の借方10万円として複式計上される。"}, {"q": "<span style=\"color:#818cf8;font-weight:700\">【過去問2025】<\/span> Q23. 日本政府が外国に無償で医薬品3000億円を輸出。日本の国際収支統計では（A）収支の貸方に（B）円、（C）収支の借方に（D）円記録される。", "choices": ["A経常・B3000億・C経常・D3000億", "A経常・B3000億・C資本移転等・D3000億", "A経常・B3000億・C経常・D−3000億", "A経常・B−3000億・C経常・D−3000億"], "correct": [0], "a": "正解：<b>1<\/b>。医薬品（財）の輸出は経常収支（貿易）の貸方3000億。無償供与は経常移転なので第二次所得収支（経常収支内）の借方3000億。両方とも経常収支に計上。"}], "qa": [{"q": "GDPとGNIの差は何を表す？", "a": "海外からの純所得受取（第一次所得収支）。GNI＝GDP＋海外からの純所得。"}, {"q": "経常収支を構成する4項目は？", "a": "貿易収支・サービス収支・第一次所得収支・第二次所得収支。"}, {"q": "無償の財の供与（援助）はどの収支に計上される？", "a": "経常移転として第二次所得収支（経常収支の一部）。※固定資産の無償供与や債務免除は資本移転等収支。"}, {"q": "国際収支の恒等式（日本の規約）は？", "a": "経常収支＋資本移転等収支−金融収支＋誤差脱漏＝0。"}], "sub": "", "essay": []}, {"title": "第7章　為替レート・金利平価・購買力平価", "choice": [{"q": "<span style=\"color:#818cf8;font-weight:700\">【過去問2025】<\/span> Q24. 実効為替レートは通常、値が大きいほど", "choices": ["その国の財や通貨の価値が高い", "その国の財や通貨の価値が低い"], "correct": [0], "a": "正解：<b>1<\/b>。実効為替レート指数は値が大きいほど自国通貨が相対的に高い（増価）ことを表す。"}, {"q": "<span style=\"color:#818cf8;font-weight:700\">【過去問2025】<\/span> Q25. 今日1ドル=110円、来年の期待為替=1ドル115.5円、ドル資産の名目利子率3%、円資産1%。円建てで見たドル資産の期待収益率は（　）%。", "choices": ["6", "8", "10", "12"], "correct": [1], "a": "正解：<b>8<\/b>。ドルの期待増価率＝(115.5−110)/110＝5%。円建てのドル資産期待収益率≒ドル金利3%＋ドル増価5%＝<b>8%<\/b>。"}, {"q": "<span style=\"color:#818cf8;font-weight:700\">【過去問2025】<\/span> Q26. 金利平価が成立。ユーロ預金の名目利子率10%、期待されるドルの対ユーロ減価率2%。ドル預金の名目利子率は（　）%。", "choices": ["6", "8", "10", "12"], "correct": [3], "a": "正解：<b>12<\/b>。ドルが2%減価＝ユーロが2%増価。ドル建てで見るとユーロ預金は10%＋2%＝12%。金利平価よりドル預金利子率＝<b>12%<\/b>。"}, {"q": "<span style=\"color:#818cf8;font-weight:700\">【過去問2025】<\/span> Q27. CIP（R = R_f +(F−E)/F）で右辺の方が大きいとき、投資家は今（A）を借り、直物市場で（B）を買い、先渡で（C）を売って（D）を買う。この結果、直物レートEは（大きく）、先渡レートFは（小さく）なり不等号は解消。A〜Cと変化の向きの正しい組は？", "choices": ["A自国通貨・B外国通貨・C外国通貨・D自国通貨、E大きく・F小さく", "A自国通貨・B外国通貨・C自国通貨・D外国通貨、E大きく・F小さく", "A外国通貨・B自国通貨・C外国通貨・D自国通貨、E大きく・F小さく", "A自国通貨・B外国通貨・C外国通貨・D自国通貨、E小さく・F大きく"], "correct": [0], "a": "正解：<b>1<\/b>。外国運用（カバー付き）が有利なので、自国通貨を借り→直物で外国通貨を買い→先渡で外国通貨を売り自国通貨を買う。直物での外貨買いでEは上昇、先渡での外貨売りでFは低下し、不等号が解消。"}, {"q": "<span style=\"color:#818cf8;font-weight:700\">【過去問2025】<\/span> Q30. 日本のインフレ率年15%、アメリカ10%。相対的PPPに従うと？", "choices": ["ドルに対して円が5%減価する", "ドルに対して円が5%増価する", "ドルに対して円が15%増価する", "ドルに対して円が15%減価する"], "correct": [0], "a": "正解：<b>1<\/b>。相対的PPP：為替変化率＝内外インフレ率差。日本のインフレが5%高い→円は5%減価。"}, {"q": "<span style=\"color:#818cf8;font-weight:700\">【過去問2025】<\/span> Q31. 日本のインフレ率年15%、アメリカ10%。フィッシャー効果が成立している場合、", "choices": ["日本の名目利子率はアメリカより5%高い", "アメリカの名目利子率は日本より5%高い", "日本の名目利子率はアメリカより15%高い", "アメリカの名目利子率は日本より10%高い"], "correct": [0], "a": "正解：<b>1<\/b>。フィッシャー効果：名目利子率差＝期待インフレ率差。日本のインフレが5%高い→日本の名目利子率が5%高い。"}], "qa": [{"q": "金利平価（近似式・UIP）の式は？", "a": "R = R_f + (Eᵉ−E)/E。自国利子率＝外国利子率＋自国通貨の期待減価率。"}, {"q": "円建てで見た外貨資産の期待収益率は近似的にどう表せる？", "a": "外貨建て金利＋外貨の期待増価率。"}, {"q": "カバー付き金利平価（CIP）と非カバー金利平価（UIP）の違いは？", "a": "CIPは先渡取引で為替リスクをカバー（F を使う）、UIPは期待為替レート Eᵉ を使いリスクをカバーしない。"}, {"q": "相対的PPPが予測する為替変化率は？", "a": "自国通貨の減価率＝自国インフレ率−外国インフレ率。"}, {"q": "フィッシャー効果とは？", "a": "名目利子率＝実質利子率＋期待インフレ率。両国の実質利子率が等しければ名目利子率差＝期待インフレ率差。"}], "sub": "", "essay": []}, {"title": "第8章　短期モデル・マンデル＝フレミング・為替介入", "choice": [{"q": "<span style=\"color:#818cf8;font-weight:700\">【過去問2025】<\/span> Q28. （短期・外国為替市場と貨幣市場のみ）ある国のマネーサプライが減少したとする。", "choices": ["その国の通貨は外国為替市場で減価する", "通貨の価値は変化しない", "その国の通貨は外国為替市場で増価する"], "correct": [2], "a": "正解：<b>3<\/b>。マネーサプライ減少→名目利子率上昇→自国資産の期待収益率上昇→自国通貨が<b>増価<\/b>。"}, {"q": "<span style=\"color:#818cf8;font-weight:700\">【過去問2025】<\/span> Q29. （短期）アメリカとユーロ圏。両地域のマネーサプライと物価が一定で、アメリカの所得水準が増えたとする。この結果、", "choices": ["ドルの減価が起こる", "ドルの増価が起こる"], "correct": [1], "a": "正解：<b>2<\/b>。所得増→貨幣需要増→名目利子率上昇→ドル資産の収益率上昇→<b>ドルの増価<\/b>。"}, {"q": "<span style=\"color:#818cf8;font-weight:700\">【過去問2025】<\/span> Q32. 長期モデルでは、マネーサプライの一定率での増加は", "choices": ["同率のデフレを起こすが、長期的なデフレは完全雇用の生産水準に影響しない", "同率のインフレを起こし、長期的なインフレは完全雇用の生産水準を下げる", "同率のインフレを起こすが、長期的なインフレは完全雇用の生産水準に影響しない", "同率のデフレを起こし、長期的なデフレは完全雇用の生産水準を下げる"], "correct": [2], "a": "正解：<b>3<\/b>。貨幣の中立性：マネーサプライの一定率増は同率のインフレを生むが、長期の完全雇用生産水準（実質変数）には影響しない。"}, {"q": "<span style=\"color:#818cf8;font-weight:700\">【過去問2025】<\/span> Q33. Jカーブ効果とパススルー率の関係について。", "choices": ["パススルー率1のときにJカーブ効果は消滅する", "パススルー率0のときにJカーブ効果は消滅する", "パススルー率の値に関係なくJカーブ効果は存在しうる"], "correct": [1], "a": "正解：<b>2<\/b>（要確認）。Jカーブの初期悪化は、減価直後に輸入価格（自国通貨建て）が上がる一方で数量調整が遅れることによる。パススルー率0だと輸入価格が変化せず初期悪化が起きないためJカーブは消滅する。"}, {"q": "<span style=\"color:#818cf8;font-weight:700\">【過去問2025】<\/span> Q34. 正しい選択肢を選べ。", "choices": ["自国の可処分所得の上昇は自国の経常収支に影響を与えない", "自国の可処分所得の上昇は自国の経常収支を悪化させる", "自国の可処分所得の上昇は自国の経常収支を改善する"], "correct": [1], "a": "正解：<b>2<\/b>。可処分所得の上昇→輸入増加→経常収支は悪化。"}, {"q": "<span style=\"color:#818cf8;font-weight:700\">【過去問2025】<\/span> Q35. 非不胎化介入によりバランスシートが変化。A・B・Cに入る数値は？<br><table style=\"border-collapse:collapse;margin:6px 0;font-size:14px\"><tr><th style=\"border:1px solid #999;padding:3px 12px;text-align:center\" colspan=\"2\">資産<\/th><th style=\"border:1px solid #999;padding:3px 12px;text-align:center\" colspan=\"2\">負債<\/th><\/tr><tr><td style=\"border:1px solid #999;padding:3px 12px;text-align:center\">自国資産<\/td><td style=\"border:1px solid #999;padding:3px 12px;text-align:center\">100<\/td><td style=\"border:1px solid #999;padding:3px 12px;text-align:center\">マネーサプライ<\/td><td style=\"border:1px solid #999;padding:3px 12px;text-align:center\">A<\/td><\/tr><tr><td style=\"border:1px solid #999;padding:3px 12px;text-align:center\">外貨準備<\/td><td style=\"border:1px solid #999;padding:3px 12px;text-align:center\">100<\/td><td style=\"border:1px solid #999;padding:3px 12px;text-align:center\"><\/td><td style=\"border:1px solid #999;padding:3px 12px;text-align:center\"><\/td><\/tr><\/table><div style=\"font:11px sans-serif;color:#6b7280\">介入前<\/div><table style=\"border-collapse:collapse;margin:6px 0;font-size:14px\"><tr><th style=\"border:1px solid #999;padding:3px 12px;text-align:center\" colspan=\"2\">資産<\/th><th style=\"border:1px solid #999;padding:3px 12px;text-align:center\" colspan=\"2\">負債<\/th><\/tr><tr><td style=\"border:1px solid #999;padding:3px 12px;text-align:center\">自国資産<\/td><td style=\"border:1px solid #999;padding:3px 12px;text-align:center\">B<\/td><td style=\"border:1px solid #999;padding:3px 12px;text-align:center\">マネーサプライ<\/td><td style=\"border:1px solid #999;padding:3px 12px;text-align:center\">C<\/td><\/tr><tr><td style=\"border:1px solid #999;padding:3px 12px;text-align:center\">外貨準備<\/td><td style=\"border:1px solid #999;padding:3px 12px;text-align:center\">200<\/td><td style=\"border:1px solid #999;padding:3px 12px;text-align:center\"><\/td><td style=\"border:1px solid #999;padding:3px 12px;text-align:center\"><\/td><\/tr><\/table><div style=\"font:11px sans-serif;color:#6b7280\">介入後（非不胎化）<\/div>", "choices": ["A300・B200・C350", "A200・B150・C300", "A200・B100・C300"], "correct": [2], "a": "正解：<b>3<\/b>。介入前のマネーサプライ A＝自国資産100＋外貨準備100＝200。外国通貨購入で外貨準備100→200（+100）、非不胎化なのでマネーサプライも+100。自国資産は不変B＝100、マネーサプライC＝100+200＝300。"}, {"q": "<span style=\"color:#818cf8;font-weight:700\">【過去問2025】<\/span> Q36. （前問の続き）その後、不胎化政策でマネーサプライの変化を相殺した。A・B・Cは？<br><table style=\"border-collapse:collapse;margin:6px 0;font-size:14px\"><tr><th style=\"border:1px solid #999;padding:3px 12px;text-align:center\" colspan=\"2\">資産<\/th><th style=\"border:1px solid #999;padding:3px 12px;text-align:center\" colspan=\"2\">負債<\/th><\/tr><tr><td style=\"border:1px solid #999;padding:3px 12px;text-align:center\">自国資産<\/td><td style=\"border:1px solid #999;padding:3px 12px;text-align:center\">A<\/td><td style=\"border:1px solid #999;padding:3px 12px;text-align:center\">マネーサプライ<\/td><td style=\"border:1px solid #999;padding:3px 12px;text-align:center\">C<\/td><\/tr><tr><td style=\"border:1px solid #999;padding:3px 12px;text-align:center\">外貨準備<\/td><td style=\"border:1px solid #999;padding:3px 12px;text-align:center\">B<\/td><td style=\"border:1px solid #999;padding:3px 12px;text-align:center\"><\/td><td style=\"border:1px solid #999;padding:3px 12px;text-align:center\"><\/td><\/tr><\/table><div style=\"font:11px sans-serif;color:#6b7280\">不胎化政策後<\/div>", "choices": ["A0・B200・C200", "A200・B0・C200", "A100・B100・C200"], "correct": [0], "a": "正解：<b>1<\/b>。不胎化は自国債の売りオペでマネーサプライを元の200へ戻す。自国資産100→0（A＝0）、外貨準備200のまま（B＝200）、マネーサプライ＝0+200＝200（C＝200）。"}, {"q": "<span style=\"color:#818cf8;font-weight:700\">【過去問2025】<\/span> Q37. 為替相場制について正しいものは？", "choices": ["固定相場制は相対価格がすぐ変化しないので、海外の経済状況変化による生産量・雇用量の変動を緩和できる", "固定相場制は相対価格がすぐ変化するので、海外の変動を緩和する", "変動相場制は相対価格がすぐ変化してしまうので、海外の変動を緩和できない", "変動相場制は相対価格がすぐ変化するので、海外の経済状況変化による生産量・雇用量の変動を緩和する"], "correct": [3], "a": "正解：<b>4<\/b>。変動相場制では為替レートが自律的に調整し、非対称な実物ショック（海外の経済状況変化）による生産量・雇用の変動を緩和できる。固定相場制はこの調整弁を失う。"}, {"q": "<span style=\"color:#818cf8;font-weight:700\">【過去問2025】<\/span> Q38. 変動相場制で、一時的な金融政策と恒常的な金融政策を比べると、同額の名目マネーサプライ増加の効果は（A）な金融政策の方が大きい。これは（B）な金融政策では（C）が変化するためである。", "choices": ["A一時的・B恒常的・C外国債券の利子率", "A一時的・B恒常的・C期待為替レート", "A恒常的・B恒常的・C期待為替レート", "A一時的・B一時的・C期待為替レート", "A恒常的・B恒常的・C外国債券の利子率"], "correct": [2], "a": "正解：<b>3<\/b>。恒常的な金融緩和は期待為替レートを変化させ、より大きな減価（オーバーシュート）を生むため効果が大きい。A・Bとも恒常的、C＝期待為替レート。"}, {"q": "<span style=\"color:#818cf8;font-weight:700\">【過去問2025】<\/span> Q39. 変動相場制。自国の消費意欲が下がったとき、（A）曲線が（B）にシフトし、国内生産は（C）、国内利子率は（D）、為替レートは（E）する。期待為替レートは不変とする。", "choices": ["A IS・B左・C減り・D下がり・E増価", "A LM・B下・C増え・D下がり・E減価", "A IS・B右・C増え・D上がり・E増価", "A IS・B左・C減り・D下がり・E減価", "A LM・B上・C減り・D上がり・E増価"], "correct": [3], "a": "正解：<b>4<\/b>。消費減→IS曲線が左シフト→生産減・国内利子率低下→自国資産の魅力低下で為替は減価。A=IS・B=左・C=減り・D=下がり・E=減価。"}, {"q": "<span style=\"color:#818cf8;font-weight:700\">【過去問2025】<\/span> Q40. 固定為替相場で結びつけられている2国間では", "choices": ["一方の国のインフレ率が一方的に上昇していく可能性がある", "両国のインフレ率は一致する傾向にある"], "correct": [1], "a": "正解：<b>2<\/b>。固定相場では購買力平価を通じて両国のインフレ率は一致する傾向を持つ。"}], "qa": [{"q": "短期モデルで自国マネーサプライが増えると自国通貨はどうなる？", "a": "名目利子率低下→自国資産の収益率低下→自国通貨は減価。"}, {"q": "貨幣の中立性（長期）とは？", "a": "マネーサプライの変化は長期的には物価だけを比例的に動かし、実質生産量など実質変数には影響しないこと。"}, {"q": "不胎化介入とは？", "a": "為替介入によるマネーサプライの変化を、国内債券の売買（公開市場操作）で相殺し、市中のマネーサプライを一定に保つ介入。"}, {"q": "不胎化介入が名目為替レートに効きうる2つの経路は？", "a": "シグナリング効果（将来の為替政策を示唆し期待為替レートを変える）と、ポートフォリオ・バランス効果（自国債の供給増でリスクプレミアムが変化）。"}, {"q": "固定相場制下での金融政策・財政政策の効果は？", "a": "金融政策は無効（介入で相殺される）。財政政策は為替介入を伴い生産への影響が増幅される。"}, {"q": "「減価・増価」と「切下げ・切上げ」の使い分けは？", "a": "減価・増価は市場を通じた為替レート変化に、切下げ・切上げは中央銀行による固定レートの変更に使う。"}], "essay": [{"q": "固定相場制の下で金融政策が無効になる仕組みを、マネーサプライ増加を例にIS-LMと為替介入で説明せよ。", "a": "要点：①マネー増→LM下方シフト→利子率低下→通貨減価圧力。②固定相場維持のため中央銀行は外国通貨売り・自国通貨買い介入。③これはマネーサプライの減少を意味しLMが元へ戻る。④結局生産量は元の水準に戻り、金融政策は無効。"}, {"q": "為替相場制度を、変動相場制と固定相場制の長所・短所の観点で比較せよ。", "a": "要点：変動相場制＝金融政策の独立性を保ち非対称な実物ショックを為替で自律調整できるが、為替の不確実性が残る。固定相場制＝為替安定と名目アンカー（信認）を提供し取引費用・不確実性を下げるが、金融政策の自律性を手放す。"}], "sub": ""}];
+
+let session=null;
+let lastWrongPool=null;
+let choiceState=null;
+
+function escapeHtml(s){
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function showScreen(name){
+  ['setup','quiz','result'].forEach(function(s){
+    document.getElementById('screen-'+s).classList.toggle('hidden', s!==name);
+  });
+  window.scrollTo(0,0);
+}
+
+function initSetup(){
+  const list=document.getElementById('sectionList');
+  list.innerHTML=DATA.map(function(sec,i){
+    return '<label class="section-item">'
+      +'<input type="checkbox" class="sectionChk" value="'+i+'" checked>'
+      +'<span class="section-title">'+escapeHtml(sec.title)+'</span>'
+      +'<span class="section-count">'+countLabel(sec)+'</span>'
+      +'</label>';
+  }).join('');
+}
+
+function countLabel(sec){
+  const parts=[];
+  const nc=(sec.choice||[]).length, nq=(sec.qa||[]).length, ne=(sec.essay||[]).length;
+  if(nc) parts.push('多肢選択'+nc);
+  if(nq) parts.push('一問一答'+nq);
+  if(ne) parts.push('記述'+ne);
+  return parts.join('・')||'—';
+}
+
+function getSelectedModes(){
+  return new Set(Array.prototype.map.call(
+    document.querySelectorAll('#modeChips input:checked'), function(el){return el.value;}
+  ));
+}
+function getSelectedSections(){
+  return new Set(Array.prototype.map.call(
+    document.querySelectorAll('.sectionChk:checked'), function(el){return Number(el.value);}
+  ));
+}
+
+function buildPool(sectionsSet, modesSet){
+  const pool=[];
+  DATA.forEach(function(sec, si){
+    if(!sectionsSet.has(si)) return;
+    if(modesSet.has('choice')) (sec.choice||[]).forEach(function(item){
+      pool.push({q:item.q, a:item.a, choices:item.choices, correct:item.correct, type:'choice', chapter:sec.title});
+    });
+    if(modesSet.has('qa')) (sec.qa||[]).forEach(function(item){
+      pool.push({q:item.q, a:item.a, type:'qa', chapter:sec.title});
+    });
+    if(modesSet.has('essay')) (sec.essay||[]).forEach(function(item){
+      pool.push({q:item.q, a:item.a, type:'essay', chapter:sec.title});
+    });
+  });
+  return pool;
+}
+
+function shuffle(arr){
+  const a=arr.slice();
+  for(let i=a.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    const tmp=a[i]; a[i]=a[j]; a[j]=tmp;
+  }
+  return a;
+}
+
+function showError(msg){
+  const el=document.getElementById('setupError');
+  el.textContent=msg;
+  el.classList.remove('hidden');
+}
+function hideError(){
+  document.getElementById('setupError').classList.add('hidden');
+}
+
+function startBtnHandler(){
+  const modes=getSelectedModes();
+  const sections=getSelectedSections();
+  if(modes.size===0){ showError('出題形式を1つ以上選んでください'); return; }
+  if(sections.size===0){ showError('範囲を1つ以上選んでください'); return; }
+  let pool=buildPool(sections, modes);
+  if(pool.length===0){ showError('選んだ条件に該当する問題がありません'); return; }
+  hideError();
+  if(document.getElementById('randomToggle').checked) pool=shuffle(pool);
+  beginSession(pool);
+}
+
+function beginSession(pool){
+  session={pool:pool, idx:0, results:new Array(pool.length).fill(null)};
+  showScreen('quiz');
+  renderQuestion();
+}
+
+function renderQuestion(){
+  const item=session.pool[session.idx];
+  document.getElementById('progressCount').textContent=(session.idx+1)+'/'+session.pool.length;
+  document.getElementById('progressChapter').textContent=item.chapter||'';
+  document.getElementById('progressFill').style.width=(session.idx/session.pool.length*100)+'%';
+
+  const isEssay=item.type==='essay';
+  const isChoice=item.type==='choice';
+
+  const badge=document.getElementById('qTypeBadge');
+  badge.textContent=isChoice?'多肢選択':(isEssay?'記述式':'一問一答');
+  badge.className='q-type-badge'+(isEssay?' essay':(isChoice?' choice':''));
+
+  document.getElementById('qText').innerHTML=item.q;
+
+  const essayInput=document.getElementById('essayInput');
+  if(isEssay){ essayInput.classList.remove('hidden'); essayInput.value=''; }
+  else { essayInput.classList.add('hidden'); }
+
+  const choiceList=document.getElementById('choiceList');
+  const choiceHint=document.getElementById('choiceHint');
+  if(isChoice){
+    choiceState={selected:new Set(), answered:false};
+    const multi=(item.correct||[]).length>1;
+    choiceHint.textContent=multi
+      ? '当てはまる選択肢をすべて選んで答え合わせ（複数選択可）'
+      : '選択肢を1つ選んで答え合わせ';
+    choiceHint.classList.remove('hidden');
+    choiceList.innerHTML=(item.choices||[]).map(function(c,ci){
+      return '<div class="choice-opt" data-idx="'+ci+'">'
+        +'<span class="opt-mark">'+(ci+1)+'</span>'
+        +'<span class="opt-text">'+c+'</span></div>';
+    }).join('');
+    choiceList.classList.remove('hidden');
+    Array.prototype.forEach.call(choiceList.querySelectorAll('.choice-opt'), function(el){
+      el.addEventListener('click', function(){ toggleChoice(el); });
+    });
+  } else {
+    choiceState=null;
+    choiceList.classList.add('hidden');
+    choiceList.innerHTML='';
+    choiceHint.classList.add('hidden');
+  }
+
+  document.getElementById('answerBox').classList.add('hidden');
+  document.getElementById('aText').innerHTML='';
+  document.getElementById('gradeRow').classList.toggle('hidden', isChoice);
+  document.getElementById('choiceNextBtn').classList.add('hidden');
+
+  const revealBtn=document.getElementById('revealBtn');
+  const checkBtn=document.getElementById('choiceCheckBtn');
+  if(isChoice){
+    revealBtn.classList.add('hidden');
+    checkBtn.classList.remove('hidden');
+  } else {
+    checkBtn.classList.add('hidden');
+    revealBtn.classList.remove('hidden');
+    revealBtn.textContent=isEssay?'模範解答を見る':'答えを見る';
+  }
+}
+
+function toggleChoice(el){
+  if(!choiceState || choiceState.answered) return;
+  const idx=Number(el.getAttribute('data-idx'));
+  if(choiceState.selected.has(idx)){ choiceState.selected.delete(idx); el.classList.remove('selected'); }
+  else { choiceState.selected.add(idx); el.classList.add('selected'); }
+}
+
+function checkChoice(){
+  const item=session.pool[session.idx];
+  if(!choiceState || choiceState.answered) return;
+  choiceState.answered=true;
+  const correct=new Set(item.correct||[]);
+  const sel=choiceState.selected;
+  let isCorrect=(correct.size===sel.size);
+  if(isCorrect){ correct.forEach(function(i){ if(!sel.has(i)) isCorrect=false; }); }
+
+  const list=document.getElementById('choiceList');
+  Array.prototype.forEach.call(list.querySelectorAll('.choice-opt'), function(el){
+    const idx=Number(el.getAttribute('data-idx'));
+    el.classList.remove('selected'); el.classList.add('locked');
+    if(correct.has(idx)) el.classList.add('opt-correct');
+    else if(sel.has(idx)) el.classList.add('opt-wrong');
+  });
+
+  document.getElementById('choiceCheckBtn').classList.add('hidden');
+  const verdict='<div class="verdict '+(isCorrect?'ok':'ng')+'">'+(isCorrect?'○ 正解':'× 不正解')+'</div>';
+  document.getElementById('aText').innerHTML=verdict+item.a;
+  document.getElementById('answerBox').classList.remove('hidden');
+  document.getElementById('gradeRow').classList.add('hidden');
+  document.getElementById('choiceNextBtn').classList.remove('hidden');
+  session.pendingCorrect=isCorrect;
+}
+
+function revealAnswer(){
+  const item=session.pool[session.idx];
+  document.getElementById('aText').innerHTML=item.a;
+  document.getElementById('answerBox').classList.remove('hidden');
+  document.getElementById('revealBtn').classList.add('hidden');
+}
+
+function grade(correct){
+  session.results[session.idx]=correct;
+  session.idx++;
+  if(session.idx>=session.pool.length){
+    finishSession();
+  } else {
+    renderQuestion();
+  }
+}
+
+function finishSession(){
+  document.getElementById('progressFill').style.width='100%';
+  showScreen('result');
+
+  const total=session.pool.length;
+  const correct=session.results.filter(function(r){return r===true;}).length;
+  const pct=total?Math.round(correct/total*100):0;
+
+  document.getElementById('ringPct').textContent=pct+'%';
+  document.getElementById('ringSub').textContent=correct+'/'+total+'問正解';
+
+  const circumference=2*Math.PI*52;
+  const fg=document.getElementById('ringFg');
+  fg.style.strokeDasharray=String(circumference);
+  fg.style.strokeDashoffset=String(circumference*(1-pct/100));
+  fg.style.stroke=pct>=80?'var(--correct)':(pct>=50?'var(--accent)':'var(--incorrect)');
+
+  const wrongItems=session.pool.filter(function(item,i){return session.results[i]===false;});
+  lastWrongPool=wrongItems;
+
+  const wrongListEl=document.getElementById('wrongList');
+  if(wrongItems.length===0){
+    wrongListEl.innerHTML='<p class="all-correct">全問正解でした。</p>';
+  } else {
+    wrongListEl.innerHTML='<h3>間違えた問題</h3>'+wrongItems.map(function(item){
+      return '<details class="wrong-item"><summary>'+item.q+'</summary>'
+        +'<div class="wrong-answer">'+item.a+'</div></details>';
+    }).join('');
+  }
+  document.getElementById('reviewWrongBtn2').classList.toggle('hidden', wrongItems.length===0);
+  updateSetupReviewButton();
+}
+
+function updateSetupReviewButton(){
+  const btn=document.getElementById('reviewWrongBtn');
+  if(lastWrongPool && lastWrongPool.length>0){
+    btn.classList.remove('hidden');
+    document.getElementById('wrongCount').textContent=lastWrongPool.length;
+  } else {
+    btn.classList.add('hidden');
+  }
+}
+
+function startReviewWrong(){
+  if(!lastWrongPool || lastWrongPool.length===0) return;
+  let pool=lastWrongPool.slice();
+  if(document.getElementById('randomToggle').checked) pool=shuffle(pool);
+  beginSession(pool);
+}
+
+function retrySameCondition(){
+  if(!session) return;
+  let pool=session.pool.slice();
+  if(document.getElementById('randomToggle').checked) pool=shuffle(pool);
+  beginSession(pool);
+}
+
+initSetup();
+document.getElementById('selectAllBtn').addEventListener('click', function(){
+  document.querySelectorAll('.sectionChk').forEach(function(c){c.checked=true;});
+});
+document.getElementById('selectNoneBtn').addEventListener('click', function(){
+  document.querySelectorAll('.sectionChk').forEach(function(c){c.checked=false;});
+});
+document.getElementById('startBtn').addEventListener('click', startBtnHandler);
+document.getElementById('revealBtn').addEventListener('click', revealAnswer);
+document.getElementById('choiceCheckBtn').addEventListener('click', checkChoice);
+document.getElementById('choiceNextBtn').addEventListener('click', function(){grade(session.pendingCorrect);});
+document.getElementById('gradeRightBtn').addEventListener('click', function(){grade(true);});
+document.getElementById('gradeWrongBtn').addEventListener('click', function(){grade(false);});
+document.getElementById('quitBtn').addEventListener('click', function(){showScreen('setup');});
+document.getElementById('reviewWrongBtn').addEventListener('click', startReviewWrong);
+document.getElementById('reviewWrongBtn2').addEventListener('click', startReviewWrong);
+document.getElementById('retryAllBtn').addEventListener('click', retrySameCondition);
+document.getElementById('backToSetupBtn').addEventListener('click', function(){showScreen('setup');});
+</script>
+</body>
+</html>
