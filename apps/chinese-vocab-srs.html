@@ -382,21 +382,26 @@ function fmtSlots(n){
 }
 
 /* ---------------- state ---------------- */
-const DEF = {v:2, c:{}, log:{}, opt:{dir:'ja2zh', nw:30, rv:40}};
+const DEF = {v:3, c:{}, log:{}, opt:{dir:'ja2zh', nw:30, rv:40}};
 let S;
 function load(){
   try{
     const raw = localStorage.getItem(KEY);
     if(!raw) return JSON.parse(JSON.stringify(DEF));
     const o = JSON.parse(raw);
-    const s = {v:2, c:o.c||{}, log:o.log||{}, opt:Object.assign({}, DEF.opt, o.opt||{})};
-    // v1（日単位）で保存された記録を30分単位へ移行する
-    if(o.v !== 2){
-      const shift = nowSlot() - dayNum() * 48;
+    const s = {v:3, c:o.c||{}, log:o.log||{}, opt:Object.assign({}, DEF.opt, o.opt||{})};
+    // 日単位で組まれた古い記録を30分単位へ移行する。
+    // 予定時刻はそのまま換算せず、レベルに応じた新しい間隔で引き直す
+    // （「レベル1＝1日後」を「レベル1＝30分後」に読み替えるのが移行の目的のため）
+    if(o.v !== 3){
+      const t = nowSlot();
+      const fromDays = (o.v !== 2);
+      const shift = t - dayNum() * 48;
       Object.keys(s.c).forEach(k=>{
         const c = s.c[k];
-        c.d = c.d * 48 + shift;
-        if(c.t != null) c.t = c.t * 48 + shift;
+        if(c.t == null) c.t = t;
+        else if(fromDays) c.t = c.t * 48 + shift;
+        c.d = c.l ? c.t + IV[c.l-1] : t;
       });
     }
     return s;
@@ -706,7 +711,7 @@ $('btn-import').onclick = ()=>{
   try{
     const o = JSON.parse($('io').value);
     if(!o || typeof o.c!=='object') throw 0;
-    S = {v:2, c:o.c||{}, log:o.log||{}, opt:Object.assign({}, DEF.opt, o.opt||{})};
+    S = {v:3, c:o.c||{}, log:o.log||{}, opt:Object.assign({}, DEF.opt, o.opt||{})};
     save(); renderHome(); toast('読み込みました');
   }catch(e){ toast('形式が正しくありません'); }
 };
