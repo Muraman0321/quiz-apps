@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#b3402f">
+<title>中国語単語 間隔反復</title>
+<style>
+  :root{
+    --ink:#2b2622; --paper:#f4ece0; --paper2:#fbf5ec; --paper3:#efe4d4;
+    --red:#b3402f; --red-dk:#8f2f22; --gold:#bd9a4a;
+    --line:#d8c8b2; --muted:#8a7d6c; --green:#3f6b4e; --amber:#a8762a;
+    --shadow:0 2px 10px rgba(60,40,20,.10);
+    --r:14px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --ink:#ece4d8; --paper:#1b1917; --paper2:#242120; --paper3:#2c2825;
+      --red:#d9634f; --red-dk:#b3402f; --gold:#c9a95f;
+      --line:#3b3531; --muted:#9c9285; --green:#6fa583; --amber:#d0a05a;
+      --shadow:0 2px 12px rgba(0,0,0,.35);
+    }
+  }
+  *{box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    font-family:"Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic","Meiryo",system-ui,sans-serif;
+    background:
+      radial-gradient(circle at 18% 8%, color-mix(in srgb,var(--paper2) 70%, transparent) 0%, transparent 55%),
+      radial-gradient(circle at 85% 92%, color-mix(in srgb,var(--paper3) 70%, transparent) 0%, transparent 50%),
+      var(--paper);
+    background-attachment:fixed;
+    color:var(--ink); min-height:100vh;
+    padding:0 14px calc(40px + env(safe-area-inset-bottom));
+    line-height:1.6;
+  }
+  .zh{font-family:"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Noto Sans SC","Source Han Sans SC",sans-serif}
+  .wrap{max-width:640px; margin:0 auto}
+
+  /* ---------- topbar ---------- */
+  .topbar{
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    padding:16px 2px 14px; position:sticky; top:0; z-index:20;
+    background:linear-gradient(var(--paper) 72%, transparent);
+  }
+  .topbar h1{font-size:17px; font-weight:700; letter-spacing:.02em; display:flex; align-items:center; gap:8px}
+  .seal{
+    width:26px; height:26px; border-radius:6px; background:var(--red); color:#fff;
+    display:grid; place-items:center; font-size:15px; font-weight:700; flex:none;
+    font-family:"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  }
+  .streak{font-size:12px; color:var(--muted); white-space:nowrap}
+  .streak b{color:var(--red); font-size:14px}
+
+  .screen{display:block}
+  .screen[hidden]{display:none}
+
+  /* ---------- cards / panels ---------- */
+  .card{
+    background:var(--paper2); border:1px solid var(--line); border-radius:var(--r);
+    box-shadow:var(--shadow); padding:16px; margin-bottom:14px;
+  }
+  .card h2{font-size:13px; font-weight:700; color:var(--muted); letter-spacing:.08em; margin-bottom:12px}
+
+  /* ---------- stats ---------- */
+  .stats{display:grid; grid-template-columns:repeat(3,1fr); gap:8px; text-align:center}
+  .stat{padding:10px 4px; border-radius:10px; background:var(--paper3)}
+  .stat .n{font-size:26px; font-weight:700; line-height:1.1; font-variant-numeric:tabular-nums}
+  .stat .l{font-size:11px; color:var(--muted); margin-top:2px}
+  .stat.due .n{color:var(--red)}
+  .stat.mastered .n{color:var(--green)}
+
+  .overall{margin-top:14px}
+  .obar{height:9px; border-radius:99px; background:var(--paper3); overflow:hidden; display:flex; border:1px solid var(--line)}
+  .obar i{display:block; height:100%}
+  .obar .m{background:var(--green)}
+  .obar .g{background:var(--gold)}
+  .legend{display:flex; gap:14px; flex-wrap:wrap; font-size:11px; color:var(--muted); margin-top:7px}
+  .legend span{display:flex; align-items:center; gap:5px}
+  .dot{width:8px; height:8px; border-radius:3px; display:inline-block}
+
+  /* ---------- buttons ---------- */
+  .btn{
+    display:block; width:100%; padding:14px; border:none; border-radius:12px;
+    background:var(--red); color:#fff; font-size:16px; font-weight:700; cursor:pointer;
+    font-family:inherit; box-shadow:var(--shadow); transition:transform .08s, filter .15s;
+  }
+  .btn:active{transform:scale(.985)}
+  .btn:disabled{background:var(--paper3); color:var(--muted); box-shadow:none; cursor:default}
+  .btn.sub{background:var(--paper3); color:var(--ink); border:1px solid var(--line); font-size:14px; padding:11px}
+  .btn small{display:block; font-size:11.5px; font-weight:500; opacity:.85; margin-top:2px}
+  .btn-row{display:flex; gap:8px; margin-top:10px}
+  .btn-row .btn{margin:0}
+
+  /* ---------- blocks ---------- */
+  .blk{
+    display:flex; align-items:center; gap:12px; width:100%; text-align:left;
+    padding:11px 12px; margin-bottom:7px; cursor:pointer; font-family:inherit; color:inherit;
+    background:var(--paper3); border:1px solid var(--line); border-radius:11px;
+    transition:border-color .15s;
+  }
+  .blk:active{border-color:var(--red)}
+  .blk-no{
+    width:34px; height:34px; flex:none; border-radius:9px; display:grid; place-items:center;
+    background:var(--paper2); border:1px solid var(--line); font-size:14px; font-weight:700;
+    font-variant-numeric:tabular-nums;
+  }
+  .blk.done .blk-no{background:var(--green); color:#fff; border-color:transparent}
+  .blk.active .blk-no{background:var(--gold); color:#fff; border-color:transparent}
+  .blk-body{flex:1; min-width:0}
+  .blk-t{font-size:13.5px; font-weight:600; display:flex; justify-content:space-between; gap:8px; align-items:baseline}
+  .blk-t em{font-style:normal; font-size:11px; color:var(--muted); font-weight:500; white-space:nowrap}
+  .blk-bar{height:6px; border-radius:99px; background:var(--paper); overflow:hidden; display:flex; margin-top:6px; border:1px solid var(--line)}
+  .blk-bar i{display:block; height:100%}
+  .blk-due{
+    flex:none; font-size:11px; font-weight:700; color:#fff; background:var(--red);
+    border-radius:99px; padding:2px 8px; white-space:nowrap;
+  }
+
+  /* ---------- settings ---------- */
+  details{border-top:1px solid var(--line); padding-top:12px; margin-top:4px}
+  details summary{
+    font-size:13px; font-weight:600; color:var(--muted); cursor:pointer; list-style:none;
+    display:flex; align-items:center; gap:6px; padding:4px 0;
+  }
+  details summary::-webkit-details-marker{display:none}
+  details summary::before{content:"▸"; transition:transform .15s; display:inline-block; color:var(--red)}
+  details[open] summary::before{transform:rotate(90deg)}
+  .row{display:flex; align-items:center; justify-content:space-between; gap:10px; padding:9px 0; font-size:13.5px}
+  .row + .row{border-top:1px dashed var(--line)}
+  .row .rl{color:var(--muted); font-size:12.5px}
+  .seg{display:flex; background:var(--paper3); border:1px solid var(--line); border-radius:9px; overflow:hidden; flex:none}
+  .seg button{
+    border:none; background:none; padding:7px 11px; font-size:12.5px; cursor:pointer;
+    color:var(--muted); font-family:inherit; font-weight:600;
+  }
+  .seg button[aria-pressed="true"]{background:var(--red); color:#fff}
+  textarea{
+    width:100%; height:90px; font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:11px;
+    background:var(--paper); color:var(--ink); border:1px solid var(--line); border-radius:9px;
+    padding:8px; resize:vertical; margin-top:8px;
+  }
+  .note{font-size:11.5px; color:var(--muted); margin-top:8px; line-height:1.55}
+
+  /* ---------- study ---------- */
+  .prog{display:flex; align-items:center; gap:10px; margin-bottom:12px}
+  .prog .pb{flex:1; height:7px; border-radius:99px; background:var(--paper3); overflow:hidden; border:1px solid var(--line)}
+  .prog .pb i{display:block; height:100%; background:var(--red); width:0; transition:width .3s}
+  .prog .pt{font-size:11.5px; color:var(--muted); font-variant-numeric:tabular-nums; white-space:nowrap}
+  .quit{background:none; border:none; color:var(--muted); font-size:12px; cursor:pointer; font-family:inherit; padding:4px}
+
+  .qcard{
+    background:var(--paper2); border:1px solid var(--line); border-radius:18px; box-shadow:var(--shadow);
+    padding:22px 18px; min-height:340px; display:flex; flex-direction:column;
+  }
+  .tags{display:flex; gap:6px; flex-wrap:wrap; margin-bottom:18px; min-height:22px}
+  .tag{font-size:11px; font-weight:700; padding:3px 9px; border-radius:99px; letter-spacing:.02em}
+  .tag.new{background:var(--gold); color:#fff}
+  .tag.rev{background:var(--red); color:#fff}
+  .tag.gap{background:var(--paper3); color:var(--red); border:1px solid var(--red)}
+  .tag.again{background:var(--paper3); color:var(--muted); border:1px solid var(--line)}
+
+  .front{flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:6px 0}
+  .front .q{font-size:27px; font-weight:700; line-height:1.4; word-break:break-word}
+  .front .q.big{font-size:44px; letter-spacing:.06em}
+  .front .hint{font-size:12px; color:var(--muted); margin-top:14px}
+
+  .back{border-top:1px dashed var(--line); margin-top:16px; padding-top:16px; text-align:center}
+  .back .py{font-size:21px; color:var(--red); font-weight:600; letter-spacing:.02em}
+  .back .hz{font-size:38px; font-weight:700; margin-top:6px; letter-spacing:.08em}
+  .back .ja{font-size:17px; margin-top:8px}
+  .back .meta{font-size:11.5px; color:var(--muted); margin-top:12px}
+
+  .grades{display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-top:14px}
+  .grade{
+    padding:13px 4px; border-radius:12px; border:1px solid var(--line); cursor:pointer;
+    font-family:inherit; font-size:14.5px; font-weight:700; background:var(--paper2); color:var(--ink);
+    transition:transform .08s;
+  }
+  .grade:active{transform:scale(.97)}
+  .grade small{display:block; font-size:10.5px; font-weight:500; color:var(--muted); margin-top:3px}
+  .grade.g0{border-color:var(--red); color:var(--red)}
+  .grade.g1{border-color:var(--amber); color:var(--amber)}
+  .grade.g2{border-color:var(--green); color:var(--green)}
+
+  /* ---------- done ---------- */
+  .done-h{text-align:center; padding:14px 0 4px}
+  .done-h .em{font-size:44px}
+  .done-h h2{font-size:20px; margin-top:6px; color:var(--ink); letter-spacing:0}
+  .done-h p{font-size:13px; color:var(--muted); margin-top:4px}
+  .tally{display:grid; grid-template-columns:repeat(3,1fr); gap:8px; text-align:center; margin-top:16px}
+  .tally div{padding:10px 4px; border-radius:10px; background:var(--paper3)}
+  .tally .n{font-size:22px; font-weight:700; font-variant-numeric:tabular-nums}
+  .tally .l{font-size:11px; color:var(--muted)}
+  .tally .t0 .n{color:var(--red)} .tally .t1 .n{color:var(--amber)} .tally .t2 .n{color:var(--green)}
+  .upcoming{margin-top:14px}
+  .upcoming .u{display:flex; justify-content:space-between; font-size:12.5px; padding:7px 0; border-bottom:1px dashed var(--line)}
+  .upcoming .u:last-child{border:none}
+  .upcoming .u b{color:var(--red); font-variant-numeric:tabular-nums}
+
+  .footer{text-align:center; font-size:11px; color:var(--muted); padding:18px 8px 0; line-height:1.6}
+  .toast{
+    position:fixed; left:50%; bottom:24px; transform:translateX(-50%) translateY(20px);
+    background:var(--ink); color:var(--paper); padding:10px 18px; border-radius:99px; font-size:13px;
+    opacity:0; transition:.25s; pointer-events:none; z-index:50; box-shadow:0 4px 20px rgba(0,0,0,.25);
+  }
+  .toast.on{opacity:1; transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="topbar">
+    <h1><span class="seal zh">词</span>中国語単語　間隔反復</h1>
+    <div class="streak" id="streak"></div>
+  </div>
+
+  <!-- ================= HOME ================= -->
+  <section class="screen" id="screen-home">
+    <div class="card">
+      <h2>学習状況</h2>
+      <div class="stats">
+        <div class="stat due"><div class="n" id="s-due">0</div><div class="l">復習待ち</div></div>
+        <div class="stat"><div class="n" id="s-new">0</div><div class="l">未学習</div></div>
+        <div class="stat mastered"><div class="n" id="s-mas">0</div><div class="l">習得</div></div>
+      </div>
+      <div class="overall">
+        <div class="obar"><i class="m" id="ob-m"></i><i class="g" id="ob-g"></i></div>
+        <div class="legend">
+          <span><i class="dot" style="background:var(--green)"></i>習得（次回8日以上先）</span>
+          <span><i class="dot" style="background:var(--gold)"></i>学習中</span>
+          <span><i class="dot" style="background:var(--paper3);border:1px solid var(--line)"></i>未学習</span>
+        </div>
+      </div>
+      <div style="margin-top:16px">
+        <button class="btn" id="btn-review">今日の復習</button>
+        <div class="btn-row">
+          <button class="btn sub" id="btn-next">次のブロックを学習</button>
+          <button class="btn sub" id="btn-weak">苦手だけ復習</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>ブロック（全<span id="nblk"></span>・30語ずつ）</h2>
+      <div id="blocks"></div>
+      <p class="note">ブロックを選ぶと、その未学習語に加えて<b>復習期限が来た語（前のブロックを含む）</b>が自動で混ざります。「◯日ぶり」と表示されるのがその語です。</p>
+    </div>
+
+    <div class="card">
+      <details>
+        <summary>設定</summary>
+        <div class="row">
+          <div><div>出題の向き</div><div class="rl">日→中は「思い出す」練習で定着しやすい</div></div>
+          <div class="seg" id="seg-dir">
+            <button data-v="ja2zh">日→中</button><button data-v="zh2ja">中→日</button><button data-v="mix">混合</button>
+          </div>
+        </div>
+        <div class="row">
+          <div><div>1回の新出語数</div><div class="rl">多すぎると翌日の復習が重くなる</div></div>
+          <div class="seg" id="seg-new">
+            <button data-v="10">10</button><button data-v="20">20</button><button data-v="30">30</button>
+          </div>
+        </div>
+        <div class="row">
+          <div><div>1回の復習上限</div><div class="rl">期限が来た語をいくつまで混ぜるか</div></div>
+          <div class="seg" id="seg-rev">
+            <button data-v="20">20</button><button data-v="40">40</button><button data-v="999">全部</button>
+          </div>
+        </div>
+      </details>
+      <details>
+        <summary>学習データの保存・引き継ぎ</summary>
+        <p class="note">記録はこの端末のブラウザ内（localStorage）に保存されます。履歴を消したり別の端末で使ったりすると引き継がれません。下のテキストをコピーしておけば復元できます。</p>
+        <textarea id="io" spellcheck="false"></textarea>
+        <div class="btn-row">
+          <button class="btn sub" id="btn-export">書き出す</button>
+          <button class="btn sub" id="btn-import">読み込む</button>
+          <button class="btn sub" id="btn-reset">全消去</button>
+        </div>
+      </details>
+    </div>
+    <p class="footer">忘却曲線（間隔反復）方式：正解した語は 1→2→4→8→15→30→60→120→240日 と間隔を伸ばして再出題します。<br>収録 <span id="total"></span> 語</p>
+  </section>
+
+  <!-- ================= STUDY ================= -->
+  <section class="screen" id="screen-study" hidden>
+    <div class="prog">
+      <button class="quit" id="btn-quit">← 中断</button>
+      <div class="pb"><i id="pbi"></i></div>
+      <div class="pt" id="pt"></div>
+    </div>
+    <div class="qcard">
+      <div class="tags" id="tags"></div>
+      <div class="front">
+        <div class="q" id="q"></div>
+        <div class="hint" id="hint">タップして答えを見る</div>
+      </div>
+      <div class="back" id="back" hidden>
+        <div class="py" id="a-py"></div>
+        <div class="hz zh" id="a-hz"></div>
+        <div class="ja" id="a-ja"></div>
+        <div class="meta" id="a-meta"></div>
+      </div>
+    </div>
+    <button class="btn" id="btn-reveal" style="margin-top:14px">答えを見る</button>
+    <div class="grades" id="grades" hidden>
+      <button class="grade g0" data-g="0">わからない<small id="p0"></small></button>
+      <button class="grade g1" data-g="1">あやふや<small id="p1"></small></button>
+      <button class="grade g2" data-g="2">わかった<small id="p2"></small></button>
+    </div>
+    <p class="footer">スペース＝答えを見る／1・2・3＝採点</p>
+  </section>
+
+  <!-- ================= DONE ================= -->
+  <section class="screen" id="screen-done" hidden>
+    <div class="card">
+      <div class="done-h">
+        <div class="em">🎊</div>
+        <h2 id="d-title">おつかれさま</h2>
+        <p id="d-sub"></p>
+      </div>
+      <div class="tally">
+        <div class="t0"><div class="n" id="d0">0</div><div class="l">わからない</div></div>
+        <div class="t1"><div class="n" id="d1">0</div><div class="l">あやふや</div></div>
+        <div class="t2"><div class="n" id="d2">0</div><div class="l">わかった</div></div>
+      </div>
+      <div class="upcoming">
+        <h2 style="margin:16px 0 4px">次の復習予定</h2>
+        <div id="upcoming"></div>
+      </div>
+      <div style="margin-top:16px">
+        <button class="btn" id="btn-home">ホームへ戻る</button>
+        <div class="btn-row"><button class="btn sub" id="btn-again">続けてもう1セット</button></div>
+      </div>
+    </div>
+  </section>
+
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const WORDS = [{"ja":"レベル","py":"shuǐpíng","hz":"水平","b":0},{"ja":"所有する","py":"yōngyǒu","hz":"拥有","b":0},{"ja":"ミシン","py":"féngrènjī","hz":"缝纫机","b":0},{"ja":"シンボル","py":"xiàngzhēng","hz":"象征","b":0},{"ja":"～に変わる","py":"biànchéng","hz":"变成～","b":0},{"ja":"～したばかりである","py":"gāng","hz":"刚～","b":0},{"ja":"（値段が）非常に高い","py":"ángguì","hz":"昂贵","b":0},{"ja":"覚えている","py":"jìde","hz":"记得","b":0},{"ja":"隣近所（の人）","py":"línjū","hz":"邻居","b":0},{"ja":"子供","py":"háizi","hz":"孩子","b":0},{"ja":"持つ。取る","py":"ná","hz":"拿","b":0},{"ja":"背もたれのない木製の腰掛け","py":"bǎndèng","hz":"板凳","b":0},{"ja":"しかし","py":"búguò","hz":"不过","b":0},{"ja":"どの家（も）","py":"jiājiāhùhù","hz":"家家户户","b":0},{"ja":"カラーテレビ。“彩色电视机”の略","py":"cǎidiàn","hz":"彩电","b":0},{"ja":"加速する","py":"jiākuài","hz":"加快","b":0},{"ja":"オーディオ機器","py":"yīnxiǎng","hz":"音响","b":0},{"ja":"ビデオレコーダー","py":"lùxiàngjī","hz":"录像机","b":0},{"ja":"取って代わる","py":"qǔdài","hz":"取代","b":0},{"ja":"分譲住宅","py":"shāngpǐnfáng","hz":"商品房","b":0},{"ja":"しだいに","py":"zhújiàn","hz":"逐渐","b":0},{"ja":"札。紙幣","py":"piàozi","hz":"票子","b":0},{"ja":"～によれば","py":"jù","hz":"据～","b":0},{"ja":"（物価が）暴騰する","py":"fēizhǎng","hz":"飞涨","b":0},{"ja":"眺めることができても、近づくことができない。高嶺の花","py":"kě wàng ér bù kě jí","hz":"可望而不可即","b":0},{"ja":"住宅ローンにあえぐ人","py":"fángnú","hz":"房奴","b":0},{"ja":"夢","py":"mèngxiǎng","hz":"梦想","b":0},{"ja":"電子レンジ","py":"wēibōlú","hz":"微波炉","b":0},{"ja":"怒る","py":"shēng","hz":"/qì / 生气","b":0},{"ja":"太っている","py":"pàng","hz":"胖","b":0},{"ja":"（時間的に）間に合わない","py":"láibují","hz":"来不及","b":1},{"ja":"おごり高ぶる","py":"jiāo'ào","hz":"骄傲","b":1},{"ja":"追い求める","py":"zhuīqiú","hz":"追求","b":1},{"ja":"白黒","py":"hēibái","hz":"黑白","b":1},{"ja":"普及する","py":"pǔjí","hz":"普及","b":1},{"ja":"情報化時代","py":"xìnxī shídài","hz":"信息时代","b":1},{"ja":"統計","py":"tǒngjì","hz":"统计","b":1},{"ja":"貧富の差","py":"pín fù chābié","hz":"贫富差别","b":1},{"ja":"実現する","py":"shíxiàn","hz":"实现","b":1},{"ja":"宅配員","py":"kuàidìyuán","hz":"快递员","b":1},{"ja":"雇用労働者","py":"gùyuán","hz":"雇员","b":1},{"ja":"願い","py":"yuànwàng","hz":"愿望","b":1},{"ja":"高校。“高级中学”の略","py":"gāozhōng","hz":"高中","b":1},{"ja":"アパート・マンション","py":"jūmínlóu","hz":"居民楼","b":1},{"ja":"倉庫","py":"cāngkù","hz":"仓库","b":1},{"ja":"二段ベッド","py":"shuāngcéngchuáng","hz":"双层床","b":1},{"ja":"積み上げる","py":"duī","hz":"堆","b":1},{"ja":"電動自転車","py":"diàndòng zìxíngchē","hz":"电动自行车","b":1},{"ja":"つらい。骨が折れる","py":"xīnkǔ","hz":"辛苦","b":1},{"ja":"（電話を）受ける","py":"jiē","hz":"接","b":1},{"ja":"顧客。取引先","py":"kèhù","hz":"客户","b":1},{"ja":"かじる","py":"kěn","hz":"啃","b":1},{"ja":"マントー。小麦粉で作った蒸しパン","py":"mántou","hz":"馒头","b":1},{"ja":"出来高払い","py":"jìjiàn gōngzī","hz":"计件工资","b":1},{"ja":"稼ぐ","py":"zhèng","hz":"挣","b":1},{"ja":"そのために","py":"yīncǐ","hz":"因此","b":1},{"ja":"～に基づいて","py":"àn","hz":"按","b":1},{"ja":"荷受人","py":"shōuhuòrén","hz":"收货人","b":1},{"ja":"受け取ることを拒絶する","py":"jùshōu","hz":"拒收","b":1},{"ja":"費やす","py":"huā","hz":"花","b":2},{"ja":"（階段などを）上る","py":"pá","hz":"爬","b":2},{"ja":"意外にも。なんと","py":"jìngrán","hz":"竟然","b":2},{"ja":"ネットショッピングをする。“网络购物”“网上购物”の略","py":"wǎnggòu","hz":"网购","b":2},{"ja":"衝動にかられる","py":"chōngdòng","hz":"冲动","b":2},{"ja":"口を開く","py":"zhāng","hz":"/zuǐ / 张嘴","b":2},{"ja":"思い起こす","py":"xiǎngqǐ","hz":"想起","b":2},{"ja":"頭が痛い","py":"tóuténg","hz":"头疼","b":2},{"ja":"窓","py":"chuānghu","hz":"窗户","b":2},{"ja":"ロシア語","py":"Éyǔ","hz":"俄语","b":2},{"ja":"必要とする","py":"xūyào","hz":"需要","b":2},{"ja":"嫌だ","py":"tǎoyàn","hz":"讨厌","b":2},{"ja":"鍵","py":"yàoshi","hz":"钥匙","b":2},{"ja":"どっしりと大きく動かないものを数える","py":"zuò","hz":"座","b":2},{"ja":"遅い","py":"màn","hz":"慢","b":2},{"ja":"成長する","py":"zhǎng","hz":"长","b":2},{"ja":"格好いい","py":"shuài","hz":"帅","b":2},{"ja":"諦める。放棄する","py":"fàngqì","hz":"放弃","b":2},{"ja":"生まれる","py":"chūshēng","hz":"出生","b":2},{"ja":"出稼ぎをする。アルバイトをする","py":"dǎ","hz":"/gōng / 打工","b":2},{"ja":"棟。建物を数える","py":"dòng","hz":"栋","b":2},{"ja":"地下室","py":"dìxiàshì","hz":"地下室","b":2},{"ja":"荷物。貨物","py":"huòwù","hz":"货物","b":2},{"ja":"催促する","py":"cuīcù","hz":"催促","b":2},{"ja":"実施する","py":"shíxíng","hz":"实行","b":2},{"ja":"規定","py":"guīdìng","hz":"规定","b":2},{"ja":"倍","py":"bèi","hz":"倍","b":2},{"ja":"段ボール箱","py":"zhǐxiāng","hz":"纸箱","b":2},{"ja":"返品する","py":"tuìhuò","hz":"退货","b":2},{"ja":"結婚相手","py":"duìxiàng","hz":"对象","b":3},{"ja":"いつも","py":"zǒngshì","hz":"总是","b":3},{"ja":"集まる","py":"jùjí","hz":"聚集","b":3},{"ja":"～のために","py":"wèi","hz":"为～","b":3},{"ja":"息子と娘。子供","py":"érnǚ","hz":"儿女","b":3},{"ja":"見合いをする","py":"xiāng","hz":"/qīn / 相亲","b":3},{"ja":"略歴","py":"jiǎnlì","hz":"简历","b":3},{"ja":"一部の人","py":"yìxiē rén","hz":"一些人","b":3},{"ja":"精緻で美しい","py":"jīngměi","hz":"精美","b":3},{"ja":"頻繁である","py":"pínfán","hz":"频繁","b":3},{"ja":"言葉を交わす","py":"jiāotán","hz":"交谈","b":3},{"ja":"みな同じ調子で変化がない","py":"qiān piān yí lǜ","hz":"千篇一律","b":3},{"ja":"～から見ると","py":"cóng ～ lái kàn","hz":"从～来看","b":3},{"ja":"結婚適齢期を過ぎた独身女性","py":"dàlíng nǚxìng","hz":"大龄女性","b":3},{"ja":"とりわけ","py":"yóuqí","hz":"尤其","b":3},{"ja":"ぴったりしている","py":"héshì","hz":"合适","b":3},{"ja":"外資系企業。“外资企业”の略","py":"wàiqǐ","hz":"外企","b":3},{"ja":"今に至るまで","py":"zhìjīn","hz":"至今","b":3},{"ja":"気がめいる","py":"fā","hz":"/chóu / 发愁","b":3},{"ja":"しばしば","py":"chángcháng","hz":"常常","b":3},{"ja":"寝つけない。眠れない","py":"shuìbuzháojiào","hz":"睡不着觉","b":3},{"ja":"焦る","py":"jiāozhuó","hz":"焦灼","b":3},{"ja":"～のように見える","py":"xiǎnde","hz":"显得","b":3},{"ja":"ひどく。非常に","py":"yìcháng","hz":"异常","b":3},{"ja":"軽々しく","py":"qīngyì","hz":"轻易","b":3},{"ja":"拒否権","py":"fǒujuéquán","hz":"否决权","b":3},{"ja":"探し求める","py":"xúnzhǎo","hz":"寻找","b":3},{"ja":"奔走する。苦労する","py":"bēnbō","hz":"奔波","b":3},{"ja":"感慨無量である","py":"gǎnkǎi wànqiān","hz":"感慨万千","b":3},{"ja":"卓球","py":"pīngpāngqiú","hz":"乒乓球","b":4},{"ja":"バスケットボール","py":"lánqiú","hz":"篮球","b":4},{"ja":"アパート。マンション","py":"gōngyù","hz":"公寓","b":4},{"ja":"犬","py":"gǒu","hz":"狗","b":4},{"ja":"体重を減らす","py":"jiǎn","hz":"/féi / 减肥","b":4},{"ja":"引っ越す","py":"bān","hz":"/jiā / 搬家","b":4},{"ja":"悪口","py":"huàihuà","hz":"坏话","b":4},{"ja":"エコノミークラス","py":"jīngjìcāng","hz":"经济舱","b":4},{"ja":"ファーストクラス","py":"tóuděngcāng","hz":"头等舱","b":4},{"ja":"体調，気分などがよい","py":"shūfu","hz":"舒服","b":4},{"ja":"ショートメール","py":"duǎnxìn","hz":"短信","b":4},{"ja":"一角","py":"yìjiǎo","hz":"一角","b":4},{"ja":"中高年","py":"zhōng lǎonián rén","hz":"中老年人","b":4},{"ja":"胸の前","py":"xiōngqián","hz":"胸前","b":4},{"ja":"話題","py":"huàtí","hz":"话题","b":4},{"ja":"性格","py":"xìnggé","hz":"性格","b":4},{"ja":"タバコを吸う","py":"chōu","hz":"/yān / 抽烟","b":4},{"ja":"成功率","py":"chénggōnglǜ","hz":"成功率","b":4},{"ja":"比率","py":"bǐlì","hz":"比例","b":4},{"ja":"学歴","py":"xuélì","hz":"学历","b":4},{"ja":"博士の学位","py":"bóshì xuéwèi","hz":"博士学位","b":4},{"ja":"婿","py":"nǚxu","hz":"女婿","b":4},{"ja":"冷静である","py":"lěngjìng","hz":"冷静","b":4},{"ja":"続ける","py":"jìxù","hz":"继续","b":4},{"ja":"おばさん","py":"dàmā","hz":"大妈","b":4},{"ja":"会食する","py":"jù","hz":"/cān / 聚餐","b":4},{"ja":"人の往来が盛んでにぎやかなさま","py":"xī xī rǎng rǎng","hz":"熙熙攘攘","b":4},{"ja":"空いた席がまったくない","py":"zuò wú xū xí","hz":"座无虚席","b":4},{"ja":"金持ちになる","py":"fā","hz":"/cái / 发财","b":4},{"ja":"部長","py":"chùzhǎng","hz":"处长","b":5},{"ja":"およそ。すべて","py":"fánshì","hz":"凡是","b":5},{"ja":"割り勘","py":"AA zhì","hz":"AA制","b":5},{"ja":"取りばし","py":"gōngkuài","hz":"公筷","b":5},{"ja":"ランク","py":"dàngcì","hz":"档次","b":5},{"ja":"衛生的である","py":"wèishēng","hz":"卫生","b":5},{"ja":"疎遠である","py":"shēngfen","hz":"生分","b":5},{"ja":"食事をする","py":"yòng","hz":"/cān / 用餐","b":5},{"ja":"定食。セットメニュー","py":"tàocān","hz":"套餐","b":5},{"ja":"（料理を）注文する","py":"diǎn","hz":"点","b":5},{"ja":"～にのぼる。～に達する","py":"shàng","hz":"上～","b":5},{"ja":"気楽である","py":"qīngsōng","hz":"轻松","b":5},{"ja":"前菜","py":"liángcài","hz":"凉菜","b":5},{"ja":"暖かい料理","py":"rècài","hz":"热菜","b":5},{"ja":"そろえて注文する","py":"diǎnqí","hz":"点齐","b":5},{"ja":"おごる。客を招待する","py":"qǐng","hz":"/kè / 请客","b":5},{"ja":"避ける","py":"bìmiǎn","hz":"避免","b":5},{"ja":"物惜しみしない","py":"kāngkǎi","hz":"慷慨","b":5},{"ja":"気前がよい","py":"dàfang","hz":"大方","b":5},{"ja":"余った料理","py":"shèngcài","hz":"剩菜","b":5},{"ja":"余る","py":"shèngxià","hz":"剩下","b":5},{"ja":"（持ち帰るために残った料理を）パックに詰める","py":"dǎ","hz":"/bāo / 打包","b":5},{"ja":"提案する。持ちかける","py":"tíshì","hz":"提示","b":5},{"ja":"領収書","py":"fāpiào","hz":"发票","b":5},{"ja":"司会する","py":"zhǔchí","hz":"主持","b":5},{"ja":"入院する","py":"zhù","hz":"/yuàn / 住院","b":5},{"ja":"ハイアール。中国の家電メーカー","py":"Hǎi'ěr","hz":"海尔","b":5},{"ja":"刺身","py":"shēngyúpiàn","hz":"生鱼片","b":5},{"ja":"シナリオ","py":"jùběn","hz":"剧本","b":5},{"ja":"スペイン","py":"Xībānyá","hz":"西班牙","b":6},{"ja":"アニメと漫画。“动画”と“漫画”を合わせた言い方","py":"dòngmàn","hz":"动漫","b":6},{"ja":"合格する","py":"jí","hz":"/gé / 及格","b":6},{"ja":"風邪を引く","py":"gǎnmào","hz":"感冒","b":6},{"ja":"さまざまな","py":"gè zhǒng gè yàng","hz":"各种各样","b":6},{"ja":"教授","py":"jiàoshòu","hz":"教授","b":6},{"ja":"昇進する","py":"shēng","hz":"升","b":6},{"ja":"一律に","py":"yílǜ","hz":"一律","b":6},{"ja":"祝う","py":"zhùhè","hz":"祝贺","b":6},{"ja":"分担する","py":"fēndān","hz":"分担","b":6},{"ja":"提供する","py":"tígōng","hz":"提供","b":6},{"ja":"合致する","py":"fúhé","hz":"符合","b":6},{"ja":"種類","py":"zhǒnglèi","hz":"种类","b":6},{"ja":"途中","py":"zhōngtú","hz":"中途","b":6},{"ja":"数量","py":"shùliàng","hz":"数量","b":6},{"ja":"足りない","py":"bùzú","hz":"不足","b":6},{"ja":"宴会","py":"yànhuì","hz":"宴会","b":6},{"ja":"贈呈する","py":"zèngsòng","hz":"赠送","b":6},{"ja":"飲み物","py":"yǐnliào","hz":"饮料","b":6},{"ja":"納税する","py":"jiāo shuì","hz":"交税","b":6},{"ja":"勝訴する","py":"shèngsù","hz":"胜诉","b":6},{"ja":"裁判所","py":"fǎyuàn","hz":"法院","b":6},{"ja":"ロビー","py":"dàtīng","hz":"大厅","b":6},{"ja":"事件。事柄","py":"shìqing","hz":"事情","b":6},{"ja":"夕方","py":"bàngwǎn","hz":"傍晚","b":6},{"ja":"ふだん。いつも","py":"wǎngcháng","hz":"往常","b":6},{"ja":"仕事を終える","py":"xià","hz":"/bān / 下班","b":6},{"ja":"へんぴで静かである","py":"pìjìng","hz":"僻静","b":6},{"ja":"慌ただしい","py":"jímáng","hz":"急忙","b":6},{"ja":"昏睡状態で意識が戻らない","py":"hūnmí bù xǐng","hz":"昏迷不醒","b":7},{"ja":"急いで","py":"gǎnjǐn","hz":"赶紧","b":7},{"ja":"大急ぎで","py":"huǒsù","hz":"火速","b":7},{"ja":"～に向けて発車する","py":"kāiwǎng","hz":"开往～","b":7},{"ja":"前払いする","py":"yùfù","hz":"预付","b":7},{"ja":"医療費","py":"yīyàofèi","hz":"医药费","b":7},{"ja":"助かる","py":"déjiù","hz":"得救","b":7},{"ja":"思いもよらなかった","py":"méi xiǎngdào","hz":"没想到","b":7},{"ja":"（本人を除いた）家族","py":"jiāshǔ","hz":"家属","b":7},{"ja":"返す","py":"huán","hz":"还","b":7},{"ja":"ぶつかる","py":"zhuàng","hz":"撞","b":7},{"ja":"費やす","py":"huāfèi","hz":"花费","b":7},{"ja":"無意味である","py":"wúwèi","hz":"无谓","b":7},{"ja":"取り囲む","py":"wéi","hz":"围","b":7},{"ja":"お尋ねします","py":"qǐngwèn","hz":"请问","b":7},{"ja":"出くわす","py":"yùdào","hz":"遇到","b":7},{"ja":"手助けする","py":"bāng","hz":"/máng / 帮忙","b":7},{"ja":"ためらう","py":"yóuyù","hz":"犹豫","b":7},{"ja":"コーリャン，トウモロコシ，サツマイモなどを原料とする蒸留酒","py":"báijiǔ","hz":"白酒","b":7},{"ja":"辛い","py":"là","hz":"辣","b":7},{"ja":"似ている","py":"xiàng","hz":"像","b":7},{"ja":"しかる","py":"pīpíng","hz":"批评","b":7},{"ja":"ほめる","py":"biǎoyáng","hz":"表扬","b":7},{"ja":"リビングルーム","py":"kètīng","hz":"客厅","b":7},{"ja":"寝室","py":"wòshì","hz":"卧室","b":7},{"ja":"クリスマス","py":"Shèngdànjié","hz":"圣诞节","b":7},{"ja":"判決する","py":"pànjué","hz":"判决","b":7},{"ja":"無罪","py":"wúzuì","hz":"无罪","b":7},{"ja":"頭部","py":"tóubù","hz":"头部","b":7},{"ja":"血","py":"xuè","hz":"血","b":8},{"ja":"救急室","py":"jíjiùshì","hz":"急救室","b":8},{"ja":"起訴する","py":"qǐsù","hz":"起诉","b":8},{"ja":"推断する","py":"tuīduàn","hz":"推断","b":8},{"ja":"はねて倒す","py":"zhuàngdǎo","hz":"撞倒","b":8},{"ja":"訴訟","py":"sùsòng","hz":"诉讼","b":8},{"ja":"精力","py":"jīnglì","hz":"精力","b":8},{"ja":"記者","py":"jìzhě","hz":"记者","b":8},{"ja":"今後","py":"jīnhòu","hz":"今后","b":8},{"ja":"おびただしい数である","py":"chéng qiān shàng wàn","hz":"成千上万","b":8},{"ja":"あこがれる","py":"chōngjǐng","hz":"憧憬","b":8},{"ja":"～の方を目指してまっしぐらに行く","py":"bēnxiàng","hz":"奔向～","b":8},{"ja":"すばらしい","py":"měihǎo","hz":"美好","b":8},{"ja":"共同で借りる","py":"hézū","hz":"合租","b":8},{"ja":"平方メートル。“平方米”の略","py":"píngmǐ","hz":"平米","b":8},{"ja":"家賃","py":"fángzū","hz":"房租","b":8},{"ja":"個人","py":"gèrén","hz":"个人","b":8},{"ja":"付き合う","py":"xiāngchǔ","hz":"相处","b":8},{"ja":"和やかである","py":"hémù","hz":"和睦","b":8},{"ja":"試験に合格する","py":"kǎoshàng","hz":"考上","b":8},{"ja":"大学院生","py":"yánjiūshēng","hz":"研究生","b":8},{"ja":"（金銭の余裕がなくて）払えない","py":"fùbuqǐ","hz":"付不起","b":8},{"ja":"よく知らない","py":"mòshēng","hz":"陌生","b":8},{"ja":"家主","py":"fángdōng","hz":"房东","b":8},{"ja":"（部屋などを）仕切る","py":"fēngé","hz":"分隔","b":8},{"ja":"料金をとって貸し出す","py":"chūzū","hz":"出租","b":8},{"ja":"壁","py":"qiángbì","hz":"墙壁","b":8},{"ja":"台所","py":"chúfáng","hz":"厨房","b":8},{"ja":"みんな","py":"dàjiā","hz":"大家","b":8},{"ja":"列に並ぶ","py":"pái","hz":"/duì / 排队","b":9},{"ja":"（建物や設備が）粗末である","py":"jiǎnlòu","hz":"简陋","b":9},{"ja":"契約","py":"hétong","hz":"合同","b":9},{"ja":"満期を迎える","py":"qīmǎn","hz":"期满","b":9},{"ja":"（物価が）上昇する","py":"zhǎng","hz":"涨","b":9},{"ja":"苦難に満ちている","py":"jiānkǔ","hz":"艰苦","b":9},{"ja":"教え導く","py":"jiàoyù","hz":"教育","b":9},{"ja":"～に向かって歩む","py":"zǒuxiàng","hz":"走向～","b":9},{"ja":"EU。“欧州联盟”の略","py":"Ōuméng","hz":"欧盟","b":9},{"ja":"貿易パートナー","py":"màoyì huǒbàn","hz":"贸易伙伴","b":9},{"ja":"清潔である","py":"gānjìng","hz":"干净","b":9},{"ja":"背丈","py":"gèzi","hz":"个子","b":9},{"ja":"ピカソ","py":"Bìjiāsuǒ","hz":"毕加索","b":9},{"ja":"卒業生","py":"bìyèshēng","hz":"毕业生","b":9},{"ja":"都市","py":"dūshì","hz":"都市","b":9},{"ja":"各地","py":"gèdì","hz":"各地","b":9},{"ja":"しかしながら","py":"rán'ér","hz":"然而","b":9},{"ja":"現実","py":"xiànshí","hz":"现实","b":9},{"ja":"想像する","py":"xiǎngxiàng","hz":"想像","b":9},{"ja":"負担する","py":"fùdān","hz":"负担","b":9},{"ja":"空間","py":"kōngjiān","hz":"空间","b":9},{"ja":"状況","py":"qíngkuàng","hz":"情况","b":9},{"ja":"同居する","py":"hézhù","hz":"合住","b":9},{"ja":"もともと","py":"běnlái","hz":"本来","b":9},{"ja":"板","py":"mùbǎn","hz":"木板","b":9},{"ja":"共同で","py":"gòngtóng","hz":"共同","b":9},{"ja":"幼稚である","py":"yòuzhì","hz":"幼稚","b":9},{"ja":"成熟する","py":"chéngshú","hz":"成熟","b":9},{"ja":"1LDK。一部屋＋居間","py":"yí shì yì tīng","hz":"一室一厅","b":9}];
+const BLOCK_SIZE = 30;
+const KEY = 'zh-vocab-srs-v1';
+const IV = [1,2,4,8,15,30,60,120,240];   // レベル1..9 の復習間隔（日）
+const MASTER_LV = 4;                      // これ以上を「習得」とみなす（次回8日以上先）
+const DAYMS = 86400000;
+
+/* ---------------- state ---------------- */
+const DEF = {v:1, c:{}, log:{}, opt:{dir:'ja2zh', nw:30, rv:40}};
+let S;
+function today(){const d=new Date();return Math.round(new Date(d.getFullYear(),d.getMonth(),d.getDate()).getTime()/DAYMS);}
+function load(){
+  try{
+    const raw = localStorage.getItem(KEY);
+    if(!raw) return JSON.parse(JSON.stringify(DEF));
+    const o = JSON.parse(raw);
+    return {v:1, c:o.c||{}, log:o.log||{}, opt:Object.assign({}, DEF.opt, o.opt||{})};
+  }catch(e){ return JSON.parse(JSON.stringify(DEF)); }
+}
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){ toast('保存できませんでした'); } }
+
+/* ---------------- SRS ---------------- */
+function fuzz(d){ return d<=2 ? d : Math.max(1, Math.round(d*(0.9+Math.random()*0.2))); }
+// 採点したときの「次に出るまでの日数」を計算（プレビュー用に副作用なし）
+function nextGap(card, g){
+  const lv = card ? card.l : 0;
+  if(g===0) return 0;
+  if(g===1){ const l=Math.max(1,lv); return Math.max(1, Math.round(IV[l-1]*0.5)); }
+  const l = Math.min(lv+1, IV.length); return IV[l-1];
+}
+function applyGrade(id, g){
+  const t = today();
+  const c = S.c[id] || {l:0, d:t, t:null, r:0, x:0};
+  if(g===0){ c.l=0; c.x++; c.d=t; }
+  else if(g===1){ c.l=Math.max(1,c.l); c.d = t + Math.max(1, Math.round(IV[c.l-1]*0.5)); }
+  else { c.l=Math.min(c.l+1, IV.length); c.d = t + fuzz(IV[c.l-1]); }
+  c.r++; c.t = t;
+  S.c[id] = c;
+  S.log[t] = (S.log[t]||0) + 1;
+}
+
+/* ---------------- selectors ---------------- */
+const blockOf = i => WORDS[i].b;
+const nBlocks = Math.max.apply(null, WORDS.map(w=>w.b)) + 1;
+function dueIds(exclude){
+  const t = today();
+  return WORDS.map((w,i)=>i).filter(i=>{
+    const c = S.c[i]; if(!c) return false;
+    if(exclude!=null && w2b(i)===exclude) return false;
+    return c.d <= t;
+  }).sort((a,b)=> (S.c[a].d - S.c[b].d) || (S.c[b].x - S.c[a].x));
+}
+function w2b(i){ return WORDS[i].b; }
+function newIds(b){ return WORDS.map((w,i)=>i).filter(i=> (b==null || WORDS[i].b===b) && !S.c[i]); }
+function weakIds(){
+  return WORDS.map((w,i)=>i).filter(i=> S.c[i] && (S.c[i].x>0 || S.c[i].l<2))
+    .sort((a,b)=> (S.c[b].x - S.c[a].x) || (S.c[a].l - S.c[b].l));
+}
+function firstUnfinishedBlock(){
+  for(let b=0;b<nBlocks;b++) if(newIds(b).length) return b;
+  return null;
+}
+
+/* ---------------- session ---------------- */
+let sess = null;
+// 新出語の間に復習語を均等に差し込む（「久しぶりの語をちょくちょく」出すための混ぜ方）
+function interleave(news, revs){
+  if(!revs.length) return news.slice();
+  if(!news.length) return revs.slice();
+  const out = news.slice();
+  const step = (out.length + 1) / (revs.length + 1);
+  for(let k=revs.length-1;k>=0;k--){
+    let p = Math.round(step*(k+1)) + (Math.floor(Math.random()*3) - 1);
+    p = Math.max(0, Math.min(out.length, p));
+    out.splice(p, 0, revs[k]);
+  }
+  return out;
+}
+function shuffle(a){ for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]];} return a; }
+
+function startSession(ids, label){
+  if(!ids.length){ toast('出題できる単語がありません'); return; }
+  sess = {
+    queue: ids.slice(), i:0, label,
+    unique: new Set(ids), cleared: new Set(),
+    tally:[0,0,0], answered:0,
+    firstSeen: new Map(ids.map(id=>[id, S.c[id] ? (today() - (S.c[id].t==null?today():S.c[id].t)) : -1]))
+  };
+  show('study'); render();
+}
+function startBlock(b){
+  const nw = newIds(b).slice(0, S.opt.nw);
+  const rv = dueIds(null).filter(i=> nw.indexOf(i)<0).slice(0, S.opt.rv);
+  startSession(interleave(nw, rv), rv.length ? 'block-mix' : 'block');
+}
+// 期限超過が大きい語を優先して上限まで取り、その中で順番をシャッフルする
+function startReview(){ startSession(shuffle(dueIds(null).slice(0, S.opt.rv)), 'review'); }
+
+/* ---------------- render study ---------------- */
+let revealed = false, curDir = 'ja2zh';
+const $ = id => document.getElementById(id);
+function cur(){ return sess.queue[sess.i]; }
+
+function render(){
+  revealed = false;
+  const id = cur(), w = WORDS[id], c = S.c[id];
+  curDir = S.opt.dir==='mix' ? (Math.random()<0.5?'ja2zh':'zh2ja') : S.opt.dir;
+
+  // タグ
+  const tags = [];
+  const gap = sess.firstSeen.get(id);
+  if(!c){ tags.push('<span class="tag new">新出</span>'); }
+  else{
+    tags.push('<span class="tag rev">復習</span>');
+    if(gap>=1) tags.push('<span class="tag gap">'+gap+'日ぶり</span>');
+    if(gap===0) tags.push('<span class="tag again">今日もう1回</span>');
+    if(c.x>=2) tags.push('<span class="tag again">苦手 '+c.x+'回</span>');
+  }
+  tags.push('<span class="tag again">第'+(w.b+1)+'ブロック</span>');
+  $('tags').innerHTML = tags.join('');
+
+  // 表面
+  const q = $('q');
+  if(curDir==='ja2zh'){ q.textContent = w.ja; q.className='q'; $('hint').textContent='ピンインと漢字を思い出す'; }
+  else { q.textContent = w.hz; q.className='q big zh'; $('hint').textContent='意味を思い出す'; }
+
+  $('back').hidden = true;
+  $('btn-reveal').hidden = false;
+  $('grades').hidden = true;
+  updateProgress();
+}
+function reveal(){
+  if(revealed) return;
+  revealed = true;
+  const id = cur(), w = WORDS[id], c = S.c[id];
+  $('a-py').textContent = w.py;
+  $('a-hz').textContent = w.hz;
+  $('a-ja').textContent = w.ja;
+  $('a-hz').hidden = (curDir==='zh2ja');
+  $('a-meta').textContent = c
+    ? '正解 '+c.r+'回 / つまずき '+c.x+'回 ・ 現在レベル '+c.l+'（'+(c.l?IV[c.l-1]+'日間隔':'未定着')+'）'
+    : 'この単語は初めて出題されました';
+  $('back').hidden = false;
+  $('btn-reveal').hidden = true;
+  $('grades').hidden = false;
+  for(let g=0;g<3;g++){
+    const d = nextGap(c, g);
+    $('p'+g).textContent = g===0 ? 'また今日' : (d===1 ? '明日また' : d+'日後');
+  }
+}
+function grade(g){
+  if(!revealed) return;
+  const id = cur();
+  applyGrade(id, g);
+  sess.tally[g]++; sess.answered++;
+  if(g===0){
+    // 同じセッション内で少し後ろに戻す
+    const pos = Math.min(sess.queue.length, sess.i + 4 + Math.floor(Math.random()*3));
+    sess.queue.splice(pos, 0, id);
+    sess.cleared.delete(id);
+  }else{
+    sess.cleared.add(id);
+  }
+  save();
+  sess.i++;
+  if(sess.i >= sess.queue.length) finish(); else render();
+}
+function updateProgress(){
+  const tot = sess.unique.size, done = sess.cleared.size;
+  $('pbi').style.width = (tot? done/tot*100 : 0) + '%';
+  $('pt').textContent = done + ' / ' + tot + '語';
+}
+
+/* ---------------- finish ---------------- */
+function finish(){
+  const t = today();
+  $('d0').textContent = sess.tally[0];
+  $('d1').textContent = sess.tally[1];
+  $('d2').textContent = sess.tally[2];
+  $('d-sub').textContent = sess.unique.size + '語を学習しました（採点 ' + sess.answered + '回）';
+  const buckets = {};
+  sess.unique.forEach(id=>{
+    const c = S.c[id]; if(!c) return;
+    const d = Math.max(0, c.d - t);
+    buckets[d] = (buckets[d]||0) + 1;
+  });
+  const keys = Object.keys(buckets).map(Number).sort((a,b)=>a-b).slice(0,6);
+  $('upcoming').innerHTML = keys.map(d=>{
+    const label = d===0 ? '今日中にもう一度' : (d===1 ? '明日' : d+'日後');
+    return '<div class="u"><span>'+label+'</span><b>'+buckets[d]+'語</b></div>';
+  }).join('') || '<div class="u"><span>予定なし</span><b>0語</b></div>';
+  show('done');
+}
+
+/* ---------------- home ---------------- */
+function renderHome(){
+  const t = today();
+  let mastered=0, learning=0, fresh=0;
+  WORDS.forEach((w,i)=>{
+    const c = S.c[i];
+    if(!c) fresh++;
+    else if(c.l >= MASTER_LV) mastered++;
+    else learning++;
+  });
+  const due = dueIds(null).length;
+  $('s-due').textContent = due;
+  $('s-new').textContent = fresh;
+  $('s-mas').textContent = mastered;
+  $('ob-m').style.width = (mastered/WORDS.length*100)+'%';
+  $('ob-g').style.width = (learning/WORDS.length*100)+'%';
+
+  const rb = $('btn-review');
+  rb.disabled = due===0;
+  const cap = Math.min(due, S.opt.rv);
+  rb.innerHTML = due
+    ? '今日の復習を始める<small>期限が来た '+due+' 語'+(cap<due ? '（今回はうち '+cap+' 語）' : '')+'</small>'
+    : '今日の復習はありません<small>下のブロックから新しい語へ進みましょう</small>';
+
+  const nb = firstUnfinishedBlock();
+  $('btn-next').textContent = nb==null ? '全ブロック学習ずみ' : '第'+(nb+1)+'ブロックを学習';
+  $('btn-next').disabled = nb==null;
+  const wk = weakIds().length;
+  $('btn-weak').textContent = '苦手だけ復習'+(wk?'（'+wk+'）':'');
+  $('btn-weak').disabled = wk===0;
+
+  // ブロック一覧
+  let html='';
+  for(let b=0;b<nBlocks;b++){
+    const ids = WORDS.map((w,i)=>i).filter(i=>WORDS[i].b===b);
+    let m=0,l=0;
+    ids.forEach(i=>{ const c=S.c[i]; if(!c)return; if(c.l>=MASTER_LV)m++; else l++; });
+    const d = ids.filter(i=>S.c[i] && S.c[i].d<=t).length;
+    const started = m+l>0, complete = m+l===ids.length && m>=ids.length*0.8;
+    const from = ids[0]+1, to = ids[ids.length-1]+1;
+    html += '<button class="blk'+(complete?' done':(started?' active':''))+'" data-b="'+b+'">'
+      + '<span class="blk-no">'+(b+1)+'</span>'
+      + '<span class="blk-body">'
+      +   '<span class="blk-t"><span>第'+(b+1)+'ブロック</span><em>'+from+'〜'+to+'語　習得 '+m+'/'+ids.length+'</em></span>'
+      +   '<span class="blk-bar"><i class="m" style="width:'+(m/ids.length*100)+'%;background:var(--green)"></i>'
+      +     '<i style="width:'+(l/ids.length*100)+'%;background:var(--gold)"></i></span>'
+      + '</span>'
+      + (d ? '<span class="blk-due">'+d+'</span>' : '')
+      + '</button>';
+  }
+  $('blocks').innerHTML = html;
+  Array.prototype.forEach.call(document.querySelectorAll('.blk'), el=>{
+    el.onclick = ()=> startBlock(+el.dataset.b);
+  });
+
+  // 連続日数
+  let st=0, d=t;
+  if(!S.log[t]) d = t-1;              // 今日まだなら昨日から数える
+  while(S.log[d]){ st++; d--; }
+  $('streak').innerHTML = st ? '連続 <b>'+st+'</b> 日' : '今日から始めましょう';
+
+  // 設定の反映
+  segSet('seg-dir', S.opt.dir); segSet('seg-new', String(S.opt.nw)); segSet('seg-rev', String(S.opt.rv));
+}
+function segSet(gid, v){
+  Array.prototype.forEach.call($(gid).children, b=> b.setAttribute('aria-pressed', b.dataset.v===v));
+}
+
+/* ---------------- nav / events ---------------- */
+function show(name){
+  ['home','study','done'].forEach(n=> $('screen-'+n).hidden = (n!==name));
+  if(name==='home') renderHome();
+  window.scrollTo(0,0);
+}
+function toast(msg){
+  const el=$('toast'); el.textContent=msg; el.classList.add('on');
+  clearTimeout(el._t); el._t=setTimeout(()=>el.classList.remove('on'), 1800);
+}
+
+$('btn-reveal').onclick = reveal;
+document.querySelector('.qcard').onclick = e=>{ if(!revealed) reveal(); };
+Array.prototype.forEach.call(document.querySelectorAll('.grade'), b=> b.onclick = ()=> grade(+b.dataset.g));
+$('btn-quit').onclick = ()=>{ if(sess.answered===0 || confirm('中断しますか？（採点ずみの分は保存されています）')) show('home'); };
+$('btn-review').onclick = startReview;
+$('btn-next').onclick = ()=>{ const b=firstUnfinishedBlock(); if(b!=null) startBlock(b); };
+$('btn-weak').onclick = ()=> startSession(shuffle(weakIds().slice(0, 40)), 'weak');
+$('btn-home').onclick = ()=> show('home');
+$('btn-again').onclick = ()=>{
+  const due = dueIds(null);
+  if(due.length) return startReview();
+  const b = firstUnfinishedBlock();
+  if(b!=null) return startBlock(b);
+  toast('今日ぶんは完了です。おつかれさま！');
+};
+['dir','new','rev'].forEach(k=>{
+  const gid='seg-'+k, key = k==='dir'?'dir':(k==='new'?'nw':'rv');
+  Array.prototype.forEach.call($(gid).children, b=>{
+    b.onclick = ()=>{ S.opt[key] = (key==='dir'? b.dataset.v : +b.dataset.v); save(); segSet(gid, b.dataset.v); };
+  });
+});
+$('btn-export').onclick = ()=>{ $('io').value = JSON.stringify(S); $('io').select(); toast('コピーして保管してください'); };
+$('btn-import').onclick = ()=>{
+  try{
+    const o = JSON.parse($('io').value);
+    if(!o || typeof o.c!=='object') throw 0;
+    S = {v:1, c:o.c||{}, log:o.log||{}, opt:Object.assign({}, DEF.opt, o.opt||{})};
+    save(); renderHome(); toast('読み込みました');
+  }catch(e){ toast('形式が正しくありません'); }
+};
+$('btn-reset').onclick = ()=>{
+  if(confirm('学習記録をすべて消去します。よろしいですか？')){
+    S = JSON.parse(JSON.stringify(DEF)); save(); renderHome(); toast('消去しました');
+  }
+};
+document.addEventListener('keydown', e=>{
+  if($('screen-study').hidden) return;
+  if(e.key===' '||e.key==='Enter'){ e.preventDefault(); revealed ? null : reveal(); }
+  else if(e.key>='1' && e.key<='3'){ grade(+e.key - 1); }
+});
+
+/* ---------------- init ---------------- */
+S = load();
+$('total').textContent = WORDS.length;
+$('nblk').textContent = nBlocks + 'ブロック';
+show('home');
+</script>
+</body>
+</html>
