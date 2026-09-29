@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>マクロ経済学II 問題演習アプリ</title>
+<style>
+:root{
+  --bg:#f4f5f7;
+  --bg-card:#ffffff;
+  --fg:#1c1e21;
+  --fg-muted:#6b7280;
+  --accent:#4f46e5;
+  --accent-fg:#ffffff;
+  --border:#e5e7eb;
+  --correct:#16a34a;
+  --incorrect:#dc2626;
+  --radius:16px;
+  --shadow:0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.04);
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#111318;
+    --bg-card:#1c1f26;
+    --fg:#f2f3f5;
+    --fg-muted:#9aa1ac;
+    --accent:#818cf8;
+    --accent-fg:#111318;
+    --border:#2c303a;
+    --correct:#4ade80;
+    --incorrect:#f87171;
+    --shadow:0 1px 3px rgba(0,0,0,.4),0 1px 2px rgba(0,0,0,.3);
+  }
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{margin:0;padding:0;}
+body{
+  background:var(--bg);
+  color:var(--fg);
+  font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic UI","Segoe UI",Roboto,sans-serif;
+  line-height:1.65;
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+}
+.topbar{
+  position:sticky;top:0;z-index:10;
+  background:var(--bg-card);
+  border-bottom:1px solid var(--border);
+  padding:14px 20px;
+}
+.topbar h1{
+  margin:0;font-size:17px;font-weight:700;text-align:center;
+}
+#app{
+  flex:1;
+  width:100%;
+  max-width:560px;
+  margin:0 auto;
+  padding:20px 16px 40px;
+}
+.screen.hidden{display:none;}
+.lead{
+  color:var(--fg-muted);
+  font-size:14px;
+  margin:0 0 18px;
+}
+.panel{
+  background:var(--bg-card);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:16px;
+  margin-bottom:14px;
+  box-shadow:var(--shadow);
+}
+.panel h2{
+  margin:0 0 10px;
+  font-size:14px;
+  font-weight:700;
+  color:var(--fg-muted);
+}
+.panel-head{
+  display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;
+}
+.panel-head h2{margin:0;}
+.panel-actions{display:flex;gap:10px;}
+.link-btn{
+  background:none;border:none;color:var(--accent);font-size:13px;font-weight:600;
+  padding:4px 2px;cursor:pointer;
+}
+.chip-group{display:flex;gap:8px;flex-wrap:wrap;}
+.chip{
+  display:flex;align-items:center;gap:6px;
+  border:1px solid var(--border);
+  border-radius:999px;
+  padding:8px 14px;
+  font-size:14px;
+  cursor:pointer;
+  user-select:none;
+}
+.chip input{accent-color:var(--accent);width:16px;height:16px;}
+.section-list{display:flex;flex-direction:column;gap:2px;max-height:320px;overflow-y:auto;}
+.section-item{
+  display:flex;align-items:center;gap:10px;
+  padding:9px 4px;
+  border-bottom:1px solid var(--border);
+  cursor:pointer;
+}
+.section-item:last-child{border-bottom:none;}
+.section-item input{accent-color:var(--accent);width:17px;height:17px;flex:none;}
+.section-title{flex:1;font-size:14px;}
+.section-count{font-size:11px;color:var(--fg-muted);white-space:nowrap;}
+.switch-row{
+  display:flex;align-items:center;justify-content:space-between;
+  font-size:14px;cursor:pointer;
+}
+.switch-row input{accent-color:var(--accent);width:38px;height:22px;}
+.error{
+  background:rgba(220,38,38,.1);
+  color:var(--incorrect);
+  border-radius:10px;
+  padding:10px 14px;
+  font-size:13px;
+  margin-bottom:14px;
+}
+.error.hidden{display:none;}
+.primary-btn{
+  display:block;width:100%;
+  background:var(--accent);
+  color:var(--accent-fg);
+  border:none;border-radius:12px;
+  padding:15px;
+  font-size:16px;font-weight:700;
+  cursor:pointer;
+  margin-bottom:10px;
+}
+.primary-btn:active{opacity:.85;}
+.primary-btn.hidden{display:none;}
+.secondary-btn{
+  display:block;width:100%;
+  background:var(--bg-card);
+  color:var(--fg);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:14px;
+  font-size:15px;font-weight:600;
+  cursor:pointer;
+  margin-bottom:10px;
+}
+.secondary-btn.hidden{display:none;}
+.quit-btn{
+  display:block;width:100%;text-align:center;margin-top:18px;color:var(--fg-muted);
+}
+
+/* quiz screen */
+.progress-wrap{margin-bottom:16px;}
+.progress-bar{
+  height:8px;border-radius:999px;background:var(--border);overflow:hidden;
+}
+.progress-fill{
+  height:100%;background:var(--accent);width:0%;
+  transition:width .25s ease;
+}
+.progress-label{
+  display:flex;justify-content:space-between;
+  font-size:12px;color:var(--fg-muted);margin-top:6px;
+}
+.card{
+  background:var(--bg-card);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:20px;
+  box-shadow:var(--shadow);
+}
+.q-type-badge{
+  display:inline-block;
+  font-size:11px;font-weight:700;
+  padding:3px 10px;border-radius:999px;
+  margin-bottom:12px;
+  background:rgba(79,70,229,.12);
+  color:var(--accent);
+}
+.q-type-badge.essay{
+  background:rgba(220,38,38,.1);
+  color:var(--incorrect);
+}
+.q-text{font-size:17px;font-weight:600;margin-bottom:14px;word-break:break-word;}
+.q-text b{font-weight:800;}
+.essay-input{
+  width:100%;min-height:90px;
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:10px 12px;
+  font-size:14px;
+  font-family:inherit;
+  background:var(--bg);
+  color:var(--fg);
+  margin-bottom:14px;
+  resize:vertical;
+}
+.essay-input.hidden{display:none;}
+.answer-box{
+  margin-top:16px;
+  padding-top:16px;
+  border-top:1px dashed var(--border);
+}
+.answer-box.hidden{display:none;}
+.answer-label{
+  font-size:11px;font-weight:700;color:var(--fg-muted);margin-bottom:6px;
+}
+.a-text{font-size:15px;margin-bottom:16px;word-break:break-word;}
+.grade-row{display:flex;gap:10px;}
+.grade-btn{
+  flex:1;border:none;border-radius:12px;padding:14px;
+  font-size:15px;font-weight:700;cursor:pointer;color:#fff;
+}
+.grade-btn.right{background:var(--correct);}
+.grade-btn.wrong{background:var(--incorrect);}
+
+/* 多肢選択（choice）モード */
+.choice-hint{font-size:12px;color:var(--fg-muted);margin:-4px 0 12px;}
+.choice-hint.hidden{display:none;}
+.grade-row.hidden{display:none;}
+.choice-list{display:flex;flex-direction:column;gap:9px;margin-bottom:14px;}
+.choice-list.hidden{display:none;}
+.choice-opt{
+  display:flex;align-items:flex-start;gap:11px;
+  border:1.5px solid var(--border);border-radius:12px;
+  padding:12px 14px;font-size:15px;cursor:pointer;
+  background:var(--bg-card);
+  transition:border-color .15s ease, background .15s ease;
+  word-break:break-word;
+}
+.choice-opt .opt-mark{
+  flex:none;width:23px;height:23px;border-radius:7px;
+  border:1.5px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;font-weight:700;margin-top:1px;
+}
+.choice-opt.selected{border-color:var(--accent);background:rgba(79,70,229,.08);}
+.choice-opt.selected .opt-mark{background:var(--accent);color:var(--accent-fg);border-color:var(--accent);}
+.choice-opt.opt-correct{border-color:var(--correct);background:rgba(22,163,74,.1);}
+.choice-opt.opt-correct .opt-mark{background:var(--correct);color:#fff;border-color:var(--correct);}
+.choice-opt.opt-wrong{border-color:var(--incorrect);background:rgba(220,38,38,.1);}
+.choice-opt.opt-wrong .opt-mark{background:var(--incorrect);color:#fff;border-color:var(--incorrect);}
+.choice-opt.locked{cursor:default;}
+.q-type-badge.choice{background:rgba(79,70,229,.12);color:var(--accent);}
+.verdict{font-weight:800;margin-bottom:8px;font-size:15px;}
+.verdict.ok{color:var(--correct);}
+.verdict.ng{color:var(--incorrect);}
+
+/* result screen */
+.ring-wrap{
+  position:relative;
+  width:180px;height:180px;
+  margin:10px auto 22px;
+}
+.ring{width:100%;height:100%;transform:rotate(-90deg);}
+.ring-bg{fill:none;stroke:var(--border);stroke-width:10;}
+.ring-fg{
+  fill:none;stroke:var(--accent);stroke-width:10;stroke-linecap:round;
+  transition:stroke-dashoffset .6s ease, stroke .3s ease;
+}
+.ring-center{
+  position:absolute;inset:0;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+}
+.ring-pct{font-size:32px;font-weight:800;}
+.ring-sub{font-size:13px;color:var(--fg-muted);margin-top:2px;}
+.result-actions{margin-bottom:18px;}
+.wrong-list h3{font-size:14px;color:var(--fg-muted);margin:18px 0 10px;}
+.all-correct{
+  text-align:center;color:var(--correct);font-weight:700;padding:20px 0;
+}
+.wrong-item{
+  background:var(--bg-card);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:12px 14px;
+  margin-bottom:8px;
+}
+.wrong-item summary{
+  font-size:14px;font-weight:600;cursor:pointer;
+}
+.wrong-answer{
+  margin-top:10px;padding-top:10px;
+  border-top:1px dashed var(--border);
+  font-size:14px;color:var(--fg-muted);
+}
+.footer{
+  text-align:center;
+  font-size:11px;
+  color:var(--fg-muted);
+  padding:16px;
+}
+</style>
+</head>
+<body>
+<header class="topbar"><h1>マクロ経済学II（EC3102）演習</h1></header>
+<main id="app">
+
+  <section id="screen-setup" class="screen">
+    <p class="lead">第1〜6講＋チュートリアル1〜4（消費貯蓄モデル〜為替レートの財政理論）。多肢選択・一問一答・記述式から出題形式と範囲を選んで演習を始めます。</p>
+
+    <div class="panel">
+      <h2>出題形式</h2>
+      <div class="chip-group" id="modeChips">
+        <label class="chip"><input type="checkbox" value="choice" checked>多肢選択</label>
+        <label class="chip"><input type="checkbox" value="qa" checked>一問一答</label>
+        <label class="chip"><input type="checkbox" value="essay" checked>記述式</label>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">
+        <h2>範囲</h2>
+        <div class="panel-actions">
+          <button type="button" id="selectAllBtn" class="link-btn">全選択</button>
+          <button type="button" id="selectNoneBtn" class="link-btn">全解除</button>
+        </div>
+      </div>
+      <div class="section-list" id="sectionList"></div>
+    </div>
+
+    <div class="panel">
+      <label class="switch-row">
+        <span>ランダム出題</span>
+        <input type="checkbox" id="randomToggle" checked>
+      </label>
+    </div>
+
+    <div id="setupError" class="error hidden"></div>
+    <button type="button" id="startBtn" class="primary-btn">演習を始める</button>
+    <button type="button" id="reviewWrongBtn" class="secondary-btn hidden">間違えた問題だけ復習する（前回 <span id="wrongCount">0</span>問）</button>
+  </section>
+
+  <section id="screen-quiz" class="screen hidden">
+    <div class="progress-wrap">
+      <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+      <div class="progress-label"><span id="progressCount">1/1</span><span id="progressChapter"></span></div>
+    </div>
+    <div class="card" id="qCard">
+      <div class="q-type-badge" id="qTypeBadge">一問一答</div>
+      <div class="q-text" id="qText"></div>
+      <div class="choice-hint hidden" id="choiceHint">当てはまる選択肢をすべて選んで答え合わせ（複数選択可）</div>
+      <div class="choice-list hidden" id="choiceList"></div>
+      <textarea id="essayInput" class="essay-input hidden" placeholder="ここに要点を書き出してから答え合わせ（採点はされません・自己チェック用です）"></textarea>
+      <button type="button" id="revealBtn" class="primary-btn">答えを見る</button>
+      <button type="button" id="choiceCheckBtn" class="primary-btn hidden">答え合わせ</button>
+      <div class="answer-box hidden" id="answerBox">
+        <div class="answer-label">解答</div>
+        <div class="a-text" id="aText"></div>
+        <div class="grade-row" id="gradeRow">
+          <button type="button" id="gradeWrongBtn" class="grade-btn wrong">× 不正解</button>
+          <button type="button" id="gradeRightBtn" class="grade-btn right">○ 正解</button>
+        </div>
+        <button type="button" id="choiceNextBtn" class="primary-btn hidden">次の問題へ</button>
+      </div>
+    </div>
+    <button type="button" id="quitBtn" class="link-btn quit-btn">中断してトップへ戻る</button>
+  </section>
+
+  <section id="screen-result" class="screen hidden">
+    <div class="ring-wrap">
+      <svg viewBox="0 0 120 120" class="ring">
+        <circle class="ring-bg" cx="60" cy="60" r="52"></circle>
+        <circle class="ring-fg" id="ringFg" cx="60" cy="60" r="52"></circle>
+      </svg>
+      <div class="ring-center">
+        <div class="ring-pct" id="ringPct">0%</div>
+        <div class="ring-sub" id="ringSub">0/0問正解</div>
+      </div>
+    </div>
+    <div class="result-actions">
+      <button type="button" id="reviewWrongBtn2" class="primary-btn hidden">間違えた問題だけ復習する</button>
+      <button type="button" id="retryAllBtn" class="secondary-btn">同じ条件でもう一度</button>
+      <button type="button" id="backToSetupBtn" class="secondary-btn">最初から選び直す</button>
+    </div>
+    <div class="wrong-list" id="wrongList"></div>
+  </section>
+
+</main>
+<footer class="footer">NUS EC3102 Macroeconomic Analysis II 講義ノート準拠／自己採点は目安です</footer>
+<script>
+const DATA=[{"title": "第1講　政府と財政政策（消費・貯蓄モデル）", "sub": "", "qa": [{"q": "貯蓄（saving）と資産（wealth）は同じ言葉ではない。それぞれフローとストックのどちらか。", "a": "貯蓄 a₁-a₀ は<b>フロー<\/b>（その期に積み増した量）。資産 a₁ は<b>ストック<\/b>（ある時点で保有している量）。"}, {"q": "フィッシャー方程式を書け。", "a": "(1+i)/(1+π) = 1+r 。名目利子率からインフレを剥ぎ取ると実質利子率が残る。"}, {"q": "家計の生涯予算制約（LBC）を、a₂=0の仮定のもとで書け。", "a": "c₁ + c₂/(1+r) = (y₁-t₁) + (y₂-t₂)/(1+r) + (1+r)a₀"}, {"q": "政府の生涯予算制約を、b₂=0（デフォルトしない）の仮定のもとで書け。", "a": "g₁ + g₂/(1+r) = t₁ + t₂/(1+r) + (1+r)b₀"}, {"q": "a₂=0、b₂=0、b₀=0 の3つの「ゼロ」の仮定はそれぞれ何を根拠にしているか、区別せよ。", "a": "<b>a₂=0<\/b>：効用最大化の帰結（最適化の結果、世界の終わりに資産を残すのは無駄）。<b>b₂=0<\/b>：デフォルトしないという構造的仮定。<b>b₀=0<\/b>：作図上の便宜のための任意の単純化。"}, {"q": "一括固定税（lump-sum tax）を定義せよ。現実に存在するか。", "a": "負担額が個人のいかなる意思決定・選択にも一切依存しない税。現実の例は存在しない（純粋なベンチマークとして使う）。"}, {"q": "移転支払い（transfer payment）は「政府購入（government purchases）」に含まれるか。", "a": "含まれない。移転は経済内部での資金の移転にすぎず、政府が財・サービスを実際に買っているわけではない。"}], "essay": [{"q": "経済全体の資源フロンティア c₁ + c₂/(1+r) = (y₁-g₁) + (y₂-g₂)/(1+r) を、家計と政府の生涯予算制約から導出する手順を説明せよ。", "a": "要点：①家計のLBCで税の項 t₁+t₂/(1+r) を一つの括弧にまとめる。②政府のLBCより、その括弧は g₁+g₂/(1+r)-(1+r)b₀ に等しいことがわかる。③これを家計のLBCに代入する。④a₀+b₀=0（家計の初期資産＝政府の初期負債で相殺）と仮定する。結果、税t₁,t₂が完全に消え、資源フロンティアだけが残る。この「税が消える」という事実が、次講で証明するリカードの等価定理の土台になる。"}, {"q": "このモデルはなぜ「部分均衡（partial equilibrium）」なのか。一般均衡にするには何を加える必要があるか。", "a": "所得y₁,y₂が外生（「空から降ってくる」）とされ、それを実際に生産する企業がモデルに存在しないため。一般均衡にするには企業を導入し、所得が体系の内部で決まるようにする必要がある（コース後半の課題）。"}], "choice": [{"q": "下の図は経済全体の資源フロンティア（直線）に無差別曲線を重ねたものである。最適点Aについて正しい記述をすべて選べ。<br><svg viewBox='0 0 340 260' style='width:100%;max-width:340px;background:transparent'><line x1='50' y1='210' x2='310' y2='210' stroke='var(--fg)' stroke-width='1.5'/><line x1='50' y1='210' x2='50' y2='20' stroke='var(--fg)' stroke-width='1.5'/><text x='300' y='228' font-size='13' fill='var(--fg)'>c₁<\/text><text x='28' y='24' font-size='13' fill='var(--fg)'>c₂<\/text><line x1='70' y1='60' x2='290' y2='190' stroke='#3a5a8c' stroke-width='2.5'/><text x='150' y='65' font-size='11.5' fill='#3a5a8c'>資源フロンティア（傾き -(1+r)）<\/text><path d='M120,205 Q186,121 275,60' stroke='#e0654f' stroke-width='2.5' fill='none'/><text x='115' y='222' font-size='11' fill='#e0654f'>無差別曲線<\/text><circle cx='186' cy='122' r='4.5' fill='#2f8f5b'/><text x='193' y='114' font-size='13' font-weight='700' fill='var(--fg)'>A<\/text><\/svg>", "choices": ["MRS(c₁,c₂) = 1+r が成立する", "MRS(c₁,c₂) = r が成立する", "無差別曲線とフロンティアが接している（同じ傾きを持つ）", "点Aはフロンティアの外側（実行不可能な領域）にある"], "correct": [0, 2], "a": "最適点は<b>接点<\/b>であり、無差別曲線の傾き（MRS）とフロンティアの傾きが一致する。フロンティアの傾きは -(1+r) なので、MRS(c₁,c₂) = 1+r。無差別曲線は効用のトレードオフ、フロンティアは価格のトレードオフを表し、最適化とはこの2つを一致させる点を選ぶことである。"}]}, {"title": "第2講　ラグランジュ法とリカードの等価定理", "sub": "", "qa": [{"q": "ラグランジュ関数を作る一般的な手順（手順1）を述べよ。", "a": "各制約を「片側がゼロ」になるように書き、それぞれに固有の乗数（λ₁, λ₂, …）を掛けて目的関数に加える。乗数の数は制約の数に等しい。"}, {"q": "対数効用 U = ln c₁ + ln c₂ のとき、最適性条件 MRS=1+r から得られる c₁,c₂ の関係式は何か。", "a": "c₂ = (1+r)c₁ 。対数効用のもとでは生涯資源をちょうど半分ずつ配分する。"}, {"q": "国民貯蓄 s^nat を、民間貯蓄と政府貯蓄の和として定義し、簡略化した式を書け。", "a": "s₁^nat = s₁^priv + s₁^govt = (y₁-t₁-c₁)+(t₁-g₁) = y₁-c₁-g₁ 。税が内部移転として相殺されて消える。"}, {"q": "リカードの等価定理を1文で述べよ。", "a": "政府支出の計画（g₁,g₂）が所与であるとき、消費も国民貯蓄も、一括税を徴収する正確なタイミングによって影響を受けない。"}, {"q": "リカードの等価定理の証明で使われる「guess-and-verify（推測して検証する）」の論法を、実質利子率rについてどのように使うか。", "a": "①rが変わらないと仮定する。②その仮定のもとで消費(c₁,c₂)が不変であることを示す。③消費が不変なら国民貯蓄s^natも不変であることを示す。④国民貯蓄が不変なら貯蓄曲線はシフトせず、rは実際に変わらないことが確認される。仮定が整合的に自己確認され、これは循環論法ではなく不動点の確認である。"}, {"q": "比例税（proportional tax）が生涯予算制約の傾きに与える効果を式で書け。", "a": "傾き = -[(1+τ₁)/(1+τ₂)]×(1+r) 。傾きが税率に依存するようになり、代替効果が生じる。"}, {"q": "なぜ比例税のもとではリカードの等価定理が崩れるのか。", "a": "比例税は予算制約の<b>傾き<\/b>を変える（相対価格を変える＝代替効果が乗る）。一括税は予算制約を平行移動させるだけ（純粋な所得効果）で、傾きを変えないため定理が成立する。"}], "essay": [{"q": "τ₁の引き下げ（τ₂を現在価値が変わらないように引き上げて相殺）が生涯予算制約を必ず「より緩やかに」することを、背理法で示せ。", "a": "逆を仮定する：傾きがより急になるとする。①制約が急になる ⟹ c₁が減少する。②c₁が減る ⟹ s^nat=y₁-c₁-g₁が増加する。③国民貯蓄曲線が右にシフト ⟹ 実質利子率rが低下する。④しかしそうすると税率比と(1+r)の両方が下がったことになり、傾きは下がる——仮定と矛盾する。したがって傾きは必ず下がる（より緩やかになる）。"}], "choice": [{"q": "下の図はある家計の予算制約（グレー破線＝変化前）に対して2種類の変化を示す。紺色の線とコーラル色の線について正しい記述をすべて選べ。<br><svg viewBox='0 0 340 260' style='width:100%;max-width:340px;background:transparent'><line x1='50' y1='230' x2='320' y2='230' stroke='var(--fg)' stroke-width='1.5'/><line x1='50' y1='230' x2='50' y2='20' stroke='var(--fg)' stroke-width='1.5'/><text x='305' y='248' font-size='13' fill='var(--fg)'>c₁<\/text><text x='28' y='24' font-size='13' fill='var(--fg)'>c₂<\/text><line x1='70' y1='60' x2='290' y2='190' stroke='var(--border)' stroke-width='2' stroke-dasharray='5,4'/><text x='230' y='150' font-size='10.5' fill='var(--fg-muted)'>元の予算制約<\/text><line x1='90' y1='40' x2='310' y2='170' stroke='#3a5a8c' stroke-width='2.5'/><text x='230' y='55' font-size='11' fill='#3a5a8c'>紺色の線<\/text><line x1='70' y1='60' x2='230' y2='225' stroke='#e0654f' stroke-width='2.5'/><text x='150' y='215' font-size='11' fill='#e0654f'>コーラル色の線<\/text><circle cx='70' cy='60' r='4' fill='var(--fg)'/><\/svg>", "choices": ["紺色の線は一括税の変化を表す（平行移動）", "コーラル色の線は比例税の変化を表す（ある点を軸に回転）", "紺色の線は比例税の変化を表す（回転）", "コーラル色の線は一括税の変化を表す（平行移動）"], "correct": [0, 1], "a": "<b>一括税<\/b>は所得効果のみを持つため予算制約を<b>平行移動<\/b>させる（紺色）。<b>比例税<\/b>は相対価格（傾き）を変えるため、切片を軸に予算制約を<b>回転<\/b>させる（コーラル色）。回転が生じた瞬間、代替効果が生まれ、リカードの等価定理は成立しなくなる。"}]}, {"title": "チュートリアル1　政府部門・信用制約とリカードの等価定理", "sub": "", "qa": [{"q": "設定：u=ln c₁+ln c₂、a₀=b₀=0、r=0.10、g₁=1、g₂=9.9、t₁=8、y₁=9、y₂=23.1。政府予算制約から t₂ を求めよ。", "a": "g₁+g₂/(1+r) = t₁+t₂/(1+r) より 1+9=8+t₂/1.1 ⟹ t₂=2.2"}, {"q": "上記の設定で最適消費 c₁, c₂ と国民貯蓄 S₁ を求めよ。", "a": "可処分所得: y₁-t₁=1, y₂-t₂=20.9。W=1+20.9/1.1=20 ⟹ c₁=10, c₂=11。民間貯蓄Sp=1-10=-9、政府貯蓄Sg=8-1=7、国民貯蓄S₁=-9+7=-2。"}, {"q": "t₁を8→7に減税した（制約なし）場合、消費と国民貯蓄はどう変化するか。理由も述べよ。", "a": "Δc₁=Δc₂=0、ΔS₁=0（リカードの等価定理そのまま）。減税分は将来の増税を見越して全額貯蓄され、民間貯蓄の増加が政府貯蓄の減少をぴったり相殺する。"}, {"q": "信用制約 a₁≥0 が導入され、それがbindする（拘束的になる）場合、家計の消費はどう決まるか。", "a": "各期の所得をちょうど使い切るだけになる：c₁=y₁-t₁, c₂=y₂-t₂（理想の平滑な消費経路から乖離する）。"}, {"q": "信用制約下で同じ減税（t₁:8→7）を行うと国民貯蓄はどう変化するか。リカードの等価定理は成立するか。", "a": "ΔS₁=-1（不変ではない）。信用制約で借入ができない家計は減税分を即座に消費するため、リカードの等価定理は成立しない。信用制約は等価定理が崩れる典型パターン。"}], "essay": [{"q": "リカードの等価定理が成立するために必要な「隠れた前提」を3つ以上挙げよ。", "a": "①税が一括固定（lump-sum）であること。②信用制約が無く、いつでも自由に借入・貸出ができること。③消費者が将来の増税を合理的に織り込むこと。④政府と家計が同じ利子率で取引できること。どれか一つでも崩れると（このチュートリアルでは信用制約）等価定理は不成立になる。"}], "choice": []}, {"title": "第3講　無限期間の資産価格決定と定常状態", "sub": "", "qa": [{"q": "無限期間モデルにおける家計の各期の予算制約（流入＝流出の形）を書け。", "a": "Pₜcₜ + Sₜaₜ = Yₜ + (Sₜ+Dₜ)aₜ₋₁ 。流出：消費と次期へ持ち越す株の購入。流入：所得、持ち越した株の時価、その配当。"}, {"q": "なぜ生涯予算制約に統合せず、無限個の予算制約をそのまま保つのか。", "a": "統合すると aₜ（株保有）が式の中で相殺されて消えてしまうため。資産価格付けの主題そのものが aₜ の価格なので、各期の制約を分けたまま保つ「逐次的アプローチ」を採る。"}, {"q": "基本の資産価格方程式 Sₜ = (プライシングカーネル)×(将来の収益) を書け。プライシングカーネルは何に等しいか。", "a": "Sₜ = (βλₜ₊₁/λₜ)(Sₜ₊₁+Dₜ₊₁)。プライシングカーネルは<b>異時点間MRS<\/b> βu'(cₜ₊₁)/u'(cₜ) に解ける。"}, {"q": "定常状態における鍵となる関係式を書け。何を意味するか。", "a": "1/β = 1+r 。長期において実質金利は、その経済の個人の不忍耐（せっかちさ）の度合いの反映である。βが低いほどrは高い。"}, {"q": "1期間ゼロクーポン債（額面1に正規化）の価格 P^b を名目金利iで表せ。価格と金利はどう関係するか。", "a": "P^b = 1/(1+i) 。価格と金利は<b>逆に<\/b>動く：P^b↑ ⟹ i↓、P^b↓ ⟹ i↑。"}, {"q": "貨幣の3つの役割を挙げよ。", "a": "①交換媒介（medium of exchange、欲求の二重の一致を解消）。②計算単位（unit of account）。③価値の貯蔵（store of value）。"}, {"q": "定常状態でも貨幣供給とインフレが永遠に続きうるのはなぜか。", "a": "定常状態が要求するのは<b>実質<\/b>変数が一定であること。M/P=cが一定でも、MとPが同じ率で成長し続けさえすれば比は一定に保たれる。"}], "essay": [{"q": "なぜ2期間モデルではS&P500のような資産を価格付けできず、無限期間モデルが必要なのか説明せよ。", "a": "その資産の価値は、あらゆる期間長にわたる無限の将来配当の流列と再売却価値から生じるから。2期間モデルは資産を清算してa₂=0とする終端の日付を強制するので、得られる「価格」は2期間の請求権の価値であって永続的な請求権の価値ではない。永続的な資産を価格付けするには期間が無限でなければならない。"}], "choice": []}, {"title": "チュートリアル2　資産価格付け：非頻繁取引と税政策", "sub": "", "qa": [{"q": "t期に買った株がt+2期まで転売できない（2期間保有義務）場合の資産価格方程式を書け。1期間モデルとの違いは何か。", "a": "Sₜ = β²[u'(cₜ₊₂)/u'(cₜ)]×(Pₜ/Pₜ₊₂)×(Sₜ₊₂+Dₜ₊₂)。カーネルがt→t+2を割り引き、価格はt+1ではなくt+2期のファンダメンタルズだけに反応する。"}, {"q": "上の設定で、なぜSₜはt+1期のファンダメンタルズに一切反応しないのか。", "a": "t期に買った株はt+1期に取引できず、S_{t+1}やD_{t+1}は自分のポジションに無関係だから。買い手は自分が実際に受け取るキャッシュフローに関連する情報だけで価格付けする。"}, {"q": "配当に比例税率t^D_{t+1}が課される場合の資産価格方程式を書け。今日の価格を動かすのは当期(t^D_t)か次期(t^D_{t+1})の税率か。", "a": "Sₜ = β[u'(cₜ₊₁)/u'(cₜ)]×(Pₜ/Pₜ₊₁)×[Sₜ₊₁+(1-t^D_{t+1})Dₜ₊₁]。今日の価格を動かすのは<b>次期<\/b>の配当税t^D_{t+1}であって、当期のt^D_tではない（今日買う人は当期配当をすでに逃している）。"}, {"q": "消費税t^cを加えたとき、当期の消費税t^c_tが上昇すると株価Sₜはどう動くか。", "a": "Sₜは<b>上昇<\/b>する（∂Sₜ/∂t^c_t>0）。今期だけ消費税が上がると今期消費が相対的に割高になり、家計は消費を将来にシフトしたいので株の需要が増え、価格が上がる。"}, {"q": "資産（コウ）が「一般的なもの」だとはどういう意味か。教員が例に挙げた比喩を1つ挙げよ。", "a": "この株は代表的な資産の例にすぎず、S&P500やGoogleである必要はない。土地・ヤシの木（coconut tree model、配当がヤシの実）など、転売価値とペイオフの流れがあるものは何でもこのモデルの「a」になりうる。"}], "essay": [{"q": "永久保有される2期間ロック資産の価格付けと1期間資産の価格付けの方法上の共通点と違いを説明せよ。", "a": "共通点：どちらもラグランジュ関数を作り、aₜに関するFOCから、aₜが現れる2つの期の制約を結びつけて資産価格方程式を導く（方法自体は同一）。違い：aₜが現れる期のペアがt,t+1（1期間モデル）かt,t+2（2期間保有モデル）かで変わり、それに応じて割引カーネルがβ¹かβ²か、価格が反応するファンダメンタルズの時点がずれる。"}], "choice": []}, {"title": "第4講　貨幣需要と貨幣の中立性", "sub": "", "qa": [{"q": "MIU（money in the utility function）モデルにおける消費・貨幣の最適条件を書け。分子と分母がi/(1+i)なのはなぜか。", "a": "u₂/u₁ = i/(1+i) 。消費に1ドル使うと明日には元本と利子の両方（1+i）を失う。貨幣として持てば失うのは利子だけ（i）。この非対称性が条件の中身。"}, {"q": "対数分離型効用 u=ln c + ln(M/P) のとき、実質貨幣需要関数を書け。", "a": "M/P = c×(1+i)/i 。cについて増加、iについて減少。"}, {"q": "貨幣が「中立（neutral）」であるとはどういう意味か。ケインジアンとRBCのどちらが中立性を主張するか。", "a": "マネーサプライの変化が実質GDP・実質消費に何の効果も持たないこと。<b>RBC<\/b>は貨幣は中立（価格は伸縮的）と主張し、<b>ケインジアン<\/b>は非中立（価格は硬直的）と主張する。"}, {"q": "i=0.125（固定）、c=2、P=10で計画M^D=180のところに中央銀行がM^S=270を置いた。ケインジアンの答え（Pが不変）ではcはいくつになるか。", "a": "(1+i)/i=9。270/10=27=9c ⟹ c=3 。"}, {"q": "同じ数値例でRBCの答え（cが不変）ではPはいくつになるか。", "a": "c=2のまま。270/P=18=9×2 ⟹ P=15 。"}, {"q": "長期の関係式 μ=π（マネー成長率＝インフレ率）はどのように導かれるか。ケインジアンとRBCはこの長期の結果について一致するか。", "a": "2つの期の貨幣需要関数の比に定常状態（実質変数が一定）を課すと導かれる。<b>長期については両陣営とも一致する<\/b>——マネー成長は実質GDP・消費に影響せず、インフレにのみ現れる。対立するのは短期の価格調整速度（AS曲線の傾き）だけ。"}, {"q": "プライシングカーネルが債券価格P^b_tそのものであるとはどういう意味か。", "a": "第3講のS_t=(βλ_{t+1}/λ_t)(S_{t+1}+D_{t+1})の括弧内比率が、貨幣・債券モデルのFOCから P^b_t=βλ_{t+1}/λ_t に解ける。つまりファイナンスがブラックボックスとして推定してきたプライシングカーネルは、単に無リスク短期国債の価格（割引ファクター1/(1+i)）にすぎない。"}], "essay": [{"q": "中立性論争が実質的に何を巡る対立なのかを説明し、なぜそれが実証的な問いなのかを述べよ。", "a": "対立点は1つのパラメータ——短期AS曲線の傾き（名目価格がどれだけ速く調整するか）——だけに帰着する。AS曲線が水平（ケインジアン）なら産出が動き価格は動かない、垂直（RBC）なら価格が動き産出は動かない。現実はその間のどこかの傾きであり、価格硬直性の実証は「very mixed」なので、どちらが正しいかはデータで検証すべき実証的な問いである。"}], "choice": [{"q": "同じマネーサプライの正のショックでAD曲線が右にシフトした。下の図でケインジアン（水平なAS）とRBC（垂直なAS）の短期の結果として正しい記述をすべて選べ。<br><svg viewBox='0 0 340 260' style='width:100%;max-width:340px;background:transparent'><line x1='50' y1='230' x2='320' y2='230' stroke='var(--fg)' stroke-width='1.5'/><line x1='50' y1='230' x2='50' y2='20' stroke='var(--fg)' stroke-width='1.5'/><text x='300' y='248' font-size='13' fill='var(--fg)'>Y（出力）<\/text><text x='55' y='24' font-size='13' fill='var(--fg)'>P（物価）<\/text><line x1='60' y1='170' x2='300' y2='170' stroke='#e0654f' stroke-width='2.5'/><text x='230' y='163' font-size='11' fill='#e0654f'>AS（ケインジアン・水平）<\/text><line x1='180' y1='40' x2='180' y2='222' stroke='#3a5a8c' stroke-width='2.5'/><text x='188' y='55' font-size='11' fill='#3a5a8c'>AS（RBC・垂直）<\/text><line x1='70' y1='70' x2='290' y2='230' stroke='var(--fg-muted)' stroke-width='2' stroke-dasharray='4,3'/><text x='230' y='90' font-size='10.5' fill='var(--fg-muted)'>AD₁<\/text><line x1='110' y1='40' x2='330' y2='200' stroke='var(--fg)' stroke-width='2' stroke-dasharray='4,3'/><text x='260' y='55' font-size='10.5' fill='var(--fg)'>AD₂<\/text><\/svg>", "choices": ["ケインジアンでは出力Yが増加し、物価Pは変化しない", "RBCでは物価Pが上昇し、出力Yは変化しない", "ケインジアンでは物価だけが変化する", "RBCでは出力だけが変化する"], "correct": [0, 1], "a": "AD₁→AD₂の同じシフトでも、AS曲線の形で結果が変わる。水平なAS（ケインジアン）上ではPが固定されYが右へ動く＝Y↑・P不変。垂直なAS（RBC）上ではYが固定されPが上へ動く＝P↑・Y不変。ショックは同一で、動くのはAS曲線の形（＝価格の調整速度）だけ。"}]}, {"title": "チュートリアル3　Money in Utility（MIU）モデルと貨幣需要関数", "sub": "", "qa": [{"q": "MIUモデルの消費・貨幣の最適条件 u_m/u_c = i/(1+i) を導出する際、B_tのFOCから何が得られるか。", "a": "βλ_{t+1} = λ_t/(1+i_t) 。これをM^D_tのFOCに代入し、c_tのFOCでλ_tを消去すると最適条件が得られる。"}, {"q": "u(c,m)=ln c+ln m のとき、実質貨幣需要関数φ(c,i)を求めよ。", "a": "M^D/P = φ(c,i) = c×(1+i)/i = c(1+1/i) 。"}, {"q": "u(c,m)=2√c+2√m のとき、実質貨幣需要関数を求めよ。1階の対数型と比べて利子率への感応度はどう違うか。", "a": "M^D/P = c×[(1+i)/i]² 。対数型（べき指数1）に比べ、利子率への感応度が2乗ぶん強い。"}, {"q": "コブ＝ダグラス型 u(c,m)=c^σ m^(1-σ) のとき、実質貨幣需要関数を求めよ。σの取り得る範囲は何か。", "a": "M^D/P = [(1-σ)/σ]×c×(1+i)/i 。0<σ<1 が必要（σ≥1では u_m≤0 となり「貨幣を欲しがる」前提が壊れる）。"}, {"q": "3つのケース（対数型・平方根型・コブ＝ダグラス型）の貨幣需要が共通して「c_tに比例」する形になるのは偶然か。理由も述べよ。", "a": "偶然ではない。3つの効用関数はいずれも(c,m)についてホモセティックなため、MRSが比m/cだけの関数になり、最適条件の右辺がi_tのみの関数なのでm/cもi_tだけで決まる。よってm=c×(i_tの関数)という形に必ず分解される。"}], "essay": [{"q": "u_mt を「M^D_tで微分したもの」と誤解すると(b)の計算はどう狂うか説明せよ。", "a": "u(c,M^D/P)をM^D_tで直接微分すると連鎖律でu_m×(1/P)になる。この1/Pを最適条件(1)に持ち込むと名目・実質が食い違い、貨幣需要が「cについて増加、iについて減少」という要求を満たさなくなる。最適条件(1)はすでに実質残高mの限界効用で書かれているので、関数形をそのまま代入するのが正しい。"}], "choice": []}, {"title": "第5講　財政・金融政策の相互作用", "sub": "", "qa": [{"q": "統合政府予算制約（CGB）を導出する際、なぜRCB_t（中央銀行から財政当局への還流利益）が消えるのか。", "a": "財政当局の予算制約では流出、金融当局の予算制約では（符号が逆の）流入として現れるため、2つの制約を足すと相殺される。1つの政府内部の振替にすぎず、外部からの真の資源ではないことの裏付け。"}, {"q": "統合政府予算制約に登場する債務残高は B^T（発行総額）か、B（民間保有分）か。", "a": "<b>B（民間保有分のみ）<\/b>。B=B^T-B^M。中央銀行保有分B^Mの返済は金融当局自身の予算制約の中で処理され、合体の過程で消える。"}, {"q": "「アクティブ」な当局と「パッシブ」な当局の違いを定義せよ。", "a": "<b>アクティブ<\/b>：統合政府予算制約が均衡するかどうかに関係なく、コントロールするすべての手段を自由に選ぶ。<b>パッシブ<\/b>：少なくとも1つの手段を、CGBを均衡させる値に合わせて残差として設定しなければならない。"}, {"q": "リカーディアン財政政策と非リカーディアン財政政策の違いを述べよ。", "a": "<b>リカーディアン<\/b>：財政当局が税・支出の計画パス全体を、生涯版CGBが常に均衡するように設定する。<b>非リカーディアン<\/b>：PDV制約が均衡するかどうかにかかわらず毎期のt_t,g_tを設定する。"}, {"q": "財政理論のインフレ（FTI）と財政理論の物価水準（FTPL）の違いを述べよ。", "a": "非リカーディアン的な財政赤字カットに対し、<b>金融当局が反応<\/b>（将来のシニョリッジ計画を上方修正）すれば不足は<b>将来のインフレ<\/b>に転化する（FTI）。金融当局が<b>まったく反応しない<\/b>なら、調整できる変数は<b>今期の物価水準<\/b>だけになり、一回限りの水準ジャンプが生じる（FTPL）。"}, {"q": "なぜ米国や日本は巨額の政府債務を抱えられるが、ギリシャはできなかったのか。", "a": "生涯版CGBによれば、今日の債務は将来の財政剰余とシニョリッジの無限の流列で返済できる——投資家がそれを信頼している限り問題にならない。ギリシャはユーロ圏に属し自国の中央銀行を持たないため、財政剰余が不足しても自力でシニョリッジ収入を生み出して予算制約を均衡させることができず、レバー（独立した財政調整と貨幣創造）の両方が同時に制約されていた。"}], "essay": [{"q": "ある国がリカーディアン財政政策を取り、今日減税した。インフレは変化するか。理由も述べよ。", "a": "変化しない。財政当局が将来の剰余を、財政剰余の流列の現在割引価値が変わらないだけ引き上げると約束しているため、金融当局は生涯版CGBを均衡させるためにシニョリッジ計画を変える必要が一切なく、将来の貨幣創造や物価水準のジャンプを強いる要因が生じない。"}], "choice": []}, {"title": "チュートリアル4　不愉快な貨幣主義の算術とFTPL", "sub": "", "qa": [{"q": "最終期T（T+1期は無い）の統合政府予算制約でB_T=0でなければならないのはなぜか。", "a": "T+1期が存在しないため、期末に残った債務を将来へ繰り延べる先が無い。B_Tがゼロ以外なら決して果たされない返済を約束することになり、最適化された選択と矛盾する。"}, {"q": "i_{T-1}=0.1, B_{T-1}=10, P_{T-1}=1 が与件のとき、B_T=0の下で今期に賄うべき総額はいくらか。", "a": "(1+i_{T-1})B_{T-1} = 1.1×10 = 11 。"}, {"q": "基礎的財政黒字 t_T-g_T=9、インフレゼロ（P_T=1）のとき、実質シニョリッジ収入sr_Tはいくらか。", "a": "sr_T = 11-9 = 2 。"}, {"q": "金融政策が不変（名目シニョリッジM_T-M_{T-1}=2で固定）のまま財政黒字が8に低下すると、物価水準P_Tと実質シニョリッジはどうなるか。", "a": "2/P_T = 11-8 ⟹ P_T=9/8=1.125（インフレ率12.5%）。実質シニョリッジ sr_T = 2/1.125 ≈ 1.7778（名目シニョリッジ2は不変、実質価値だけが物価上昇で下がる）。"}, {"q": "定常状態の現在価値統合政府予算制約 B_{t-1}=[(1+r)/r]×[t-g+sr] で、B_{t-1}=14兆ドル、sr=0、r=0.05のとき必要な(t-g)はいくらか。", "a": "14 = 21×(t-g) ⟹ t-g = 14/21 ≈ 0.667兆ドル、毎期永遠に。"}, {"q": "同じ設定でrが0.025に下がると、必要な(t-g)はどう変わるか。理由も述べよ。", "a": "14 = 41×(t-g) ⟹ t-g ≈ 0.341兆ドル（減少）。乗数(1+r)/rはrの減少関数（永久年金のPV）なので、rが低いほど同じ債務を賄うのに必要なフローは小さくて済む。"}], "essay": [{"q": "問1(c)で、なぜ「金融当局がM_Tの選択を変えない」と言っているのに実質シニョリッジは変化するのか説明せよ。", "a": "「M_Tの選択を変えない」とは名目貨幣供給についての言明である——中央銀行が直接コントロールできるのはそれだけだから。中央銀行は自らが発行する貨幣の実質価値を固定することはできない。それはP_T次第であり、そのP_T自体が財政側の緩和（黒字の縮小）によって押し上げられている。名目シニョリッジは政策選択そのもの、実質シニョリッジはその選択を均衡の結果（物価水準）で割ったものである。"}], "choice": []}, {"title": "第6講　為替レートの財政理論（途上国モデル）", "sub": "", "qa": [{"q": "為替レートの財政理論モデルにおける4つの構成要素を挙げよ。", "a": "①貨幣需要 M/P=φ(c̄,i)。②購買力平価（PPP）：E_t=P_t（AA2の下で）。③金利平価（IRP）：1+i_t=(1+r*)E^e_{t+1}/E_t。④政府予算制約（GBC）：外貨準備の変化＝シニョリッジ－財政赤字。"}, {"q": "信認あるペッグが永続するケース（ケース1）で、シニョリッジ収入は理論上いくらになるか。なぜか。", "a": "<b>ちょうどゼロ<\/b>。ペッグが信認されている限りE_tは決して変わらず、（IRPを通じて）i_t=r*も決して変わらないため、貨幣需要M/Pに変化がなくM_tは一定になるから。"}, {"q": "信認ある1回限りの切り下げ（ケース2）では、なぜ国内金利は影響を受けないのか。", "a": "IRPはi_tを<b>将来の期待変化<\/b>に結びつけるものであり、この切り下げは二度と繰り返さないと信認をもって約束されているため、E^e_{t+1}/E_tは依然として1に等しい。"}, {"q": "国際収支危機（ケース3）で、崩壊が予想され始めると（μ>0）、国内金利・貨幣供給・シニョリッジはそれぞれどう動くか。", "a": "国内金利<b>上昇<\/b>（期待される切り下げの補償が必要）→ 貨幣需要<b>減少<\/b>により名目貨幣供給が<b>縮小<\/b> → シニョリッジは<b>負<\/b>に転じる（通貨ランで外貨準備がさらに流出）。"}, {"q": "アルゼンチンのペソ危機（1991〜2002年）で、ペッグが最終的に崩壊した「かつそのために」起こる条件は何か。", "a": "外貨準備 R^G_T がゼロになったとき、かつそのために起こる。恒常的な財政赤字による準備の着実な減少に、崩壊を予想した通貨ラン（自己実現的なドル需要の急増）が加わり、準備の枯渇を加速させる。"}, {"q": "シンガポールは1980年以降、金利ではなく何を通じて金融政策を運営しているか。", "a": "為替レート（S$NEER、貿易加重バスケットに対する管理フロート）。貿易依存度の高い経済にとって、輸入インフレの抑制にこれが有効と判断されたため。"}], "essay": [{"q": "なぜ信認あるペッグのもとではシニョリッジがちょうどゼロになるのに、1回限りの切り下げでは自明にそうならないのか。", "a": "シニョリッジは名目貨幣の変化M_t-M_{t-1}に比例し、M_t=E_tφ(c̄,i_t)。信認あるペッグではE_tは決して変わらず、i_t=r*も決して変わらないためM_tは一定でSR_t=0。1回限りの切り下げでは、E_t自体がちょうど1期だけĒからE'へジャンプし、そのジャンプは二度と繰り返さないと約束されているためi_tには影響しない——しかしM_t=E_tφ(c̄,r*)はE_tが式の中にあるためそれでもジャンプする。この1期限りのM_tのジャンプが正のシニョリッジの正体である。"}], "choice": [{"q": "下の図はある国が自国通貨を米ドルにペッグ（固定）している外国為替市場を示す。ペッグ水準Ēのもとで生じている状況として正しいものをすべて選べ。<br><svg viewBox='0 0 340 260' style='width:100%;max-width:340px;background:transparent'><line x1='50' y1='230' x2='320' y2='230' stroke='var(--fg)' stroke-width='1.5'/><line x1='50' y1='230' x2='50' y2='20' stroke='var(--fg)' stroke-width='1.5'/><text x='300' y='248' font-size='13' fill='var(--fg)'>ドルの量<\/text><text x='20' y='24' font-size='13' fill='var(--fg)'>E（自国通貨/ドル）<\/text><line x1='80' y1='220' x2='280' y2='40' stroke='#3a5a8c' stroke-width='2.5'/><text x='230' y='70' font-size='11' fill='#3a5a8c'>ドル供給<\/text><line x1='80' y1='40' x2='280' y2='220' stroke='#e0654f' stroke-width='2.5'/><text x='230' y='195' font-size='11' fill='#e0654f'>ドル需要<\/text><line x1='60' y1='190' x2='300' y2='190' stroke='var(--fg)' stroke-width='2' stroke-dasharray='5,4'/><text x='65' y='183' font-size='11' fill='var(--fg)'>ペッグ水準 Ē（固定）<\/text><circle cx='180' cy='130' r='4' fill='#2f8f5b'/><text x='188' y='125' font-size='11' fill='var(--fg)'>市場清算水準 E*<\/text><circle cx='113' cy='190' r='4' fill='var(--fg)'/><circle cx='247' cy='190' r='4' fill='var(--fg)'/><\/svg>", "choices": ["ペッグ水準Ēでドルへの需要が供給を上回っている（超過需要）", "中央銀行は毎期、外貨準備からドルを売って超過需要を満たさなければならない", "この状態は他国が貸し続けなくても永久に持続可能である", "供給が需要を上回っており、自国通貨は増価圧力を受けている"], "correct": [0, 1], "a": "図のペッグ水準Ēは市場清算水準E*より低い位置にあり、そこでは需要曲線上の量（右側の点）が供給曲線上の量（左側の点）を上回っている＝ドルへの超過需要。中央銀行は毎期その差を準備の取り崩しで穴埋めせねばならず、準備がゼロになった時点でペッグは崩壊する。他国（あるいは自国の外貨準備）が資金供給を続ける意思がある限りでしか持続しない。"}]}];
+
+let session=null;
+let lastWrongPool=null;
+let choiceState=null;
+
+function escapeHtml(s){
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function showScreen(name){
+  ['setup','quiz','result'].forEach(function(s){
+    document.getElementById('screen-'+s).classList.toggle('hidden', s!==name);
+  });
+  window.scrollTo(0,0);
+}
+
+function initSetup(){
+  const list=document.getElementById('sectionList');
+  list.innerHTML=DATA.map(function(sec,i){
+    return '<label class="section-item">'
+      +'<input type="checkbox" class="sectionChk" value="'+i+'" checked>'
+      +'<span class="section-title">'+escapeHtml(sec.title)+'</span>'
+      +'<span class="section-count">'+countLabel(sec)+'</span>'
+      +'</label>';
+  }).join('');
+}
+
+function countLabel(sec){
+  const parts=[];
+  const nc=(sec.choice||[]).length, nq=(sec.qa||[]).length, ne=(sec.essay||[]).length;
+  if(nc) parts.push('多肢選択'+nc);
+  if(nq) parts.push('一問一答'+nq);
+  if(ne) parts.push('記述'+ne);
+  return parts.join('・')||'—';
+}
+
+function getSelectedModes(){
+  return new Set(Array.prototype.map.call(
+    document.querySelectorAll('#modeChips input:checked'), function(el){return el.value;}
+  ));
+}
+function getSelectedSections(){
+  return new Set(Array.prototype.map.call(
+    document.querySelectorAll('.sectionChk:checked'), function(el){return Number(el.value);}
+  ));
+}
+
+function buildPool(sectionsSet, modesSet){
+  const pool=[];
+  DATA.forEach(function(sec, si){
+    if(!sectionsSet.has(si)) return;
+    if(modesSet.has('choice')) (sec.choice||[]).forEach(function(item){
+      pool.push({q:item.q, a:item.a, choices:item.choices, correct:item.correct, type:'choice', chapter:sec.title});
+    });
+    if(modesSet.has('qa')) (sec.qa||[]).forEach(function(item){
+      pool.push({q:item.q, a:item.a, type:'qa', chapter:sec.title});
+    });
+    if(modesSet.has('essay')) (sec.essay||[]).forEach(function(item){
+      pool.push({q:item.q, a:item.a, type:'essay', chapter:sec.title});
+    });
+  });
+  return pool;
+}
+
+function shuffle(arr){
+  const a=arr.slice();
+  for(let i=a.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    const tmp=a[i]; a[i]=a[j]; a[j]=tmp;
+  }
+  return a;
+}
+
+function showError(msg){
+  const el=document.getElementById('setupError');
+  el.textContent=msg;
+  el.classList.remove('hidden');
+}
+function hideError(){
+  document.getElementById('setupError').classList.add('hidden');
+}
+
+function startBtnHandler(){
+  const modes=getSelectedModes();
+  const sections=getSelectedSections();
+  if(modes.size===0){ showError('出題形式を1つ以上選んでください'); return; }
+  if(sections.size===0){ showError('範囲を1つ以上選んでください'); return; }
+  let pool=buildPool(sections, modes);
+  if(pool.length===0){ showError('選んだ条件に該当する問題がありません'); return; }
+  hideError();
+  if(document.getElementById('randomToggle').checked) pool=shuffle(pool);
+  beginSession(pool);
+}
+
+function beginSession(pool){
+  session={pool:pool, idx:0, results:new Array(pool.length).fill(null)};
+  showScreen('quiz');
+  renderQuestion();
+}
+
+function renderQuestion(){
+  const item=session.pool[session.idx];
+  document.getElementById('progressCount').textContent=(session.idx+1)+'/'+session.pool.length;
+  document.getElementById('progressChapter').textContent=item.chapter||'';
+  document.getElementById('progressFill').style.width=(session.idx/session.pool.length*100)+'%';
+
+  const isEssay=item.type==='essay';
+  const isChoice=item.type==='choice';
+
+  const badge=document.getElementById('qTypeBadge');
+  badge.textContent=isChoice?'多肢選択':(isEssay?'記述式':'一問一答');
+  badge.className='q-type-badge'+(isEssay?' essay':(isChoice?' choice':''));
+
+  document.getElementById('qText').innerHTML=item.q;
+
+  const essayInput=document.getElementById('essayInput');
+  if(isEssay){ essayInput.classList.remove('hidden'); essayInput.value=''; }
+  else { essayInput.classList.add('hidden'); }
+
+  const choiceList=document.getElementById('choiceList');
+  const choiceHint=document.getElementById('choiceHint');
+  if(isChoice){
+    choiceState={selected:new Set(), answered:false};
+    const multi=(item.correct||[]).length>1;
+    choiceHint.textContent=multi
+      ? '当てはまる選択肢をすべて選んで答え合わせ（複数選択可）'
+      : '選択肢を1つ選んで答え合わせ';
+    choiceHint.classList.remove('hidden');
+    choiceList.innerHTML=(item.choices||[]).map(function(c,ci){
+      return '<div class="choice-opt" data-idx="'+ci+'">'
+        +'<span class="opt-mark">'+(ci+1)+'</span>'
+        +'<span class="opt-text">'+c+'</span></div>';
+    }).join('');
+    choiceList.classList.remove('hidden');
+    Array.prototype.forEach.call(choiceList.querySelectorAll('.choice-opt'), function(el){
+      el.addEventListener('click', function(){ toggleChoice(el); });
+    });
+  } else {
+    choiceState=null;
+    choiceList.classList.add('hidden');
+    choiceList.innerHTML='';
+    choiceHint.classList.add('hidden');
+  }
+
+  document.getElementById('answerBox').classList.add('hidden');
+  document.getElementById('aText').innerHTML='';
+  document.getElementById('gradeRow').classList.toggle('hidden', isChoice);
+  document.getElementById('choiceNextBtn').classList.add('hidden');
+
+  const revealBtn=document.getElementById('revealBtn');
+  const checkBtn=document.getElementById('choiceCheckBtn');
+  if(isChoice){
+    revealBtn.classList.add('hidden');
+    checkBtn.classList.remove('hidden');
+  } else {
+    checkBtn.classList.add('hidden');
+    revealBtn.classList.remove('hidden');
+    revealBtn.textContent=isEssay?'模範解答を見る':'答えを見る';
+  }
+}
+
+function toggleChoice(el){
+  if(!choiceState || choiceState.answered) return;
+  const idx=Number(el.getAttribute('data-idx'));
+  if(choiceState.selected.has(idx)){ choiceState.selected.delete(idx); el.classList.remove('selected'); }
+  else { choiceState.selected.add(idx); el.classList.add('selected'); }
+}
+
+function checkChoice(){
+  const item=session.pool[session.idx];
+  if(!choiceState || choiceState.answered) return;
+  choiceState.answered=true;
+  const correct=new Set(item.correct||[]);
+  const sel=choiceState.selected;
+  let isCorrect=(correct.size===sel.size);
+  if(isCorrect){ correct.forEach(function(i){ if(!sel.has(i)) isCorrect=false; }); }
+
+  const list=document.getElementById('choiceList');
+  Array.prototype.forEach.call(list.querySelectorAll('.choice-opt'), function(el){
+    const idx=Number(el.getAttribute('data-idx'));
+    el.classList.remove('selected'); el.classList.add('locked');
+    if(correct.has(idx)) el.classList.add('opt-correct');
+    else if(sel.has(idx)) el.classList.add('opt-wrong');
+  });
+
+  document.getElementById('choiceCheckBtn').classList.add('hidden');
+  const verdict='<div class="verdict '+(isCorrect?'ok':'ng')+'">'+(isCorrect?'○ 正解':'× 不正解')+'</div>';
+  document.getElementById('aText').innerHTML=verdict+item.a;
+  document.getElementById('answerBox').classList.remove('hidden');
+  document.getElementById('gradeRow').classList.add('hidden');
+  document.getElementById('choiceNextBtn').classList.remove('hidden');
+  session.pendingCorrect=isCorrect;
+}
+
+function revealAnswer(){
+  const item=session.pool[session.idx];
+  document.getElementById('aText').innerHTML=item.a;
+  document.getElementById('answerBox').classList.remove('hidden');
+  document.getElementById('revealBtn').classList.add('hidden');
+}
+
+function grade(correct){
+  session.results[session.idx]=correct;
+  session.idx++;
+  if(session.idx>=session.pool.length){
+    finishSession();
+  } else {
+    renderQuestion();
+  }
+}
+
+function finishSession(){
+  document.getElementById('progressFill').style.width='100%';
+  showScreen('result');
+
+  const total=session.pool.length;
+  const correct=session.results.filter(function(r){return r===true;}).length;
+  const pct=total?Math.round(correct/total*100):0;
+
+  document.getElementById('ringPct').textContent=pct+'%';
+  document.getElementById('ringSub').textContent=correct+'/'+total+'問正解';
+
+  const circumference=2*Math.PI*52;
+  const fg=document.getElementById('ringFg');
+  fg.style.strokeDasharray=String(circumference);
+  fg.style.strokeDashoffset=String(circumference*(1-pct/100));
+  fg.style.stroke=pct>=80?'var(--correct)':(pct>=50?'var(--accent)':'var(--incorrect)');
+
+  const wrongItems=session.pool.filter(function(item,i){return session.results[i]===false;});
+  lastWrongPool=wrongItems;
+
+  const wrongListEl=document.getElementById('wrongList');
+  if(wrongItems.length===0){
+    wrongListEl.innerHTML='<p class="all-correct">全問正解でした。</p>';
+  } else {
+    wrongListEl.innerHTML='<h3>間違えた問題</h3>'+wrongItems.map(function(item){
+      return '<details class="wrong-item"><summary>'+item.q+'</summary>'
+        +'<div class="wrong-answer">'+item.a+'</div></details>';
+    }).join('');
+  }
+  document.getElementById('reviewWrongBtn2').classList.toggle('hidden', wrongItems.length===0);
+  updateSetupReviewButton();
+}
+
+function updateSetupReviewButton(){
+  const btn=document.getElementById('reviewWrongBtn');
+  if(lastWrongPool && lastWrongPool.length>0){
+    btn.classList.remove('hidden');
+    document.getElementById('wrongCount').textContent=lastWrongPool.length;
+  } else {
+    btn.classList.add('hidden');
+  }
+}
+
+function startReviewWrong(){
+  if(!lastWrongPool || lastWrongPool.length===0) return;
+  let pool=lastWrongPool.slice();
+  if(document.getElementById('randomToggle').checked) pool=shuffle(pool);
+  beginSession(pool);
+}
+
+function retrySameCondition(){
+  if(!session) return;
+  let pool=session.pool.slice();
+  if(document.getElementById('randomToggle').checked) pool=shuffle(pool);
+  beginSession(pool);
+}
+
+initSetup();
+document.getElementById('selectAllBtn').addEventListener('click', function(){
+  document.querySelectorAll('.sectionChk').forEach(function(c){c.checked=true;});
+});
+document.getElementById('selectNoneBtn').addEventListener('click', function(){
+  document.querySelectorAll('.sectionChk').forEach(function(c){c.checked=false;});
+});
+document.getElementById('startBtn').addEventListener('click', startBtnHandler);
+document.getElementById('revealBtn').addEventListener('click', revealAnswer);
+document.getElementById('choiceCheckBtn').addEventListener('click', checkChoice);
+document.getElementById('choiceNextBtn').addEventListener('click', function(){grade(session.pendingCorrect);});
+document.getElementById('gradeRightBtn').addEventListener('click', function(){grade(true);});
+document.getElementById('gradeWrongBtn').addEventListener('click', function(){grade(false);});
+document.getElementById('quitBtn').addEventListener('click', function(){showScreen('setup');});
+document.getElementById('reviewWrongBtn').addEventListener('click', startReviewWrong);
+document.getElementById('reviewWrongBtn2').addEventListener('click', startReviewWrong);
+document.getElementById('retryAllBtn').addEventListener('click', retrySameCondition);
+document.getElementById('backToSetupBtn').addEventListener('click', function(){showScreen('setup');});
+</script>
+</body>
+</html>
