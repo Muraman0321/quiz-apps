@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>International Finance I 問題演習アプリ</title>
+<style>
+:root{
+  --bg:#f4f5f7;
+  --bg-card:#ffffff;
+  --fg:#1c1e21;
+  --fg-muted:#6b7280;
+  --accent:#4f46e5;
+  --accent-fg:#ffffff;
+  --border:#e5e7eb;
+  --correct:#16a34a;
+  --incorrect:#dc2626;
+  --radius:16px;
+  --shadow:0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.04);
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#111318;
+    --bg-card:#1c1f26;
+    --fg:#f2f3f5;
+    --fg-muted:#9aa1ac;
+    --accent:#818cf8;
+    --accent-fg:#111318;
+    --border:#2c303a;
+    --correct:#4ade80;
+    --incorrect:#f87171;
+    --shadow:0 1px 3px rgba(0,0,0,.4),0 1px 2px rgba(0,0,0,.3);
+  }
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{margin:0;padding:0;}
+body{
+  background:var(--bg);
+  color:var(--fg);
+  font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic UI","Segoe UI",Roboto,sans-serif;
+  line-height:1.65;
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+}
+.topbar{
+  position:sticky;top:0;z-index:10;
+  background:var(--bg-card);
+  border-bottom:1px solid var(--border);
+  padding:14px 20px;
+}
+.topbar h1{
+  margin:0;font-size:17px;font-weight:700;text-align:center;
+}
+#app{
+  flex:1;
+  width:100%;
+  max-width:560px;
+  margin:0 auto;
+  padding:20px 16px 40px;
+}
+.screen.hidden{display:none;}
+.lead{
+  color:var(--fg-muted);
+  font-size:14px;
+  margin:0 0 18px;
+}
+.panel{
+  background:var(--bg-card);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:16px;
+  margin-bottom:14px;
+  box-shadow:var(--shadow);
+}
+.panel h2{
+  margin:0 0 10px;
+  font-size:14px;
+  font-weight:700;
+  color:var(--fg-muted);
+}
+.panel-head{
+  display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;
+}
+.panel-head h2{margin:0;}
+.panel-actions{display:flex;gap:10px;}
+.link-btn{
+  background:none;border:none;color:var(--accent);font-size:13px;font-weight:600;
+  padding:4px 2px;cursor:pointer;
+}
+.chip-group{display:flex;gap:8px;flex-wrap:wrap;}
+.chip{
+  display:flex;align-items:center;gap:6px;
+  border:1px solid var(--border);
+  border-radius:999px;
+  padding:8px 14px;
+  font-size:14px;
+  cursor:pointer;
+  user-select:none;
+}
+.chip input{accent-color:var(--accent);width:16px;height:16px;}
+.section-list{display:flex;flex-direction:column;gap:2px;max-height:320px;overflow-y:auto;}
+.section-item{
+  display:flex;align-items:center;gap:10px;
+  padding:9px 4px;
+  border-bottom:1px solid var(--border);
+  cursor:pointer;
+}
+.section-item:last-child{border-bottom:none;}
+.section-item input{accent-color:var(--accent);width:17px;height:17px;flex:none;}
+.section-title{flex:1;font-size:14px;}
+.section-count{font-size:11px;color:var(--fg-muted);white-space:nowrap;}
+.switch-row{
+  display:flex;align-items:center;justify-content:space-between;
+  font-size:14px;cursor:pointer;
+}
+.switch-row input{accent-color:var(--accent);width:38px;height:22px;}
+.error{
+  background:rgba(220,38,38,.1);
+  color:var(--incorrect);
+  border-radius:10px;
+  padding:10px 14px;
+  font-size:13px;
+  margin-bottom:14px;
+}
+.error.hidden{display:none;}
+.primary-btn{
+  display:block;width:100%;
+  background:var(--accent);
+  color:var(--accent-fg);
+  border:none;border-radius:12px;
+  padding:15px;
+  font-size:16px;font-weight:700;
+  cursor:pointer;
+  margin-bottom:10px;
+}
+.primary-btn:active{opacity:.85;}
+.primary-btn.hidden{display:none;}
+.secondary-btn{
+  display:block;width:100%;
+  background:var(--bg-card);
+  color:var(--fg);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:14px;
+  font-size:15px;font-weight:600;
+  cursor:pointer;
+  margin-bottom:10px;
+}
+.secondary-btn.hidden{display:none;}
+.quit-btn{
+  display:block;width:100%;text-align:center;margin-top:18px;color:var(--fg-muted);
+}
+
+/* quiz screen */
+.progress-wrap{margin-bottom:16px;}
+.progress-bar{
+  height:8px;border-radius:999px;background:var(--border);overflow:hidden;
+}
+.progress-fill{
+  height:100%;background:var(--accent);width:0%;
+  transition:width .25s ease;
+}
+.progress-label{
+  display:flex;justify-content:space-between;
+  font-size:12px;color:var(--fg-muted);margin-top:6px;
+}
+.card{
+  background:var(--bg-card);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:20px;
+  box-shadow:var(--shadow);
+}
+.q-type-badge{
+  display:inline-block;
+  font-size:11px;font-weight:700;
+  padding:3px 10px;border-radius:999px;
+  margin-bottom:12px;
+  background:rgba(79,70,229,.12);
+  color:var(--accent);
+}
+.q-type-badge.essay{
+  background:rgba(220,38,38,.1);
+  color:var(--incorrect);
+}
+.q-text{font-size:17px;font-weight:600;margin-bottom:14px;word-break:break-word;}
+.q-text b{font-weight:800;}
+.essay-input{
+  width:100%;min-height:90px;
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:10px 12px;
+  font-size:14px;
+  font-family:inherit;
+  background:var(--bg);
+  color:var(--fg);
+  margin-bottom:14px;
+  resize:vertical;
+}
+.essay-input.hidden{display:none;}
+.answer-box{
+  margin-top:16px;
+  padding-top:16px;
+  border-top:1px dashed var(--border);
+}
+.answer-box.hidden{display:none;}
+.answer-label{
+  font-size:11px;font-weight:700;color:var(--fg-muted);margin-bottom:6px;
+}
+.a-text{font-size:15px;margin-bottom:16px;word-break:break-word;}
+.grade-row{display:flex;gap:10px;}
+.grade-btn{
+  flex:1;border:none;border-radius:12px;padding:14px;
+  font-size:15px;font-weight:700;cursor:pointer;color:#fff;
+}
+.grade-btn.right{background:var(--correct);}
+.grade-btn.wrong{background:var(--incorrect);}
+
+/* 多肢選択（choice）モード */
+.choice-hint{font-size:12px;color:var(--fg-muted);margin:-4px 0 12px;}
+.choice-hint.hidden{display:none;}
+.grade-row.hidden{display:none;}
+.choice-list{display:flex;flex-direction:column;gap:9px;margin-bottom:14px;}
+.choice-list.hidden{display:none;}
+.choice-opt{
+  display:flex;align-items:flex-start;gap:11px;
+  border:1.5px solid var(--border);border-radius:12px;
+  padding:12px 14px;font-size:15px;cursor:pointer;
+  background:var(--bg-card);
+  transition:border-color .15s ease, background .15s ease;
+  word-break:break-word;
+}
+.choice-opt .opt-mark{
+  flex:none;width:23px;height:23px;border-radius:7px;
+  border:1.5px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;font-weight:700;margin-top:1px;
+}
+.choice-opt.selected{border-color:var(--accent);background:rgba(79,70,229,.08);}
+.choice-opt.selected .opt-mark{background:var(--accent);color:var(--accent-fg);border-color:var(--accent);}
+.choice-opt.opt-correct{border-color:var(--correct);background:rgba(22,163,74,.1);}
+.choice-opt.opt-correct .opt-mark{background:var(--correct);color:#fff;border-color:var(--correct);}
+.choice-opt.opt-wrong{border-color:var(--incorrect);background:rgba(220,38,38,.1);}
+.choice-opt.opt-wrong .opt-mark{background:var(--incorrect);color:#fff;border-color:var(--incorrect);}
+.choice-opt.locked{cursor:default;}
+.q-type-badge.choice{background:rgba(79,70,229,.12);color:var(--accent);}
+.verdict{font-weight:800;margin-bottom:8px;font-size:15px;}
+.verdict.ok{color:var(--correct);}
+.verdict.ng{color:var(--incorrect);}
+
+/* result screen */
+.ring-wrap{
+  position:relative;
+  width:180px;height:180px;
+  margin:10px auto 22px;
+}
+.ring{width:100%;height:100%;transform:rotate(-90deg);}
+.ring-bg{fill:none;stroke:var(--border);stroke-width:10;}
+.ring-fg{
+  fill:none;stroke:var(--accent);stroke-width:10;stroke-linecap:round;
+  transition:stroke-dashoffset .6s ease, stroke .3s ease;
+}
+.ring-center{
+  position:absolute;inset:0;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+}
+.ring-pct{font-size:32px;font-weight:800;}
+.ring-sub{font-size:13px;color:var(--fg-muted);margin-top:2px;}
+.result-actions{margin-bottom:18px;}
+.wrong-list h3{font-size:14px;color:var(--fg-muted);margin:18px 0 10px;}
+.all-correct{
+  text-align:center;color:var(--correct);font-weight:700;padding:20px 0;
+}
+.wrong-item{
+  background:var(--bg-card);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:12px 14px;
+  margin-bottom:8px;
+}
+.wrong-item summary{
+  font-size:14px;font-weight:600;cursor:pointer;
+}
+.wrong-answer{
+  margin-top:10px;padding-top:10px;
+  border-top:1px dashed var(--border);
+  font-size:14px;color:var(--fg-muted);
+}
+.footer{
+  text-align:center;
+  font-size:11px;
+  color:var(--fg-muted);
+  padding:16px;
+}
+</style>
+</head>
+<body>
+<header class="topbar"><h1>International Finance I（EC3343）演習</h1></header>
+<main id="app">
+
+  <section id="screen-setup" class="screen">
+    <p class="lead">第1〜6講＋チュートリアル2〜4（国際収支〜DD-AAモデル）。多肢選択・一問一答・記述式から出題形式と範囲を選んで演習を始めます。</p>
+
+    <div class="panel">
+      <h2>出題形式</h2>
+      <div class="chip-group" id="modeChips">
+        <label class="chip"><input type="checkbox" value="choice" checked>多肢選択</label>
+        <label class="chip"><input type="checkbox" value="qa" checked>一問一答</label>
+        <label class="chip"><input type="checkbox" value="essay" checked>記述式</label>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">
+        <h2>範囲</h2>
+        <div class="panel-actions">
+          <button type="button" id="selectAllBtn" class="link-btn">全選択</button>
+          <button type="button" id="selectNoneBtn" class="link-btn">全解除</button>
+        </div>
+      </div>
+      <div class="section-list" id="sectionList"></div>
+    </div>
+
+    <div class="panel">
+      <label class="switch-row">
+        <span>ランダム出題</span>
+        <input type="checkbox" id="randomToggle" checked>
+      </label>
+    </div>
+
+    <div id="setupError" class="error hidden"></div>
+    <button type="button" id="startBtn" class="primary-btn">演習を始める</button>
+    <button type="button" id="reviewWrongBtn" class="secondary-btn hidden">間違えた問題だけ復習する（前回 <span id="wrongCount">0</span>問）</button>
+  </section>
+
+  <section id="screen-quiz" class="screen hidden">
+    <div class="progress-wrap">
+      <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+      <div class="progress-label"><span id="progressCount">1/1</span><span id="progressChapter"></span></div>
+    </div>
+    <div class="card" id="qCard">
+      <div class="q-type-badge" id="qTypeBadge">一問一答</div>
+      <div class="q-text" id="qText"></div>
+      <div class="choice-hint hidden" id="choiceHint">当てはまる選択肢をすべて選んで答え合わせ（複数選択可）</div>
+      <div class="choice-list hidden" id="choiceList"></div>
+      <textarea id="essayInput" class="essay-input hidden" placeholder="ここに要点を書き出してから答え合わせ（採点はされません・自己チェック用です）"></textarea>
+      <button type="button" id="revealBtn" class="primary-btn">答えを見る</button>
+      <button type="button" id="choiceCheckBtn" class="primary-btn hidden">答え合わせ</button>
+      <div class="answer-box hidden" id="answerBox">
+        <div class="answer-label">解答</div>
+        <div class="a-text" id="aText"></div>
+        <div class="grade-row" id="gradeRow">
+          <button type="button" id="gradeWrongBtn" class="grade-btn wrong">× 不正解</button>
+          <button type="button" id="gradeRightBtn" class="grade-btn right">○ 正解</button>
+        </div>
+        <button type="button" id="choiceNextBtn" class="primary-btn hidden">次の問題へ</button>
+      </div>
+    </div>
+    <button type="button" id="quitBtn" class="link-btn quit-btn">中断してトップへ戻る</button>
+  </section>
+
+  <section id="screen-result" class="screen hidden">
+    <div class="ring-wrap">
+      <svg viewBox="0 0 120 120" class="ring">
+        <circle class="ring-bg" cx="60" cy="60" r="52"></circle>
+        <circle class="ring-fg" id="ringFg" cx="60" cy="60" r="52"></circle>
+      </svg>
+      <div class="ring-center">
+        <div class="ring-pct" id="ringPct">0%</div>
+        <div class="ring-sub" id="ringSub">0/0問正解</div>
+      </div>
+    </div>
+    <div class="result-actions">
+      <button type="button" id="reviewWrongBtn2" class="primary-btn hidden">間違えた問題だけ復習する</button>
+      <button type="button" id="retryAllBtn" class="secondary-btn">同じ条件でもう一度</button>
+      <button type="button" id="backToSetupBtn" class="secondary-btn">最初から選び直す</button>
+    </div>
+    <div class="wrong-list" id="wrongList"></div>
+  </section>
+
+</main>
+<footer class="footer">NUS EC3343 International Finance I 講義ノート準拠／自己採点は目安です</footer>
+<script>
+const DATA=[{"title": "第1講　国民所得と国際収支", "sub": "", "qa": [{"q": "GNP を GDP と NFI（純要素所得）で表す式を書け。GDPとGNPの違いを一言で。", "a": "GNP = GDP + NFI。GDPは「どこで」生産されたか、GNPは「誰の（自国の生産要素）」生産かを測る。"}, {"q": "経常収支CAを、貿易収支・NFI・NUTの3要素で表す式を書け。", "a": "CA = (EX-IM) + NFI + NUT"}, {"q": "経常収支の「3つの解釈」をそれぞれ一言で述べよ。", "a": "①競争力（CA≈EX-IM）。②貯蓄マイナス投資（CA=S-I、対外貸借）。③異時点間の消費配分（今日消費するか明日消費するか）。"}, {"q": "国際収支（BOP）の記帳ルールを2行で述べよ。", "a": "外国から受け取りが生じる取引は貸方 credit (+)。外国へ支払いが生じる取引は借方 debit (−)。すべての取引は複式簿記でBOPに2回入る。"}, {"q": "「輸出したら、貿易収支はどちら、金融収支はどちらに記帳されるか」という基準ケースを述べよ。", "a": "貿易収支は<b>貸方<\/b>、金融収支は<b>借方<\/b>（自国民が保有する外国資産の増加）。輸出代金を受け取ると外国預金の保有が増えるため。"}, {"q": "コンサルティング料の受取はどの構成要素に入るか。利子・配当の受取はどれか。", "a": "コンサルティング（サービス）は<b>貿易収支<\/b>に入る。利子・配当は<b>NFI<\/b>に入る（資産のリターンであって資産そのものの売買ではない）。"}, {"q": "資本移転等収支をゼロと仮定したとき、ΔCAとΔFAの関係式は何か。", "a": "ΔCA = −ΔFA 。資産と資産の交換（例：株式購入）はどちらの純額も動かさない。"}], "essay": [{"q": "ある国が貿易黒字だが経常赤字である場合、ありうる説明を2つ挙げ、それぞれの直感を説明せよ。", "a": "①NFIの流出が大きい——国内資本ストックの多くを外国人が保有し、利益を本国に持ち帰っている（インドネシア型）。②NUTの流出が大きい——送金や援助の純送り手になっている。CA=TB+NFI+NUTなので、プラスのTBをマイナスのNFI+NUTが上回りうる。"}], "choice": []}, {"title": "第2講　経常収支の持続可能性", "sub": "", "qa": [{"q": "純対外資産の運動方程式 B_t=(1+r)B_{t-1}+TB_t を、経常収支CA_tと結びつけよ。", "a": "CA_t = B_t - B_{t-1} 。経常収支は定義により純対外資産の変化そのもの。"}, {"q": "2期間モデルにおけるNo-Ponzi-Game（NPG）条件は何か。その根拠は何か。", "a": "B₂=0。根拠は合理性（効用最大化）と限界効用が常に正であること（遺産動機なし）。世界が終わると分かっているのに資産を残すのは無駄、借金を残して死ぬのは許されない。"}, {"q": "貿易収支形のNPG条件を書け。", "a": "(1+r)B₀ = -TB₁ - TB₂/(1+r)"}, {"q": "経常収支形のNPG条件を書け。貿易収支形と比べて何が消えるか。", "a": "B₀ = -CA₁ - CA₂。利子率rが消える（CAはもともと利子所得を含んでいるため割引が吸収される）。"}, {"q": "B₀<0（初期対外債務あり）でCA₁<0（第1期も赤字）なら、CA₂の符号はどうなるか。", "a": "CA₂は<b>正でなければならない<\/b>（NPG条件 B₀=-CA₁-CA₂ より）。"}, {"q": "「国」にとってB_T=0が拘束的でないのはなぜか。", "a": "国は人間と違って死なず、債務返済を強制する国際的な法執行機関も存在しないため。したがって他国が貸し続ける意思がある限り、国は恒久的な経常赤字を続けられる（ただしデフォルトを選ぶことはできる）。"}], "essay": [{"q": "1982年メキシコのソブリン・デフォルトに至る連鎖を、原因が「借入そのもの」ではないことを強調して説明せよ。", "a": "①短期債務の累積（1970年代の石油価格上昇による借入増）。②オイルマネーの環流で信用が潤沢。③<b>米国の利上げ<\/b>と対外借入の枯渇（ロールオーバー不能）——これが引き金。④所得減少・成長停滞・失業増加。⑤信用毀損。⑥IMFの緊縮プログラム。危機の原因は債務の水準ではなく、<b>短期で<\/b>借りていたところに金利ショックと資金供給の停止が同時に来た満期のミスマッチにある。"}], "choice": [{"q": "下の図はB₀=0のときの生涯予算制約（LBC）を(Q₁,Q₂)平面に描いたものである。正しい記述をすべて選べ。<br><svg viewBox='0 0 340 260' style='width:100%;max-width:340px;background:transparent'><line x1='50' y1='230' x2='320' y2='230' stroke='var(--fg)' stroke-width='1.5'/><line x1='50' y1='230' x2='50' y2='20' stroke='var(--fg)' stroke-width='1.5'/><text x='305' y='248' font-size='13' fill='var(--fg)'>C₁, Q₁<\/text><text x='55' y='24' font-size='13' fill='var(--fg)'>C₂, Q₂<\/text><line x1='70' y1='90' x2='300' y2='210' stroke='#3a5a8c' stroke-width='2.5'/><text x='190' y='90' font-size='11' fill='#3a5a8c'>LBC（傾き -(1+r₁)）<\/text><circle cx='185' cy='150' r='4.5' fill='#2f8f5b'/><text x='192' y='143' font-size='13' fill='var(--fg)'>A（賦存点 Q₁,Q₂）<\/text><text x='230' y='230' font-size='10' fill='var(--fg-muted)'>借入で消費（右下）<\/text><text x='60' y='115' font-size='10' fill='var(--fg-muted)'>貸付で消費（左上）<\/text><\/svg>", "choices": ["点Aは常に賦存点(Q₁,Q₂)を通る", "自給自足（オータルキー）は常に選択可能である", "Aより右下の領域は第1期の貸付で賄う領域である", "B₀≠0ならこの直線は傾きを変えずに平行移動する"], "correct": [0, 1, 3], "a": "生涯予算線は必ず賦存点(Q₁,Q₂)を通る——自給自足（各期に賦存量をちょうど消費する）が常に実行可能な選択だから。Aより右下は第1期に賦存量を超えて消費する領域＝<b>借入<\/b>で賄う（貸付ではない）。B₀≠0なら、傾き-(1+r₁)を保ったまま直線全体が平行移動する（B₀>0で外側、B₀<0で内側）。"}]}, {"title": "第3講　為替レートと外国為替市場：資産アプローチ", "sub": "", "qa": [{"q": "本講義の約束でEとは何か。Eが上がるとどうなるか。", "a": "E＝外国通貨1単位あたりの自国通貨の量。<b>Eの上昇＝自国通貨の減価<\/b>（外国のお金がより高くなった、と読む）。"}, {"q": "金利平価条件（IPC）の厳密形を書け。", "a": "1+R = (1/E)×(1+R')×E^e"}, {"q": "IPCの近似形を書け。何と何が等しいと述べているか。", "a": "R ≈ R' + (E^e-E)/E。自国預金の金利＝外国預金の金利＋自国通貨の予想減価率、という意味。"}, {"q": "均衡為替レート E=(1+R')E^e/(1+R) を決める3つの要因を挙げよ。", "a": "自国金利R、外国金利R'、予想将来レートE^e。"}, {"q": "R↑（自国金利上昇）、R'↑（外国金利上昇）はそれぞれEをどう動かすか。", "a": "R↑ ⟹ 自国通貨は<b>増価<\/b>（E↓）。R'↑ ⟹ 自国通貨は<b>減価<\/b>（E↑）。"}, {"q": "資産アプローチのROR図で、縦軸・横軸は何か。自国預金の収益率曲線はどんな形をしているか。", "a": "縦軸はE（価格）、横軸は収益率。自国預金の収益率Rは<b>垂直線<\/b>（Eに依存しないため）。外国預金の期待収益率は右下がりの曲線。"}, {"q": "カバー付き金利平価（CIP）とカバー無しIPCの違いは何か。", "a": "カバー無しはE^e（予想、外れうる）を使う。カバー付きはF（先物レート、契約されており外れない）を使う。式の形はほぼ同じだが、リスクの性質は完全に変わる。"}], "essay": [{"q": "IPCが成立していても実現収益は一致しないのはなぜか。またこの隙間で何が起きているか説明せよ。", "a": "IPCは投資した時点の<b>期待<\/b>収益についての条件である。満期に戻すときのレートは実現レートであってE^eと一致する必要はない。この隙間に、キャリートレード（低金利の調達通貨を借り高金利の投資通貨を買う）やヘッジファンドの統計的裁定が生きている。平均では儲かるが、ポジションの偏りや予定イベントによって突然の反転（巻き戻し）に晒される。"}], "choice": []}, {"title": "チュートリアル2　2期間モデルと金利平価", "sub": "", "qa": [{"q": "継承債務B₀を含む生涯予算制約を書け。過去金利r₀と世界利子率r*の使い分けに注意して。", "a": "C₁ + C₂/(1+r*) = (1+r₀)B₀ + Q₁ + Q₂/(1+r*)。r₀はB₀を<b>一度だけ<\/b>評価するのに使い、Q₂やC₂の割引には必ず世界利子率r*を使う。"}, {"q": "対称コブ＝ダグラス（または√型）効用のとき、最適消費のルールを一言で。", "a": "MRS=C₂/C₁=1+r* とし、生涯資源Wを現在価値で均等に配分する（C₁=W/2）。"}, {"q": "予見された第2期エンダウメントの増加（Q₂↑）は、CA₁とCA₂にそれぞれどう影響するか。", "a": "<b>CA₁は赤字化<\/b>（両期の消費が今すぐ増えるため、第1期は将来を担保に借入）。<b>CA₂は黒字拡大<\/b>（臨時収入が消費増を上回るぶんで返済）。予見された将来所得増→今赤字・あとで黒字。"}, {"q": "世界利子率r*↑で第1期の貸し手の場合、代替効果と所得効果はC₁にどう働くか。SE優勢の仮定のもとで結論は何か。", "a": "代替効果：C₁↓（第1期消費の相対価格1+r*が上昇）。所得効果：C₁↑（貸し手は高い収益率で豊かになる）。SE優勢の仮定のもとで<b>C₁↓<\/b>（無条件ではない）。C₂は両効果とも↑で無条件にC₂↑。"}, {"q": "外国預金の自国通貨建て期待収益率を、正確な式と近似式の両方で書け。", "a": "正確：(1+R')(E^e/E)-1。近似：R'+(E^e-E)/E。"}], "essay": [{"q": "1993年ブラジルの例で金利平価が成立しない理由を3つ挙げよ。", "a": "①<b>リスクプレミアム<\/b>：ハイパーインフレ下でデフォルト・インフレ・政治リスクが大きく、リスク回避的な投資家がその補償を要求する（素のIPCはリスク中立を仮定）。②<b>ペソ問題<\/b>：実績の1か月分を点予測に使うと、突発的な大幅切り下げの裾（テイルリスク）を無視することになる。③<b>不完全な資本移動<\/b>：資本規制や課税で裁定資本が実際には入れない。"}], "choice": [{"q": "世界利子率r*が上昇し、下の図の第1期の貸し手（最適点BはAの北西）について正しい記述をすべて選べ。<br><svg viewBox='0 0 340 260' style='width:100%;max-width:340px;background:transparent'><line x1='50' y1='230' x2='320' y2='230' stroke='var(--fg)' stroke-width='1.5'/><line x1='50' y1='230' x2='50' y2='20' stroke='var(--fg)' stroke-width='1.5'/><text x='305' y='248' font-size='13' fill='var(--fg)'>C₁<\/text><text x='55' y='24' font-size='13' fill='var(--fg)'>C₂<\/text><line x1='75' y1='170' x2='300' y2='230' stroke='var(--border)' stroke-width='2' stroke-dasharray='5,4'/><text x='230' y='222' font-size='10' fill='var(--fg-muted)'>BL（元）<\/text><line x1='75' y1='170' x2='230' y2='40' stroke='#e0654f' stroke-width='2.5'/><text x='170' y='55' font-size='11' fill='#e0654f'>BL'（r*↑後、より急）<\/text><circle cx='170' cy='192' r='4' fill='var(--fg)'/><text x='176' y='210' font-size='12' fill='var(--fg)'>A（賦存点）<\/text><circle cx='115' cy='183' r='4' fill='#3a5a8c'/><text x='60' y='178' font-size='12' fill='#3a5a8c'>B<\/text><circle cx='140' cy='90' r='4' fill='#2f8f5b'/><text x='115' y='80' font-size='12' fill='#2f8f5b'>B'<\/text><\/svg>", "choices": ["予算線は必ずAを軸に回転する（オータルキーは常に実行可能）", "C₁は減少し、C₂は増加する", "貸し手はより高い無差別曲線に到達する（厚生改善）", "この貸し手のCA₁（第1期経常収支）は減少する"], "correct": [0, 1, 2], "a": "予算線はA（賦存点）を軸に回転し急になる。SE優勢の仮定のもとC₁↓、C₂は無条件に↑。貸し手は高い利子率で豊かになるためB'はより高い無差別曲線上にある＝厚生改善。CA₁=Q₁-C₁はC₁↓により<b>増加<\/b>する（貸出が増える）——選択肢の「減少」は誤り。"}, {"q": "ECBが量的緩和を実施しR_EURが下がった。下の図（米国視点、E=E$/EUR）で正しい記述をすべて選べ。<br><svg viewBox='0 0 340 240' style='width:100%;max-width:340px;background:transparent'><line x1='50' y1='215' x2='320' y2='215' stroke='var(--fg)' stroke-width='1.5'/><line x1='50' y1='215' x2='50' y2='20' stroke='var(--fg)' stroke-width='1.5'/><text x='300' y='233' font-size='13' fill='var(--fg)'>収益率<\/text><text x='20' y='24' font-size='13' fill='var(--fg)'>E($/EUR)<\/text><line x1='170' y1='30' x2='170' y2='205' stroke='#2f8f5b' stroke-width='2.5'/><text x='177' y='45' font-size='11' fill='#2f8f5b'>R$（垂直・不変）<\/text><path d='M70,50 Q170,80 290,180' stroke='var(--border)' stroke-width='2' fill='none' stroke-dasharray='5,4'/><text x='230' y='150' font-size='10' fill='var(--fg-muted)'>ROR（元）<\/text><path d='M70,90 Q170,120 290,210' stroke='#e0654f' stroke-width='2.5' fill='none'/><text x='195' y='205' font-size='11' fill='#e0654f'>ROR'（左シフト後）<\/text><circle cx='170' cy='80' r='4' fill='var(--fg)'/><text x='177' y='73' font-size='11' fill='var(--fg)'>点1<\/text><circle cx='170' cy='120' r='4' fill='var(--fg)'/><text x='177' y='135' font-size='11' fill='var(--fg)'>点2<\/text><\/svg>", "choices": ["ユーロのROR曲線が左シフトする", "新しい均衡ではE($/EUR)が低下し、ユーロは減価する", "R$（ドル金利）の垂直線もシフトする", "この効果はQEの実施前に予告するだけでも起こりうる"], "correct": [0, 1, 3], "a": "R_EUR↓はあらゆるEでユーロ預金の期待ドル収益率を下げるためROR曲線が左シフトする。R$線は米国のものなので不変。新均衡は点1から点2へ、Eが低下＝ユーロ減価。QEの<b>予告だけ<\/b>でもE^e↓を通じて同じ左シフトが起こる（自己実現的・為替は資産価格）。"}]}, {"title": "第4講　貨幣・利子率・為替レート", "sub": "", "qa": [{"q": "貨幣市場と外為市場をつなぐ「唯一の接続点」となる変数は何か。読む順番は？", "a": "利子率R。<b>必ず貨幣市場から読んでRを得て<\/b>、そのRを外為市場に持ち上げてEを読む。逆順は禁止。"}, {"q": "自国のマネーサプライM^sが増える場合、R とEはそれぞれどう動くか（短期）。", "a": "M^s↑ ⟹ 実質貨幣供給↑ ⟹ R<b>低下<\/b> ⟹ 自国通貨は<b>減価<\/b>（E上昇）。"}, {"q": "オーバーシューティングが起きるための必要条件は何か。", "a": "マネーサプライの増加が<b>恒久的<\/b>であること。恒久的だからこそ将来の物価水準についての予想が動き、E^eが動いてROR曲線がシフトする。"}, {"q": "オーバーシューティングの4つの点（1→2→3→4）を説明せよ。", "a": "点1＝出発点。点2＝期待が動かなければ着地したはずの点。点3＝E^e↑でROR外側シフトした後の<b>短期<\/b>均衡（オーバーシュート）。点4＝Pが追いついた後の<b>長期<\/b>均衡。E₃>E₄>E₁。"}, {"q": "不可能の三角形（impossible trinity）の3つの目標を挙げよ。多くとも何個を達成できるか。", "a": "①自由な資本移動。②金融政策の自律性。③為替相場の管理。多くとも<b>2つ<\/b>しか達成できない。"}, {"q": "シンガポールは3つのうちどれを取り、どれを捨てているか。", "a": "自由な資本移動＋為替相場の管理（S$NEER）を取り、金融政策の自律性を捨てる。SORAはFFレートに1対1で連動する。"}], "essay": [{"q": "同じ大きさの恒久的なマネーサプライ増加と一時的な増加で、短期の減価が大きいのはどちらか、なぜか。", "a": "恒久的な方。一時的な増加はE^eを動かさないので点2で止まる。恒久的な増加は将来の物価水準の予想を上げ、したがって将来の為替レートの予想も上げるので、ROR曲線が外側にシフトして点3まで行く。点2から点3までの差がオーバーシュートであり、期待が動いたからのみ存在する。"}], "choice": [{"q": "恒久的なマネーサプライの増加によるオーバーシューティングを示す下の図で、正しい記述をすべて選べ。<br><svg viewBox='0 0 340 250' style='width:100%;max-width:340px;background:transparent'><line x1='50' y1='225' x2='320' y2='225' stroke='var(--fg)' stroke-width='1.5'/><line x1='50' y1='225' x2='50' y2='20' stroke='var(--fg)' stroke-width='1.5'/><text x='250' y='243' font-size='12' fill='var(--fg)'>時間 →<\/text><text x='15' y='24' font-size='13' fill='var(--fg)'>E<\/text><path d='M60,180 L150,180 L150,60 L320,100' stroke='#3a5a8c' stroke-width='2.5' fill='none'/><text x='170' y='55' font-size='11' fill='#3a5a8c'>点3（短期・オーバーシュート）<\/text><line x1='150' y1='60' x2='150' y2='225' stroke='var(--border)' stroke-width='1' stroke-dasharray='3,3'/><circle cx='150' cy='60' r='4' fill='#3a5a8c'/><path d='M320,100' stroke='none'/><circle cx='320' cy='100' r='4' fill='#2f8f5b'/><text x='265' y='90' font-size='11' fill='#2f8f5b'>点4（長期）<\/text><circle cx='60' cy='180' r='4' fill='var(--fg)'/><text x='30' y='198' font-size='11' fill='var(--fg)'>点1<\/text><line x1='60' y1='140' x2='320' y2='140' stroke='var(--fg-muted)' stroke-width='1' stroke-dasharray='4,3'/><text x='265' y='135' font-size='10' fill='var(--fg-muted)'>元の水準E₁<\/text><\/svg>", "choices": ["点3（短期）のEは点4（長期）のEより高い（E₃>E₄）", "点4（長期）のEは元の水準E₁に戻る", "短期でEが行き過ぎる理由は、物価は遅いが期待は瞬時だから", "この経路は一時的なマネーサプライ増加でも同じように生じる"], "correct": [0, 2], "a": "E₃>E₄>E₁であり（長期は元の水準よりは減価したままでE₁には戻らない）、行き過ぎの理由は財市場（物価）がまだ調整できていない間に資産市場（期待）が将来の帰結を今日すべて織り込むから。一時的な増加ではE^eが動かないため、この行き過ぎ（点2から点3への追加シフト）は生じない。"}]}, {"title": "チュートリアル3　貨幣・金利・外国為替市場", "sub": "", "qa": [{"q": "カバー付き金利平価（CIP）が成立するかを判定する式を書け。E=1.25、F=1.30、R=5%、R'=4.5%のとき成立するか。", "a": "1+R ?= (1+R')(F/E)。1.05 vs 1.045×(1.30/1.25)=1.0868。カバー付きユーロ側8.68% > ドル5%で<b>不成立<\/b>（無リスクの裁定機会がある）。"}, {"q": "ECBが長期の量的緩和を開始した場合、米国貨幣市場のRはどうなるか。なぜ「何も起きない」が正しい答えなのか。", "a": "<b>不変<\/b>。M^s_USはFedが決めるものであってECBではなく、米国の産出・物価は短期では不変なのでL(R,Y)も動かない。外国ショックは自国貨幣市場ではなく外為市場側（ROR曲線）だけをシフトさせる。"}, {"q": "米国名目マネーサプライの恒久的増加で、短期・長期のEはそれぞれ元のE₁とどう比べられるか。", "a": "短期：E₃までオーバーシュート（E₃>E₄>E₁）。長期：E₄に落ち着く（E₁より高い＝減価したままだが、短期のE₃より低い）。"}, {"q": "ハリケーンで米国産出Yが一時的に減少した場合、短期のRとEはどう動くか。なぜROR曲線は動かないのか。", "a": "Y↓ ⟹ L(R,Y)が内側シフト ⟹ R<b>低下<\/b>。ショックが<b>一時的<\/b>なので長期の物価・為替は不変 ⟹ E^e不変 ⟹ ROR曲線は動かず、Rの低下がそのままEの<b>上昇（減価）<\/b>に対応する。"}, {"q": "シンガポールドルの金利がほぼ常に米ドルの金利より低いのはなぜ問題にならないのか。", "a": "低い金利は、MASのクロールの下でのSGDの予想<b>増価<\/b>でちょうど相殺されるから。期待ドル収益率で見れば2つの預金は同じリターンになる（金利平価）。金利差そのものが市場による管理増価の推計値。"}], "essay": [{"q": "問（ハリケーン）で経常収支チャネルを無視して「ドル減価」と結論する理由を、モデルの前提から説明せよ。", "a": "米国所得の低下は米国の輸入も減らし、実際にはドルを支える方向（経常収支の改善）に働くはずである。しかし本科目の<b>資産アプローチ<\/b>では、為替は資産市場で金利平価によって決まり、短期では貨幣市場チャネル（R↓→ROR不変の下でE↑）が支配的とされる。経常収支チャネルは、この講義より後のDD-AAモデルで初めて明示的に扱われる別の経路である。"}], "choice": []}, {"title": "第5講　購買力平価（PPP）と実質実効為替レート", "sub": "", "qa": [{"q": "絶対的PPPと相対的PPPをそれぞれ式で書け。", "a": "絶対的PPP：E=P/P'（水準）。相対的PPP：(E^e-E)/E ≈ π^e-π'^e（変化率＝インフレ格差）。"}, {"q": "絶対的PPPは相対的PPPを含意するか。逆は成り立つか。", "a": "絶対的PPP⟹相対的PPPは成り立つ。<b>逆（相対的⟹絶対的）は成り立たない<\/b>——為替が変化率どおりに動いていても、絶対水準からズレたままということがありうる。"}, {"q": "PPPが実証的に崩れる3つの原因を挙げよ。", "a": "①貿易障壁（輸送コスト・関税等）。②非貿易財（理美容・医療など国際的に裁定できない財）。③不完全競争（独占力の違い・価格差別）。"}, {"q": "実質実効為替レート q=EP'/P を定義せよ。q=1が意味することは何か。", "a": "外国財1単位あたりの自国財単位数。PPPが厳密に成り立つときかつそのときに限りq=1。"}, {"q": "バラッサ・サミュエルソン理論の主張を一言で述べよ。", "a": "貿易相手国より貿易財セクターの生産性が速く伸びる国は、通貨が実質的に増価する（賃金上昇が非貿易財価格に波及するため）。"}, {"q": "実質実効為替レート・アプローチのRD/RSグラフで、RSが垂直、RDが右上がりなのはなぜか。", "a": "RS（相対供給）は長期の生産能力で決まる制約でqに反応しないため垂直。RD（相対需要）はqが上がると自国財が相対的に安くなり需要が増えるため右上がり。"}], "essay": [{"q": "自国の産出供給が増加した場合、名目為替レートEへの純効果があいまいになる理由を、2つの経路を対比して説明せよ。", "a": "<b>実質経路<\/b>：RSが右にシフトしq↑（実質減価）。<b>金融経路<\/b>：産出Y↑で貨幣需要L(R,Y)↑、M^s一定ならPが下がる。E=q×P/P'において、qは上がりPは下がるので2つの経路が逆方向に働き、どちらが勝つかはこの定性モデルでは決まらない——純効果はあいまい。"}], "choice": [{"q": "実質実効為替レート・アプローチのRD/RSグラフである。正しい記述をすべて選べ。<br><svg viewBox='0 0 340 250' style='width:100%;max-width:340px;background:transparent'><line x1='50' y1='225' x2='320' y2='225' stroke='var(--fg)' stroke-width='1.5'/><line x1='50' y1='225' x2='50' y2='20' stroke='var(--fg)' stroke-width='1.5'/><text x='280' y='243' font-size='12' fill='var(--fg)'>自国財/外国財の量<\/text><text x='55' y='24' font-size='13' fill='var(--fg)'>q（実質為替レート）<\/text><line x1='190' y1='30' x2='190' y2='210' stroke='#3a5a8c' stroke-width='2.5'/><text x='198' y='45' font-size='11' fill='#3a5a8c'>RS（垂直）<\/text><line x1='75' y1='210' x2='300' y2='60' stroke='#e0654f' stroke-width='2.5'/><text x='230' y='90' font-size='11' fill='#e0654f'>RD（右上がり）<\/text><circle cx='190' cy='127' r='4' fill='#2f8f5b'/><\/svg>", "choices": ["RSが右にシフトすると実質減価（q↑）が起きる", "RDが右にシフトすると実質増価（q↓）が起きる", "RSは長期の生産能力で決まり、qには反応しない", "RDが右上がりなのは、qが上がると自国財への需要が減るためである"], "correct": [0, 1, 2], "a": "RSの右シフトは自国財の相対供給増を表し、均衡はRD曲線上を右下（q↑＝実質減価）へ動く。RDの右シフトは自国財への相対需要増を表し、均衡はRS上を上（q↓＝実質増価）へ動く。RSは生産能力という制約でqに反応しないため垂直。RDは「qが上がる＝自国財が相対的に安くなる＝需要が増える」ので右上がりであり、「需要が減る」は誤り。"}]}, {"title": "チュートリアル4　PPP・マネタリーアプローチ・バラッサ＝サミュエルソン", "sub": "", "qa": [{"q": "一物一価の法則（LOOP）はなぜ「仮定」ではなく「裁定取引の帰結」なのか。", "a": "P_i>EP_i'なら外国で買い自国で売る裁定が生まれ、価格が収束するまで需給を通じて差が消される。自由な裁定取引が可能な競争市場が結果として生み出す関係であり、天下り的な仮定ではない。"}, {"q": "ジンバブエの月次インフレ率π=13.58%、米国π'=0.13%のとき、相対的PPPからΔE/Eはいくらか。", "a": "ΔE/E ≈ π-π' = 13.58%-0.13% = 13.45%（ジンバブエ・ドルが減価）。"}, {"q": "マネタリーアプローチで、自国マネーサプライM^sの恒久的な水準低下は、長期のEにどう影響するか。", "a": "長期では貨幣は中立（Y,Rは不変）なのでP=M^s/L(R,Y)はM^sと同じ比率で低下し、PPPよりEも同じ比率で低下（自国通貨は比例的に増価）する。"}, {"q": "貨幣成長率がt₀で恒久的にπからπ+Δπへ上昇するとき、Pは連続的に動くか、ジャンプするか。理由も述べよ。", "a": "<b>ジャンプする<\/b>。Rが期待インフレに即座に反応してt₀で不連続に飛ぶ（フィッシャー効果）ため、L(R,Y)が即座に下がり、M^s自体は連続でも貨幣市場を均衡させ続けるにはP=M^s/L(R,Y)が同時にジャンプせざるを得ない。価格の伸縮性への違反ではなく、金利という先読み変数が引き起こす一回限りの水準調整。"}, {"q": "Balassa-SamuelsonでP=√(P_T×P_N)（幾何平均）と指定された場合、賃金の共通化からP_N/P_Tはどう決まるか。", "a": "完全競争と国内での自由な労働移動により賃金wが1つに決まり、P_T=w/a_T、P_N=w/a_Nから P_N/P_T = a_T/a_N 。"}], "essay": [{"q": "Q5*で q_$/¥ が物価水準に依存せず生産性比だけで決まる理由を説明せよ。", "a": "貿易財のLOOP条件 E_$/¥ P_T^JP = P_T^US を q=EP'/Pの式に代入すると、両国の物価水準P_Tの項がきれいに相殺されて消える。残るのは各国の√(a_T/a_N)の比だけであり、実質為替レートは名目的な物価水準ではなく、純粋に相対的な生産性構造だけで決まる。"}], "choice": []}, {"title": "第6講　短期の出力と為替レート（DD-AAモデル）", "sub": "", "qa": [{"q": "DDカーブとAAカーブはそれぞれ何の均衡の軌跡か。傾きは？", "a": "<b>DD<\/b>：財市場均衡の軌跡、右上がり（E↑⟹Y↑）。<b>AA<\/b>：貨幣市場・外為市場の同時均衡の軌跡、右下がり（Y↑⟹E↓）。"}, {"q": "DDカーブをシフトさせる要因を3つ以上挙げよ。", "a": "財政拡張（G↑またはT↓）、投資I↑、価格比P'/P↑、貿易相手国の富裕化（Y'-T'↑）、輸入関税τ↑——いずれもDDを右シフトさせる。"}, {"q": "AAカーブをシフトさせる要因を貨幣市場側・外為市場側それぞれ挙げよ。", "a": "貨幣市場側：M^s↑（右シフト）、P↑（左シフト）。外為市場側：R'↑または期待の減価E^e↑（右シフト）。"}, {"q": "一時的な金融拡張と一時的な財政拡張は、どちらもYを上げるが、Eへの効果はどう違うか。", "a": "一時的な金融拡張：Yも上がり<b>Eも上昇（減価）<\/b>（AAが右シフト）。一時的な財政拡張：Yは上がるが<b>Eは低下（増価）<\/b>（DDが右シフト）。同じ出力上昇でも為替の向きが正反対。"}, {"q": "恒久的な財政拡張の長期の効果について、「完全なクラウディングアウト」の仮定のもとで何が起きるか。", "a": "長期の出力Yは完全にY_Fに復帰する（財政拡張の出力効果は完全に相殺される）。恒久的な効果が残るのはEだけ（増価）。"}, {"q": "内部均衡と外部均衡の違いを述べよ。今回（DD-AA）のテーマはどちらか。", "a": "内部均衡はY=Y_F（完全雇用）。外部均衡はCA=CA_Desired（望ましい経常収支水準）。今回のテーマは<b>内部均衡<\/b>（外部均衡は次回の講義テーマ）。"}], "essay": [{"q": "一時的な財政拡張と金融拡張はどちらも短期でYを上げるのに、なぜEは逆方向に動くのか説明せよ。", "a": "財政拡張は<b>財市場<\/b>を通じて働く（DDが右シフト）：Gの増加が直接ADを押し上げ、高まったYが貨幣需要を増やしRを押し上げ、通貨は<b>増価<\/b>する。金融拡張は<b>資産市場<\/b>を通じて働く（AAが右シフト）：M^sの増加が直接Rを押し下げ、金利平価条件を満たすには通貨が<b>減価<\/b>しなければならず、安くなった通貨が輸出を増やしYを押し上げる。2つの政策は逆の因果連鎖でYを上げるため、Eには逆の痕跡を残す。"}], "choice": [{"q": "下の図はDD-AAモデルの初期均衡（点1）を示す。一時的な財政拡張（G↑）の効果として正しい記述をすべて選べ。<br><svg viewBox='0 0 340 250' style='width:100%;max-width:340px;background:transparent'><line x1='50' y1='225' x2='320' y2='225' stroke='var(--fg)' stroke-width='1.5'/><line x1='50' y1='225' x2='50' y2='20' stroke='var(--fg)' stroke-width='1.5'/><text x='300' y='243' font-size='13' fill='var(--fg)'>Y<\/text><text x='55' y='24' font-size='13' fill='var(--fg)'>E<\/text><line x1='70' y1='210' x2='300' y2='60' stroke='#3a5a8c' stroke-width='2.5'/><text x='240' y='75' font-size='11' fill='#3a5a8c'>DD₁<\/text><line x1='120' y1='210' x2='350' y2='60' stroke='#3a5a8c' stroke-width='2.5' stroke-dasharray='6,3'/><text x='290' y='90' font-size='11' fill='#3a5a8c'>DD₂（右シフト）<\/text><path d='M75,60 Q185,120 300,200' stroke='#e0654f' stroke-width='2.5' fill='none'/><text x='210' y='195' font-size='11' fill='#e0654f'>AA（不変）<\/text><circle cx='170' cy='130' r='4' fill='var(--fg)'/><text x='150' y='148' font-size='12' fill='var(--fg)'>点1<\/text><circle cx='205' cy='108' r='4' fill='#2f8f5b'/><text x='210' y='98' font-size='12' fill='#2f8f5b'>点2<\/text><\/svg>", "choices": ["AAカーブは動かず、DDカーブだけが右にシフトする", "新しい均衡（点2）ではYが上昇し、Eが低下する（自国通貨は増価）", "この政策変化は資産市場（AA）を通じて働く", "国民が政策を一時的だと信じているため、E^eは動かない"], "correct": [0, 1, 3], "a": "財政拡張はDDを右シフトさせ、AA（貨幣・外為市場）は直接には動かない。新均衡（点2）ではYが上がりEが下がる（増価）。これは<b>財市場<\/b>を通じた効果であり資産市場（AA）を通じたものではない。「一時的」とは国民がE^eを改定しないと信じていることを意味し、AAはE^e経路のシフトを受けない。"}, {"q": "恒久的な金融拡張の長期均衡（点3）への移行を示す下の図で、正しい記述をすべて選べ。<br><svg viewBox='0 0 340 250' style='width:100%;max-width:340px;background:transparent'><line x1='50' y1='225' x2='320' y2='225' stroke='var(--fg)' stroke-width='1.5'/><line x1='50' y1='225' x2='50' y2='20' stroke='var(--fg)' stroke-width='1.5'/><text x='300' y='243' font-size='13' fill='var(--fg)'>Y<\/text><text x='55' y='24' font-size='13' fill='var(--fg)'>E<\/text><line x1='70' y1='210' x2='300' y2='60' stroke='#3a5a8c' stroke-width='2' stroke-dasharray='5,4'/><text x='240' y='75' font-size='10' fill='var(--fg-muted)'>DD（初期）<\/text><line x1='100' y1='215' x2='260' y2='45' stroke='#3a5a8c' stroke-width='2.5'/><text x='170' y='60' font-size='10' fill='#3a5a8c'>DD'（長期・内側シフト）<\/text><path d='M75,45 Q185,110 300,190' stroke='var(--border)' stroke-width='2' fill='none' stroke-dasharray='5,4'/><text x='230' y='185' font-size='10' fill='var(--fg-muted)'>AA（初期）<\/text><path d='M75,90 Q185,145 300,225' stroke='#e0654f' stroke-width='2.5' fill='none'/><text x='230' y='220' font-size='10' fill='#e0654f'>AA'（長期・部分的に戻る）<\/text><circle cx='190' cy='125' r='4' fill='var(--fg)'/><text x='155' y='143' font-size='11' fill='var(--fg)'>点1<\/text><circle cx='245' cy='95' r='4' fill='#3a5a8c'/><text x='250' y='85' font-size='11' fill='#3a5a8c'>点2（短期）<\/text><circle cx='190' cy='170' r='4' fill='#2f8f5b'/><text x='195' y='186' font-size='11' fill='#2f8f5b'>点3（長期）<\/text><\/svg>", "choices": ["短期（点2）ではYもEも一時的な場合より大きく動く（オーバーシュート）", "長期（点3）では出力YはY_Fに戻る", "長期のDDが内側にシフトするのは、国内物価上昇で純輸出が減るためである", "長期のEは元の水準E₁より増価している"], "correct": [0, 1, 2], "a": "恒久的拡張ではE^eが動くためAAが一時的な場合より大きくシフトし、短期でYもEも大きく動く（オーバーシュート）。長期にはPが上昇してAAが部分的に戻り、DDも内側にシフト（国内財が相対的に割高になり純輸出減）してYはY_Fに復帰する。長期のEは元より<b>減価<\/b>したまま（増価ではない）——これが唯一残る恒久的効果。"}]}];
+
+let session=null;
+let lastWrongPool=null;
+let choiceState=null;
+
+function escapeHtml(s){
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function showScreen(name){
+  ['setup','quiz','result'].forEach(function(s){
+    document.getElementById('screen-'+s).classList.toggle('hidden', s!==name);
+  });
+  window.scrollTo(0,0);
+}
+
+function initSetup(){
+  const list=document.getElementById('sectionList');
+  list.innerHTML=DATA.map(function(sec,i){
+    return '<label class="section-item">'
+      +'<input type="checkbox" class="sectionChk" value="'+i+'" checked>'
+      +'<span class="section-title">'+escapeHtml(sec.title)+'</span>'
+      +'<span class="section-count">'+countLabel(sec)+'</span>'
+      +'</label>';
+  }).join('');
+}
+
+function countLabel(sec){
+  const parts=[];
+  const nc=(sec.choice||[]).length, nq=(sec.qa||[]).length, ne=(sec.essay||[]).length;
+  if(nc) parts.push('多肢選択'+nc);
+  if(nq) parts.push('一問一答'+nq);
+  if(ne) parts.push('記述'+ne);
+  return parts.join('・')||'—';
+}
+
+function getSelectedModes(){
+  return new Set(Array.prototype.map.call(
+    document.querySelectorAll('#modeChips input:checked'), function(el){return el.value;}
+  ));
+}
+function getSelectedSections(){
+  return new Set(Array.prototype.map.call(
+    document.querySelectorAll('.sectionChk:checked'), function(el){return Number(el.value);}
+  ));
+}
+
+function buildPool(sectionsSet, modesSet){
+  const pool=[];
+  DATA.forEach(function(sec, si){
+    if(!sectionsSet.has(si)) return;
+    if(modesSet.has('choice')) (sec.choice||[]).forEach(function(item){
+      pool.push({q:item.q, a:item.a, choices:item.choices, correct:item.correct, type:'choice', chapter:sec.title});
+    });
+    if(modesSet.has('qa')) (sec.qa||[]).forEach(function(item){
+      pool.push({q:item.q, a:item.a, type:'qa', chapter:sec.title});
+    });
+    if(modesSet.has('essay')) (sec.essay||[]).forEach(function(item){
+      pool.push({q:item.q, a:item.a, type:'essay', chapter:sec.title});
+    });
+  });
+  return pool;
+}
+
+function shuffle(arr){
+  const a=arr.slice();
+  for(let i=a.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    const tmp=a[i]; a[i]=a[j]; a[j]=tmp;
+  }
+  return a;
+}
+
+function showError(msg){
+  const el=document.getElementById('setupError');
+  el.textContent=msg;
+  el.classList.remove('hidden');
+}
+function hideError(){
+  document.getElementById('setupError').classList.add('hidden');
+}
+
+function startBtnHandler(){
+  const modes=getSelectedModes();
+  const sections=getSelectedSections();
+  if(modes.size===0){ showError('出題形式を1つ以上選んでください'); return; }
+  if(sections.size===0){ showError('範囲を1つ以上選んでください'); return; }
+  let pool=buildPool(sections, modes);
+  if(pool.length===0){ showError('選んだ条件に該当する問題がありません'); return; }
+  hideError();
+  if(document.getElementById('randomToggle').checked) pool=shuffle(pool);
+  beginSession(pool);
+}
+
+function beginSession(pool){
+  session={pool:pool, idx:0, results:new Array(pool.length).fill(null)};
+  showScreen('quiz');
+  renderQuestion();
+}
+
+function renderQuestion(){
+  const item=session.pool[session.idx];
+  document.getElementById('progressCount').textContent=(session.idx+1)+'/'+session.pool.length;
+  document.getElementById('progressChapter').textContent=item.chapter||'';
+  document.getElementById('progressFill').style.width=(session.idx/session.pool.length*100)+'%';
+
+  const isEssay=item.type==='essay';
+  const isChoice=item.type==='choice';
+
+  const badge=document.getElementById('qTypeBadge');
+  badge.textContent=isChoice?'多肢選択':(isEssay?'記述式':'一問一答');
+  badge.className='q-type-badge'+(isEssay?' essay':(isChoice?' choice':''));
+
+  document.getElementById('qText').innerHTML=item.q;
+
+  const essayInput=document.getElementById('essayInput');
+  if(isEssay){ essayInput.classList.remove('hidden'); essayInput.value=''; }
+  else { essayInput.classList.add('hidden'); }
+
+  const choiceList=document.getElementById('choiceList');
+  const choiceHint=document.getElementById('choiceHint');
+  if(isChoice){
+    choiceState={selected:new Set(), answered:false};
+    const multi=(item.correct||[]).length>1;
+    choiceHint.textContent=multi
+      ? '当てはまる選択肢をすべて選んで答え合わせ（複数選択可）'
+      : '選択肢を1つ選んで答え合わせ';
+    choiceHint.classList.remove('hidden');
+    choiceList.innerHTML=(item.choices||[]).map(function(c,ci){
+      return '<div class="choice-opt" data-idx="'+ci+'">'
+        +'<span class="opt-mark">'+(ci+1)+'</span>'
+        +'<span class="opt-text">'+c+'</span></div>';
+    }).join('');
+    choiceList.classList.remove('hidden');
+    Array.prototype.forEach.call(choiceList.querySelectorAll('.choice-opt'), function(el){
+      el.addEventListener('click', function(){ toggleChoice(el); });
+    });
+  } else {
+    choiceState=null;
+    choiceList.classList.add('hidden');
+    choiceList.innerHTML='';
+    choiceHint.classList.add('hidden');
+  }
+
+  document.getElementById('answerBox').classList.add('hidden');
+  document.getElementById('aText').innerHTML='';
+  document.getElementById('gradeRow').classList.toggle('hidden', isChoice);
+  document.getElementById('choiceNextBtn').classList.add('hidden');
+
+  const revealBtn=document.getElementById('revealBtn');
+  const checkBtn=document.getElementById('choiceCheckBtn');
+  if(isChoice){
+    revealBtn.classList.add('hidden');
+    checkBtn.classList.remove('hidden');
+  } else {
+    checkBtn.classList.add('hidden');
+    revealBtn.classList.remove('hidden');
+    revealBtn.textContent=isEssay?'模範解答を見る':'答えを見る';
+  }
+}
+
+function toggleChoice(el){
+  if(!choiceState || choiceState.answered) return;
+  const idx=Number(el.getAttribute('data-idx'));
+  if(choiceState.selected.has(idx)){ choiceState.selected.delete(idx); el.classList.remove('selected'); }
+  else { choiceState.selected.add(idx); el.classList.add('selected'); }
+}
+
+function checkChoice(){
+  const item=session.pool[session.idx];
+  if(!choiceState || choiceState.answered) return;
+  choiceState.answered=true;
+  const correct=new Set(item.correct||[]);
+  const sel=choiceState.selected;
+  let isCorrect=(correct.size===sel.size);
+  if(isCorrect){ correct.forEach(function(i){ if(!sel.has(i)) isCorrect=false; }); }
+
+  const list=document.getElementById('choiceList');
+  Array.prototype.forEach.call(list.querySelectorAll('.choice-opt'), function(el){
+    const idx=Number(el.getAttribute('data-idx'));
+    el.classList.remove('selected'); el.classList.add('locked');
+    if(correct.has(idx)) el.classList.add('opt-correct');
+    else if(sel.has(idx)) el.classList.add('opt-wrong');
+  });
+
+  document.getElementById('choiceCheckBtn').classList.add('hidden');
+  const verdict='<div class="verdict '+(isCorrect?'ok':'ng')+'">'+(isCorrect?'○ 正解':'× 不正解')+'</div>';
+  document.getElementById('aText').innerHTML=verdict+item.a;
+  document.getElementById('answerBox').classList.remove('hidden');
+  document.getElementById('gradeRow').classList.add('hidden');
+  document.getElementById('choiceNextBtn').classList.remove('hidden');
+  session.pendingCorrect=isCorrect;
+}
+
+function revealAnswer(){
+  const item=session.pool[session.idx];
+  document.getElementById('aText').innerHTML=item.a;
+  document.getElementById('answerBox').classList.remove('hidden');
+  document.getElementById('revealBtn').classList.add('hidden');
+}
+
+function grade(correct){
+  session.results[session.idx]=correct;
+  session.idx++;
+  if(session.idx>=session.pool.length){
+    finishSession();
+  } else {
+    renderQuestion();
+  }
+}
+
+function finishSession(){
+  document.getElementById('progressFill').style.width='100%';
+  showScreen('result');
+
+  const total=session.pool.length;
+  const correct=session.results.filter(function(r){return r===true;}).length;
+  const pct=total?Math.round(correct/total*100):0;
+
+  document.getElementById('ringPct').textContent=pct+'%';
+  document.getElementById('ringSub').textContent=correct+'/'+total+'問正解';
+
+  const circumference=2*Math.PI*52;
+  const fg=document.getElementById('ringFg');
+  fg.style.strokeDasharray=String(circumference);
+  fg.style.strokeDashoffset=String(circumference*(1-pct/100));
+  fg.style.stroke=pct>=80?'var(--correct)':(pct>=50?'var(--accent)':'var(--incorrect)');
+
+  const wrongItems=session.pool.filter(function(item,i){return session.results[i]===false;});
+  lastWrongPool=wrongItems;
+
+  const wrongListEl=document.getElementById('wrongList');
+  if(wrongItems.length===0){
+    wrongListEl.innerHTML='<p class="all-correct">全問正解でした。</p>';
+  } else {
+    wrongListEl.innerHTML='<h3>間違えた問題</h3>'+wrongItems.map(function(item){
+      return '<details class="wrong-item"><summary>'+item.q+'</summary>'
+        +'<div class="wrong-answer">'+item.a+'</div></details>';
+    }).join('');
+  }
+  document.getElementById('reviewWrongBtn2').classList.toggle('hidden', wrongItems.length===0);
+  updateSetupReviewButton();
+}
+
+function updateSetupReviewButton(){
+  const btn=document.getElementById('reviewWrongBtn');
+  if(lastWrongPool && lastWrongPool.length>0){
+    btn.classList.remove('hidden');
+    document.getElementById('wrongCount').textContent=lastWrongPool.length;
+  } else {
+    btn.classList.add('hidden');
+  }
+}
+
+function startReviewWrong(){
+  if(!lastWrongPool || lastWrongPool.length===0) return;
+  let pool=lastWrongPool.slice();
+  if(document.getElementById('randomToggle').checked) pool=shuffle(pool);
+  beginSession(pool);
+}
+
+function retrySameCondition(){
+  if(!session) return;
+  let pool=session.pool.slice();
+  if(document.getElementById('randomToggle').checked) pool=shuffle(pool);
+  beginSession(pool);
+}
+
+initSetup();
+document.getElementById('selectAllBtn').addEventListener('click', function(){
+  document.querySelectorAll('.sectionChk').forEach(function(c){c.checked=true;});
+});
+document.getElementById('selectNoneBtn').addEventListener('click', function(){
+  document.querySelectorAll('.sectionChk').forEach(function(c){c.checked=false;});
+});
+document.getElementById('startBtn').addEventListener('click', startBtnHandler);
+document.getElementById('revealBtn').addEventListener('click', revealAnswer);
+document.getElementById('choiceCheckBtn').addEventListener('click', checkChoice);
+document.getElementById('choiceNextBtn').addEventListener('click', function(){grade(session.pendingCorrect);});
+document.getElementById('gradeRightBtn').addEventListener('click', function(){grade(true);});
+document.getElementById('gradeWrongBtn').addEventListener('click', function(){grade(false);});
+document.getElementById('quitBtn').addEventListener('click', function(){showScreen('setup');});
+document.getElementById('reviewWrongBtn').addEventListener('click', startReviewWrong);
+document.getElementById('reviewWrongBtn2').addEventListener('click', startReviewWrong);
+document.getElementById('retryAllBtn').addEventListener('click', retrySameCondition);
+document.getElementById('backToSetupBtn').addEventListener('click', function(){showScreen('setup');});
+</script>
+</body>
+</html>
